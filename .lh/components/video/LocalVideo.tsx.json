@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/video/LocalVideo.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230243251,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230243251,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React, { useEffect, useRef } from \"react\";\r\n\r\ninterface LocalVideoProps {\r\n  stream: MediaStream | null;\r\n}\r\n\r\nexport default function LocalVideo({ stream }: LocalVideoProps) {\r\n  const videoRef = useRef<HTMLVideoElement>(null);\r\n\r\n  useEffect(() => {\r\n    if (videoRef.current && stream) {\r\n      videoRef.current.srcObject = stream;\r\n    }\r\n  }, [stream]);\r\n\r\n  return (\r\n    <video\r\n      ref={videoRef}\r\n      autoPlay\r\n      muted\r\n      playsInline\r\n      className=\"w-32 h-32 md:w-48 md:h-48 rounded-md object-cover absolute bottom-4 right-4 border-2 border-white\"\r\n    />\r\n  );\r\n}\r\n"
+        }
+    ]
+}

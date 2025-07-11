@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/anonymousChat/utils/iceServers.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230100420,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230100420,
+            "name": "Commit-0",
+            "content": "// features/anonymousChat/utils/iceServers.ts\r\n\r\nexport const iceServers: RTCIceServer[] = [\r\n  {\r\n    urls: \"stun:stun.l.google.com:19302\",\r\n  },\r\n  {\r\n    urls: \"stun:stun1.l.google.com:19302\",\r\n  },\r\n  {\r\n    urls: \"turn:your.turnserver.com:3478\",\r\n    username: \"yourUsername\",\r\n    credential: \"yourCredential\",\r\n  },\r\n];\r\n\r\nexport default iceServers;\r\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "server/insdex.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230377419,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230377419,
+            "name": "Commit-0",
+            "content": "import { createServer } from \"http\";\r\nimport { Server } from \"socket.io\";\r\nimport signaling from \"./signaling\";\r\n\r\nconst PORT = process.env.PORT || 3001;\r\n\r\nconst httpServer = createServer();\r\n\r\nconst io = new Server(httpServer, {\r\n  cors: {\r\n    origin: \"*\", // Replace with your frontend URL in production\r\n    methods: [\"GET\", \"POST\"],\r\n  },\r\n});\r\n\r\n// Initialize signaling handlers\r\nsignaling(io);\r\n\r\nhttpServer.listen(PORT, () => {\r\n  console.log(`Signaling server running on port ${PORT}`);\r\n});\r\n"
+        }
+    ]
+}

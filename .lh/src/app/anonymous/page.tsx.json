@@ -1,0 +1,22 @@
+{
+    "sourceFile": "src/app/anonymous/page.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752230813207,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752230994578,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n \"use client\";\r\n \r\n import React from \"react\";\r\n // Update the import path below to the correct relative path if needed\r\n-import AnonymousChatRoom from \"../features/anonymousChat/components/AnonymousChatRoom\";\r\n+import AnonymousChatRoom from \"../../../features/anonymousChat/components/AnonymousChatRoom\";\r\n \r\n export default function AnonymousPage() {\r\n   return (\r\n     <main className=\"flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-200 dark:from-neutral-900 dark:to-neutral-800 px-4\">\r\n"
+                }
+            ],
+            "date": 1752230813207,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React from \"react\";\r\n// Update the import path below to the correct relative path if needed\r\nimport AnonymousChatRoom from \"../features/anonymousChat/components/AnonymousChatRoom\";\r\n\r\nexport default function AnonymousPage() {\r\n  return (\r\n    <main className=\"flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-200 dark:from-neutral-900 dark:to-neutral-800 px-4\">\r\n      <AnonymousChatRoom />\r\n    </main>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/chat/ChatBox.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230234858,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230234858,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React, { useState, useEffect, useRef } from \"react\";\r\nimport Message from \"./Message\";\r\n\r\ninterface ChatBoxProps {\r\n  socket: any;\r\n}\r\n\r\nexport default function ChatBox({ socket }: ChatBoxProps) {\r\n  const [messages, setMessages] = useState<{ content: string; sender: string }[]>([]);\r\n  const [input, setInput] = useState(\"\");\r\n  const messagesEndRef = useRef<HTMLDivElement>(null);\r\n\r\n  useEffect(() => {\r\n    socket?.on(\"message\", (message: string) => {\r\n      setMessages((prev) => [...prev, { content: message, sender: \"partner\" }]);\r\n    });\r\n  }, [socket]);\r\n\r\n  const sendMessage = () => {\r\n    if (!input.trim()) return;\r\n    socket.emit(\"message\", input);\r\n    setMessages((prev) => [...prev, { content: input, sender: \"me\" }]);\r\n    setInput(\"\");\r\n  };\r\n\r\n  useEffect(() => {\r\n    messagesEndRef.current?.scrollIntoView({ behavior: \"smooth\" });\r\n  }, [messages]);\r\n\r\n  return (\r\n    <div className=\"flex flex-col h-full\">\r\n      <div className=\"flex-1 overflow-y-auto p-4 space-y-2\">\r\n        {messages.map((msg, i) => (\r\n          <Message key={i} content={msg.content} sender={msg.sender as \"me\" | \"partner\"} />\r\n        ))}\r\n        <div ref={messagesEndRef} />\r\n      </div>\r\n      <div className=\"p-4 border-t border-neutral-300 dark:border-neutral-700 flex\">\r\n        <input\r\n          type=\"text\"\r\n          className=\"flex-1 rounded-l-md px-3 py-2 text-sm focus:outline-none border border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800\"\r\n          value={input}\r\n          onChange={(e) => setInput(e.target.value)}\r\n          placeholder=\"Type a message...\"\r\n        />\r\n        <button\r\n          onClick={sendMessage}\r\n          className=\"bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-md text-sm transition\"\r\n        >\r\n          Send\r\n        </button>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

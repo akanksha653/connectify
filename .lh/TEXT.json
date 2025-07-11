@@ -1,0 +1,18 @@
+{
+    "sourceFile": "TEXT",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752229930316,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752229930316,
+            "name": "Commit-0",
+            "content": "✅ 🔢 Development Sequence\r\n1. Core Backend\r\npages/api/socket.ts ✅ (already shared)\r\n\r\nserver/signaling.ts\r\n\r\ndocker/coturn/Dockerfile and docker/coturn/turnserver.conf\r\n\r\n2. Features > AnonymousChat\r\nfeatures/anonymousChat/hooks/useSocket.ts\r\n\r\nfeatures/anonymousChat/hooks/useWebRTC.ts\r\n\r\nfeatures/anonymousChat/services/signalingService.ts\r\n\r\nfeatures/anonymousChat/utils/iceServers.ts\r\n\r\nfeatures/anonymousChat/components/FindingPartner.tsx\r\n\r\nfeatures/anonymousChat/components/AnonymousChatRoom.tsx\r\n\r\n3. Components\r\ncomponents/chat/Message.tsx\r\n\r\ncomponents/chat/ChatBox.tsx\r\n\r\ncomponents/video/LocalVideo.tsx\r\n\r\ncomponents/video/RemoteVideo.tsx\r\n\r\ncomponents/video/VideoPlayer.tsx\r\n\r\ncomponents/common/Button.tsx\r\n\r\ncomponents/common/Loader.tsx\r\n\r\ncomponents/common/Modal.tsx\r\n\r\n4. Store\r\nstore/chatstore.ts\r\n\r\n5. Utilities\r\nutils/constants.ts\r\n\r\nutils/helpers.ts\r\n\r\n6. Server Entry\r\nserver/index.ts\r\n\r\n"
+        }
+    ]
+}

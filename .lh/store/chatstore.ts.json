@@ -1,0 +1,18 @@
+{
+    "sourceFile": "store/chatstore.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230351442,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230351442,
+            "name": "Commit-0",
+            "content": "import { create } from \"zustand\";\r\n\r\ninterface ChatState {\r\n  messages: { content: string; sender: \"me\" | \"partner\" }[];\r\n  addMessage: (message: { content: string; sender: \"me\" | \"partner\" }) => void;\r\n  clearMessages: () => void;\r\n}\r\n\r\nexport const useChatStore = create<ChatState>((set) => ({\r\n  messages: [],\r\n  addMessage: (message) =>\r\n    set((state) => ({\r\n      messages: [...state.messages, message],\r\n    })),\r\n  clearMessages: () => set({ messages: [] }),\r\n}));\r\n"
+        }
+    ]
+}

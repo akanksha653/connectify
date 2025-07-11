@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/common/Loader.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230271545,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230271545,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React from \"react\";\r\n\r\nexport default function Loader() {\r\n  return (\r\n    <div className=\"flex justify-center items-center py-10\">\r\n      <div className=\"w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin\"></div>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

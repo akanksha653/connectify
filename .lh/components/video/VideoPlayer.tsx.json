@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/video/VideoPlayer.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230256638,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230256638,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React from \"react\";\r\n\r\ninterface VideoPlayerProps {\r\n  children: React.ReactNode;\r\n}\r\n\r\nexport default function VideoPlayer({ children }: VideoPlayerProps) {\r\n  return <div className=\"relative w-full h-full bg-black\">{children}</div>;\r\n}\r\n"
+        }
+    ]
+}

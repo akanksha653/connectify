@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/anonymousChat/hooks/useWebRTC.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230051942,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230051942,
+            "name": "Commit-0",
+            "content": "// features/anonymousChat/hooks/useWebRTC.ts\r\n\r\nimport { useEffect, useRef, useState } from \"react\";\r\nimport { io, Socket } from \"socket.io-client\";\r\n\r\nconst SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || \"http://localhost:3001\";\r\n\r\nexport default function useWebRTC(roomId: string) {\r\n  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);\r\n  const localStreamRef = useRef<MediaStream | null>(null);\r\n  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);\r\n  const socketRef = useRef<Socket | null>(null);\r\n\r\n  const iceServers = {\r\n    iceServers: [\r\n      { urls: \"stun:stun.l.google.com:19302\" },\r\n      { urls: \"stun:stun1.l.google.com:19302\" },\r\n    ],\r\n  };\r\n\r\n  useEffect(() => {\r\n    const init = async () => {\r\n      socketRef.current = io(SOCKET_URL);\r\n      localStreamRef.current = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });\r\n\r\n      socketRef.current.emit(\"join-room\", roomId);\r\n\r\n      peerConnectionRef.current = new RTCPeerConnection(iceServers);\r\n\r\n      // Add local tracks\r\n      localStreamRef.current.getTracks().forEach((track) => {\r\n        peerConnectionRef.current?.addTrack(track, localStreamRef.current as MediaStream);\r\n      });\r\n\r\n      // Handle remote stream\r\n      peerConnectionRef.current.ontrack = (event) => {\r\n        setRemoteStream(event.streams[0]);\r\n      };\r\n\r\n      // ICE candidates\r\n      peerConnectionRef.current.onicecandidate = (event) => {\r\n        if (event.candidate) {\r\n          socketRef.current?.emit(\"ice-candidate\", event.candidate, roomId);\r\n        }\r\n      };\r\n\r\n      socketRef.current.on(\"offer\", async (offer: RTCSessionDescriptionInit) => {\r\n        await peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(offer));\r\n        const answer = await peerConnectionRef.current?.createAnswer();\r\n        await peerConnectionRef.current?.setLocalDescription(answer);\r\n        socketRef.current?.emit(\"answer\", answer, roomId);\r\n      });\r\n\r\n      socketRef.current.on(\"answer\", async (answer: RTCSessionDescriptionInit) => {\r\n        await peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(answer));\r\n      });\r\n\r\n      socketRef.current.on(\"ice-candidate\", async (candidate: RTCIceCandidateInit) => {\r\n        try {\r\n          await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(candidate));\r\n        } catch (error) {\r\n          console.error(\"Error adding received ice candidate\", error);\r\n        }\r\n      });\r\n\r\n      // Create offer if second user joins\r\n      socketRef.current.on(\"user-joined\", async () => {\r\n        const offer = await peerConnectionRef.current?.createOffer();\r\n        await peerConnectionRef.current?.setLocalDescription(offer);\r\n        socketRef.current?.emit(\"offer\", offer, roomId);\r\n      });\r\n    };\r\n\r\n    init();\r\n\r\n    return () => {\r\n      peerConnectionRef.current?.close();\r\n      socketRef.current?.disconnect();\r\n    };\r\n  }, [roomId]);\r\n\r\n  return { localStream: localStreamRef.current, remoteStream };\r\n}\r\n"
+        }
+    ]
+}

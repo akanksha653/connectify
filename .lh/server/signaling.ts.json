@@ -1,0 +1,18 @@
+{
+    "sourceFile": "server/signaling.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752229948168,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752229948168,
+            "name": "Commit-0",
+            "content": "// server/signaling.ts\r\n\r\nimport { Server } from \"socket.io\";\r\n\r\nexport default function setupSignalingServer(httpServer: any) {\r\n  const io = new Server(httpServer, {\r\n    cors: {\r\n      origin: \"*\",\r\n      methods: [\"GET\", \"POST\"],\r\n    },\r\n  });\r\n\r\n  io.on(\"connection\", (socket) => {\r\n    console.log(\"A user connected:\", socket.id);\r\n\r\n    // Join anonymous room\r\n    socket.on(\"join-room\", (roomId) => {\r\n      socket.join(roomId);\r\n      socket.to(roomId).emit(\"user-joined\", socket.id);\r\n      console.log(`${socket.id} joined room ${roomId}`);\r\n    });\r\n\r\n    // Relay ICE candidates\r\n    socket.on(\"ice-candidate\", ({ candidate, to }) => {\r\n      io.to(to).emit(\"ice-candidate\", { candidate, from: socket.id });\r\n    });\r\n\r\n    // Relay offers\r\n    socket.on(\"offer\", ({ offer, to }) => {\r\n      io.to(to).emit(\"offer\", { offer, from: socket.id });\r\n    });\r\n\r\n    // Relay answers\r\n    socket.on(\"answer\", ({ answer, to }) => {\r\n      io.to(to).emit(\"answer\", { answer, from: socket.id });\r\n    });\r\n\r\n    socket.on(\"disconnect\", () => {\r\n      console.log(\"User disconnected:\", socket.id);\r\n      socket.broadcast.emit(\"user-disconnected\", socket.id);\r\n    });\r\n  });\r\n\r\n  return io;\r\n}\r\n"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "sourceFile": "features/anonymousChat/components/AnonymousChatRoom.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752230193627,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752231306073,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,17 +8,18 @@\n import ChatBox from \"../../../components/chat/ChatBox\";\r\n import FindingPartner from \"./FindingPartner\";\r\n \r\n export default function AnonymousChatRoom() {\r\n-  const { localStream, remoteStream, isConnected } = useWebRTC();\r\n-  const { socket } = useSocket();\r\n+  const roomId = \"anonymous-room\"; // You may want to generate or fetch this dynamically\r\n+  const { localStream, remoteStream } = useWebRTC(roomId);\r\n+  const socket = useSocket();\r\n   const [loading, setLoading] = useState(true);\r\n \r\n   useEffect(() => {\r\n-    if (isConnected) {\r\n+    if (remoteStream) {\r\n       setLoading(false);\r\n     }\r\n-  }, [isConnected]);\r\n+  }, [remoteStream]);\r\n \r\n   return (\r\n     <div className=\"flex flex-col md:flex-row h-screen\">\r\n       <div className=\"flex-1 bg-black flex items-center justify-center\">\r\n"
+                }
+            ],
+            "date": 1752230193627,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React, { useEffect, useState } from \"react\";\r\nimport useWebRTC from \"../hooks/useWebRTC\";\r\nimport useSocket from \"../hooks/useSocket\";\r\nimport LocalVideo from \"../../../components/video/LocalVideo\";\r\nimport RemoteVideo from \"../../../components/video/RemoteVideo\";\r\nimport ChatBox from \"../../../components/chat/ChatBox\";\r\nimport FindingPartner from \"./FindingPartner\";\r\n\r\nexport default function AnonymousChatRoom() {\r\n  const { localStream, remoteStream, isConnected } = useWebRTC();\r\n  const { socket } = useSocket();\r\n  const [loading, setLoading] = useState(true);\r\n\r\n  useEffect(() => {\r\n    if (isConnected) {\r\n      setLoading(false);\r\n    }\r\n  }, [isConnected]);\r\n\r\n  return (\r\n    <div className=\"flex flex-col md:flex-row h-screen\">\r\n      <div className=\"flex-1 bg-black flex items-center justify-center\">\r\n        {loading ? (\r\n          <FindingPartner />\r\n        ) : (\r\n          <>\r\n            <LocalVideo stream={localStream} />\r\n            <RemoteVideo stream={remoteStream} />\r\n          </>\r\n        )}\r\n      </div>\r\n      <div className=\"md:w-1/3 bg-neutral-100 dark:bg-neutral-800 border-l border-neutral-300 dark:border-neutral-700 flex flex-col\">\r\n        <ChatBox socket={socket} />\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

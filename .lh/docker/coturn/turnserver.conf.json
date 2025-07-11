@@ -1,0 +1,18 @@
+{
+    "sourceFile": "docker/coturn/turnserver.conf",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752229981827,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752229981827,
+            "name": "Commit-0",
+            "content": "# docker/coturn/turnserver.conf\r\n\r\nlistening-port=3478\r\ntls-listening-port=5349\r\n\r\n# Uncomment and set your public IP if behind NAT\r\n# external-ip=YOUR_PUBLIC_IP\r\n\r\nmin-port=49152\r\nmax-port=65535\r\n\r\nrealm=omegle-clone\r\nserver-name=MyOmegleCloneTURN\r\n\r\nfingerprint\r\nlt-cred-mech\r\n\r\nuser=username:password\r\n\r\n# Certificate setup (if using TLS)\r\n# cert=/etc/ssl/certs/your_cert.pem\r\n# pkey=/etc/ssl/private/your_key.pem\r\n\r\nno-stdout-log\r\n"
+        }
+    ]
+}

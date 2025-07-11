@@ -1,0 +1,26 @@
+{
+    "sourceFile": "types/next.d.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1752231192085,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752231518343,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,10 @@\n import { Server as HTTPServer } from \"http\";\r\n-import { Socket as IOSocket, Server as IOServer } from \"socket.io\";\r\n-import { NextApiResponse } from \"next\";\r\n+import { Server as IOServer } from \"socket.io\";\r\n \r\n-export type NextApiResponseServerIO = NextApiResponse & {\r\n-  socket: IOSocket & {\r\n+export type NextApiResponseServerIO = {\r\n+  socket: {\r\n     server: HTTPServer & {\r\n-      io: IOServer;\r\n+      io?: IOServer;\r\n     };\r\n   };\r\n };\r\n"
+                },
+                {
+                    "date": 1752231674062,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,12 @@\n-import { Server as HTTPServer } from \"http\";\r\n-import { Server as IOServer } from \"socket.io\";\r\n+import type { NextApiResponse } from \"next\";\r\n \r\n-export type NextApiResponseServerIO = {\r\n+/**\r\n+ * Extends NextApiResponse to include socket.io server instance\r\n+ */\r\n+export type NextApiResponseServerIO = NextApiResponse & {\r\n   socket: {\r\n-    server: HTTPServer & {\r\n-      io?: IOServer;\r\n+    server: {\r\n+      io?: any;\r\n     };\r\n   };\r\n };\r\n"
+                }
+            ],
+            "date": 1752231192085,
+            "name": "Commit-0",
+            "content": "import { Server as HTTPServer } from \"http\";\r\nimport { Socket as IOSocket, Server as IOServer } from \"socket.io\";\r\nimport { NextApiResponse } from \"next\";\r\n\r\nexport type NextApiResponseServerIO = NextApiResponse & {\r\n  socket: IOSocket & {\r\n    server: HTTPServer & {\r\n      io: IOServer;\r\n    };\r\n  };\r\n};\r\n"
+        }
+    ]
+}

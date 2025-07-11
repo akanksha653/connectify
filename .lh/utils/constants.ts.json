@@ -1,0 +1,18 @@
+{
+    "sourceFile": "utils/constants.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230361474,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230361474,
+            "name": "Commit-0",
+            "content": "export const APP_NAME = \"MyOmegleClone\";\r\n\r\nexport const SOCKET_URL =\r\n  process.env.NEXT_PUBLIC_SOCKET_URL || \"http://localhost:3001\";\r\n\r\nexport const ICE_SERVERS = [\r\n  {\r\n    urls: \"stun:stun.l.google.com:19302\",\r\n  },\r\n  {\r\n    urls: \"turn:your.turn.server:3478\",\r\n    username: \"username\",\r\n    credential: \"password\",\r\n  },\r\n];\r\n"
+        }
+    ]
+}

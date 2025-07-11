@@ -1,0 +1,22 @@
+"use client";
+
+import React from "react";
+
+interface MessageProps {
+  content: string;
+  sender: "me" | "partner";
+}
+
+export default function Message({ content, sender }: MessageProps) {
+  return (
+    <div
+      className={`mb-2 px-4 py-2 rounded-lg text-sm max-w-xs break-words ${
+        sender === "me"
+          ? "bg-blue-600 text-white self-end"
+          : "bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 self-start"
+      }`}
+    >
+      {content}
+    </div>
+  );
+}

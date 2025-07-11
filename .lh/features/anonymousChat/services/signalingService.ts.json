@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/anonymousChat/services/signalingService.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230077724,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230077724,
+            "name": "Commit-0",
+            "content": "// features/anonymousChat/services/signalingService.ts\r\n\r\nimport { io, Socket } from \"socket.io-client\";\r\n\r\nconst SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || \"http://localhost:3001\";\r\n\r\nlet socket: Socket | null = null;\r\n\r\nexport const connectSocket = () => {\r\n  if (!socket) {\r\n    socket = io(SOCKET_URL);\r\n  }\r\n};\r\n\r\nexport const disconnectSocket = () => {\r\n  if (socket) {\r\n    socket.disconnect();\r\n    socket = null;\r\n  }\r\n};\r\n\r\nexport const joinRoom = (roomId: string) => {\r\n  socket?.emit(\"join-room\", roomId);\r\n};\r\n\r\nexport const onUserJoined = (callback: () => void) => {\r\n  socket?.on(\"user-joined\", callback);\r\n};\r\n\r\nexport const sendOffer = (offer: RTCSessionDescriptionInit, roomId: string) => {\r\n  socket?.emit(\"offer\", offer, roomId);\r\n};\r\n\r\nexport const onOffer = (callback: (offer: RTCSessionDescriptionInit) => void) => {\r\n  socket?.on(\"offer\", callback);\r\n};\r\n\r\nexport const sendAnswer = (answer: RTCSessionDescriptionInit, roomId: string) => {\r\n  socket?.emit(\"answer\", answer, roomId);\r\n};\r\n\r\nexport const onAnswer = (callback: (answer: RTCSessionDescriptionInit) => void) => {\r\n  socket?.on(\"answer\", callback);\r\n};\r\n\r\nexport const sendIceCandidate = (candidate: RTCIceCandidateInit, roomId: string) => {\r\n  socket?.emit(\"ice-candidate\", candidate, roomId);\r\n};\r\n\r\nexport const onIceCandidate = (callback: (candidate: RTCIceCandidateInit) => void) => {\r\n  socket?.on(\"ice-candidate\", callback);\r\n};\r\n\r\nexport default {\r\n  connectSocket,\r\n  disconnectSocket,\r\n  joinRoom,\r\n  onUserJoined,\r\n  sendOffer,\r\n  onOffer,\r\n  sendAnswer,\r\n  onAnswer,\r\n  sendIceCandidate,\r\n  onIceCandidate,\r\n};\r\n"
+        }
+    ]
+}

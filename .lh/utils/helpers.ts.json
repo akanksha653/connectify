@@ -1,0 +1,18 @@
+{
+    "sourceFile": "utils/helpers.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230367597,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230367597,
+            "name": "Commit-0",
+            "content": "export function formatDate(date: Date) {\r\n  return date.toLocaleDateString(\"en-US\", {\r\n    year: \"numeric\",\r\n    month: \"short\",\r\n    day: \"numeric\",\r\n  });\r\n}\r\n\r\nexport function formatTime(date: Date) {\r\n  return date.toLocaleTimeString(\"en-US\", {\r\n    hour: \"2-digit\",\r\n    minute: \"2-digit\",\r\n  });\r\n}\r\n"
+        }
+    ]
+}

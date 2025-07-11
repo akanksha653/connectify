@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/common/Modal.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230278444,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230278444,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React from \"react\";\r\n\r\ninterface ModalProps {\r\n  isOpen: boolean;\r\n  onClose: () => void;\r\n  children: React.ReactNode;\r\n}\r\n\r\nexport default function Modal({ isOpen, onClose, children }: ModalProps) {\r\n  if (!isOpen) return null;\r\n\r\n  return (\r\n    <div className=\"fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50\">\r\n      <div className=\"bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 max-w-md w-full relative\">\r\n        <button\r\n          onClick={onClose}\r\n          className=\"absolute top-2 right-2 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200\"\r\n        >\r\n          ✕\r\n        </button>\r\n        {children}\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

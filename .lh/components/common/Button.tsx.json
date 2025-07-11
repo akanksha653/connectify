@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/common/Button.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752230264857,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752230264857,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React from \"react\";\r\n\r\ninterface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {\r\n  label: string;\r\n}\r\n\r\nexport default function Button({ label, ...props }: ButtonProps) {\r\n  return (\r\n    <button\r\n      {...props}\r\n      className=\"bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed\"\r\n    >\r\n      {label}\r\n    </button>\r\n  );\r\n}\r\n"
+        }
+    ]
+}
