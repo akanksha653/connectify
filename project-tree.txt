@@ -1,4 +1,5 @@
 📁 Project File Tree:
+├── .env.production
 ├── .gitignore
 ├── components
 │   ├── chat
@@ -36,6 +37,7 @@
 │   └── api
 │       └── socket.ts
 ├── postcss.config.mjs
+├── project-tree.txt
 ├── public
 │   ├── file.svg
 │   ├── globe.svg
@@ -44,17 +46,27 @@
 │   └── window.svg
 ├── README.md
 ├── server
-│   ├── insdex.ts
-│   └── signaling.ts
+│   ├── .gitignore
+│   ├── insdex.js
+│   ├── package.json
+│   └── signaling.js
 ├── src
-│   └── app
-│       ├── favicon.ico
-│       ├── globals.css
-│       ├── layout.tsx
-│       └── page.tsx
+│   ├── app
+│   │   ├── anonymous
+│   │   │   └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   └── utils
+│       └── cn.ts
 ├── store
 │   └── chatstore.ts
+├── tailwind.config.ts
+├── TEXT
 ├── tsconfig.json
+├── types
+│   └── next.d.ts
 └── utils
     ├── constants.ts
     └── helpers.ts

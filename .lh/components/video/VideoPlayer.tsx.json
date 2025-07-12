@@ -3,11 +3,19 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1752230256638,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752255165617,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,14 @@\n import React from \"react\";\r\n \r\n interface VideoPlayerProps {\r\n   children: React.ReactNode;\r\n+  className?: string; // allows passing extra classes if needed\r\n }\r\n \r\n-export default function VideoPlayer({ children }: VideoPlayerProps) {\r\n-  return <div className=\"relative w-full h-full bg-black\">{children}</div>;\r\n+export default function VideoPlayer({ children, className = \"\" }: VideoPlayerProps) {\r\n+  return (\r\n+    <div className={`relative w-full h-full bg-black overflow-hidden ${className}`}>\r\n+      {children}\r\n+    </div>\r\n+  );\r\n }\r\n"
+                },
+                {
+                    "date": 1752335999207,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,27 @@\n \"use client\";\r\n \r\n import React from \"react\";\r\n+import clsx from \"clsx\";\r\n \r\n-interface VideoPlayerProps {\r\n+interface VideoPlayerProps extends React.HTMLAttributes<HTMLDivElement> {\r\n   children: React.ReactNode;\r\n-  className?: string; // allows passing extra classes if needed\r\n+  className?: string;\r\n+  \"aria-label\"?: string;\r\n }\r\n \r\n-export default function VideoPlayer({ children, className = \"\" }: VideoPlayerProps) {\r\n+export default function VideoPlayer({\r\n+  children,\r\n+  className,\r\n+  \"aria-label\": ariaLabel = \"Video player container\",\r\n+  ...rest\r\n+}: VideoPlayerProps) {\r\n   return (\r\n-    <div className={`relative w-full h-full bg-black overflow-hidden ${className}`}>\r\n+    <div\r\n+      className={clsx(\"relative w-full h-full bg-black overflow-hidden\", className)}\r\n+      aria-label={ariaLabel}\r\n+      {...rest}\r\n+    >\r\n       {children}\r\n     </div>\r\n   );\r\n }\r\n"
                 }
             ],
             "date": 1752230256638,

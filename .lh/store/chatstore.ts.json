@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1752230351442,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752255577151,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,28 @@\n import { create } from \"zustand\";\r\n \r\n+type Sender = \"me\" | \"partner\";\r\n+\r\n+interface Message {\r\n+  content: string;\r\n+  sender: Sender;\r\n+}\r\n+\r\n interface ChatState {\r\n-  messages: { content: string; sender: \"me\" | \"partner\" }[];\r\n-  addMessage: (message: { content: string; sender: \"me\" | \"partner\" }) => void;\r\n+  messages: Message[];\r\n+  addMessage: (message: Message) => void;\r\n   clearMessages: () => void;\r\n+  replaceMessages: (messages: Message[]) => void; // optional utility\r\n }\r\n \r\n export const useChatStore = create<ChatState>((set) => ({\r\n   messages: [],\r\n+\r\n   addMessage: (message) =>\r\n     set((state) => ({\r\n       messages: [...state.messages, message],\r\n     })),\r\n+\r\n   clearMessages: () => set({ messages: [] }),\r\n+\r\n+  replaceMessages: (messages) => set({ messages }),\r\n }));\r\n"
                 }
             ],
             "date": 1752230351442,

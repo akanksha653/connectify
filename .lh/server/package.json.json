@@ -1,0 +1,18 @@
+{
+    "sourceFile": "server/package.json",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752234450374,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752234450374,
+            "name": "Commit-0",
+            "content": "{\n  \"name\": \"server\",\n  \"version\": \"1.0.0\",\n  \"main\": \"insdex.js\",\n  \"scripts\": {\n    \"start\": \"node signaling.js\",\n    \"test\": \"echo \\\"Error: no test specified\\\" && exit 1\"\n    \n  },\n  \"keywords\": [],\n  \"author\": \"\",\n  \"license\": \"ISC\",\n  \"description\": \"\",\n  \"dependencies\": {\n    \"socket.io\": \"^4.8.1\"\n  }\n}\n"
+        }
+    ]
+}

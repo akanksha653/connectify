@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/chat/TypingIndicator.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752320051905,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752320051905,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React from \"react\";\r\n\r\nexport default function TypingIndicator() {\r\n  return (\r\n    <div className=\"flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 px-2\">\r\n      <span>Stranger is typing</span>\r\n      <div className=\"flex space-x-1\">\r\n        <span className=\"w-2 h-2 bg-current rounded-full animate-bounce\" />\r\n        <span className=\"w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:0.2s]\" />\r\n        <span className=\"w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:0.4s]\" />\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

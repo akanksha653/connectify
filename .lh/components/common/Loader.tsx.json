@@ -3,11 +3,19 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1752230271545,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752254964830,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,22 @@\n \"use client\";\r\n \r\n import React from \"react\";\r\n \r\n-export default function Loader() {\r\n+interface LoaderProps {\r\n+  size?: number; // Size in pixels\r\n+  color?: string; // Tailwind color class e.g. \"blue-600\"\r\n+}\r\n+\r\n+export default function Loader({ size = 40, color = \"blue-600\" }: LoaderProps) {\r\n+  const spinnerSize = `${size}px`;\r\n+\r\n   return (\r\n-    <div className=\"flex justify-center items-center py-10\">\r\n-      <div className=\"w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin\"></div>\r\n+    <div className=\"flex justify-center items-center py-10\" role=\"status\" aria-label=\"Loading\">\r\n+      <div\r\n+        className={`border-4 border-${color} border-t-transparent rounded-full animate-spin`}\r\n+        style={{ width: spinnerSize, height: spinnerSize }}\r\n+      ></div>\r\n+      <span className=\"sr-only\">Loading...</span>\r\n     </div>\r\n   );\r\n }\r\n"
+                },
+                {
+                    "date": 1752339934709,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,22 +1,29 @@\n \"use client\";\r\n \r\n-import React from \"react\";\r\n+import React, { useEffect, useRef } from \"react\";\r\n \r\n-interface LoaderProps {\r\n-  size?: number; // Size in pixels\r\n-  color?: string; // Tailwind color class e.g. \"blue-600\"\r\n+interface LocalVideoProps {\r\n+  stream: MediaStream | null;\r\n }\r\n \r\n-export default function Loader({ size = 40, color = \"blue-600\" }: LoaderProps) {\r\n-  const spinnerSize = `${size}px`;\r\n+export default function LocalVideo({ stream }: LocalVideoProps) {\r\n+  const videoRef = useRef<HTMLVideoElement>(null);\r\n \r\n+  useEffect(() => {\r\n+    if (videoRef.current && stream) {\r\n+      videoRef.current.srcObject = stream;\r\n+    }\r\n+  }, [stream]);\r\n+\r\n   return (\r\n-    <div className=\"flex justify-center items-center py-10\" role=\"status\" aria-label=\"Loading\">\r\n-      <div\r\n-        className={`border-4 border-${color} border-t-transparent rounded-full animate-spin`}\r\n-        style={{ width: spinnerSize, height: spinnerSize }}\r\n-      ></div>\r\n-      <span className=\"sr-only\">Loading...</span>\r\n+    <div className=\"fixed top-5 right-5 w-[28rem] h-[18rem] z-50\">\r\n+      <video\r\n+        ref={videoRef}\r\n+        autoPlay\r\n+        muted\r\n+        playsInline\r\n+        className=\"w-full h-full object-cover rounded-lg border-2 border-white shadow-lg\"\r\n+      />\r\n     </div>\r\n   );\r\n }\r\n"
                 }
             ],
             "date": 1752230271545,

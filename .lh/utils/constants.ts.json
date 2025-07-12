@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1752230361474,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752255614665,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n export const APP_NAME = \"MyOmegleClone\";\r\n \r\n export const SOCKET_URL =\r\n-  process.env.NEXT_PUBLIC_SOCKET_URL || \"http://localhost:3001\";\r\n+  process.env.NEXT_PUBLIC_SOCKET_URL;\r\n \r\n export const ICE_SERVERS = [\r\n   {\r\n     urls: \"stun:stun.l.google.com:19302\",\r\n"
                 }
             ],
             "date": 1752230361474,

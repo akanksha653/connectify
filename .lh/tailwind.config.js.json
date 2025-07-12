@@ -1,0 +1,34 @@
+{
+    "sourceFile": "tailwind.config.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1752315659381,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752316878299,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,11 +3,12 @@\n   content: [\r\n     \"./pages/**/*.{js,ts,jsx,tsx}\",\r\n     \"./components/**/*.{js,ts,jsx,tsx}\",\r\n     \"./app/**/*.{js,ts,jsx,tsx}\",\r\n-    \"./src/**/*.{js,ts,jsx,tsx}\", // if using src structure\r\n+    \"./src/**/*.{js,ts,jsx,tsx}\", // include if using src folder structure\r\n   ],\r\n   theme: {\r\n     extend: {},\r\n   },\r\n   plugins: [],\r\n+  darkMode: \"class\", // optional: for dark mode toggle\r\n };\r\n"
+                },
+                {
+                    "date": 1752317166459,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,12 +3,12 @@\n   content: [\r\n     \"./pages/**/*.{js,ts,jsx,tsx}\",\r\n     \"./components/**/*.{js,ts,jsx,tsx}\",\r\n     \"./app/**/*.{js,ts,jsx,tsx}\",\r\n-    \"./src/**/*.{js,ts,jsx,tsx}\", // include if using src folder structure\r\n+    \"./src/**/*.{js,ts,jsx,tsx}\",\r\n   ],\r\n   theme: {\r\n     extend: {},\r\n   },\r\n   plugins: [],\r\n-  darkMode: \"class\", // optional: for dark mode toggle\r\n+  darkMode: \"class\", // enable class-based dark mode toggle\r\n };\r\n"
+                },
+                {
+                    "date": 1752318083988,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,6 +9,6 @@\n   theme: {\r\n     extend: {},\r\n   },\r\n   plugins: [],\r\n-  darkMode: \"class\", // enable class-based dark mode toggle\r\n+  darkMode: \"class\",\r\n };\r\n"
+                },
+                {
+                    "date": 1752318149965,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,14 +0,0 @@\n-/** @type {import('tailwindcss').Config} */\r\n-module.exports = {\r\n-  content: [\r\n-    \"./pages/**/*.{js,ts,jsx,tsx}\",\r\n-    \"./components/**/*.{js,ts,jsx,tsx}\",\r\n-    \"./app/**/*.{js,ts,jsx,tsx}\",\r\n-    \"./src/**/*.{js,ts,jsx,tsx}\",\r\n-  ],\r\n-  theme: {\r\n-    extend: {},\r\n-  },\r\n-  plugins: [],\r\n-  darkMode: \"class\",\r\n-};\r\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1752315659381,
+            "name": "Commit-0",
+            "content": "/** @type {import('tailwindcss').Config} */\r\nmodule.exports = {\r\n  content: [\r\n    \"./pages/**/*.{js,ts,jsx,tsx}\",\r\n    \"./components/**/*.{js,ts,jsx,tsx}\",\r\n    \"./app/**/*.{js,ts,jsx,tsx}\",\r\n    \"./src/**/*.{js,ts,jsx,tsx}\", // if using src structure\r\n  ],\r\n  theme: {\r\n    extend: {},\r\n  },\r\n  plugins: [],\r\n};\r\n"
+        }
+    ]
+}

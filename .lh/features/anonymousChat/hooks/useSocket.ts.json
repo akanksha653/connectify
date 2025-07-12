@@ -3,11 +3,23 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1752230016907,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752240997860,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,9 +2,9 @@\n \r\n import { useEffect, useRef } from \"react\";\r\n import { io, Socket } from \"socket.io-client\";\r\n \r\n-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || \"http://localhost:3001\";\r\n+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;\r\n \r\n export default function useSocket(): Socket | null {\r\n   const socketRef = useRef<Socket | null>(null);\r\n \r\n"
+                },
+                {
+                    "date": 1752241390863,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,34 +1,39 @@\n // features/anonymousChat/hooks/useSocket.ts\r\n \r\n-import { useEffect, useRef } from \"react\";\r\n+import { useEffect, useRef, useState } from \"react\";\r\n import { io, Socket } from \"socket.io-client\";\r\n \r\n const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;\r\n \r\n export default function useSocket(): Socket | null {\r\n-  const socketRef = useRef<Socket | null>(null);\r\n+  const [socket, setSocket] = useState<Socket | null>(null);\r\n \r\n   useEffect(() => {\r\n-    const socket = io(SOCKET_URL, {\r\n+    if (!SOCKET_URL) {\r\n+      console.error(\"❌ NEXT_PUBLIC_SOCKET_URL is not defined\");\r\n+      return;\r\n+    }\r\n+\r\n+    const newSocket = io(SOCKET_URL, {\r\n       transports: [\"websocket\"],\r\n       reconnectionAttempts: 3,\r\n       reconnectionDelay: 1000,\r\n     });\r\n \r\n-    socketRef.current = socket;\r\n+    setSocket(newSocket);\r\n \r\n-    socket.on(\"connect\", () => {\r\n-      console.log(\"✅ Connected to socket server:\", socket.id);\r\n+    newSocket.on(\"connect\", () => {\r\n+      console.log(\"✅ Connected to socket server:\", newSocket.id);\r\n     });\r\n \r\n-    socket.on(\"disconnect\", () => {\r\n+    newSocket.on(\"disconnect\", () => {\r\n       console.log(\"❌ Disconnected from socket server\");\r\n     });\r\n \r\n     return () => {\r\n-      socket.disconnect();\r\n+      newSocket.disconnect();\r\n     };\r\n   }, []);\r\n \r\n-  return socketRef.current;\r\n+  return socket;\r\n }\r\n"
+                },
+                {
+                    "date": 1752259038255,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n // features/anonymousChat/hooks/useSocket.ts\r\n \r\n-import { useEffect, useRef, useState } from \"react\";\r\n+import { useEffect, useState } from \"react\";\r\n import { io, Socket } from \"socket.io-client\";\r\n \r\n const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;\r\n \r\n@@ -17,20 +17,25 @@\n     const newSocket = io(SOCKET_URL, {\r\n       transports: [\"websocket\"],\r\n       reconnectionAttempts: 3,\r\n       reconnectionDelay: 1000,\r\n+      forceNew: true, // ✅ ensures fresh connection per hook usage\r\n     });\r\n \r\n-    setSocket(newSocket);\r\n-\r\n     newSocket.on(\"connect\", () => {\r\n       console.log(\"✅ Connected to socket server:\", newSocket.id);\r\n     });\r\n \r\n     newSocket.on(\"disconnect\", () => {\r\n       console.log(\"❌ Disconnected from socket server\");\r\n     });\r\n \r\n+    newSocket.on(\"connect_error\", (err) => {\r\n+      console.error(\"⚠️ Socket connection error:\", err.message);\r\n+    });\r\n+\r\n+    setSocket(newSocket);\r\n+\r\n     return () => {\r\n       newSocket.disconnect();\r\n     };\r\n   }, []);\r\n"
                 }
             ],
             "date": 1752230016907,

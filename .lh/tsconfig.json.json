@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 12,
             "patches": [
                 {
                     "date": 1752231069830,
@@ -12,6 +12,50 @@
                 {
                     "date": 1752231710082,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,8 +12,9 @@\n     \"resolveJsonModule\": true,\n     \"isolatedModules\": true,\n     \"jsx\": \"preserve\",\n     \"incremental\": true,\n+    \"forceConsistentCasingInFileNames\": true,\n     \"plugins\": [\n       {\n         \"name\": \"next\"\n       }\n"
+                },
+                {
+                    "date": 1752233115555,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,7 +22,7 @@\n     \"paths\": {\n       \"@/*\": [\"./*\"]\n     }\n   },\n-  \"include\": [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\"],\n+  \"include\": [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\", \"server/signaling.js\"],\n   \"exclude\": [\"node_modules\"]\n }\n"
+                },
+                {
+                    "date": 1752233163358,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,7 +22,7 @@\n     \"paths\": {\n       \"@/*\": [\"./*\"]\n     }\n   },\n-  \"include\": [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\", \"server/signaling.js\"],\n+  \"include\": [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\", \"server/signaling.js\", \"server/insdex.js\"],\n   \"exclude\": [\"node_modules\"]\n }\n"
+                },
+                {
+                    "date": 1752254348351,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -20,8 +20,10 @@\n       }\n     ],\n     \"paths\": {\n       \"@/*\": [\"./*\"]\n+      \"@/utils/*\": [\"utils/*\"]\n+      \"@/components/*\": [\"components/*\"]\n     }\n   },\n   \"include\": [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\", \"server/signaling.js\", \"server/insdex.js\"],\n   \"exclude\": [\"node_modules\"]\n"
+                },
+                {
+                    "date": 1752254457217,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,12 +19,19 @@\n         \"name\": \"next\"\n       }\n     ],\n     \"paths\": {\n-      \"@/*\": [\"./*\"]\n-      \"@/utils/*\": [\"utils/*\"]\n+      \"@/*\": [\"./*\"],\n+      \"@/utils/*\": [\"utils/*\"],\n       \"@/components/*\": [\"components/*\"]\n     }\n   },\n-  \"include\": [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\", \"server/signaling.js\", \"server/insdex.js\"],\n+  \"include\": [\n+    \"next-env.d.ts\",\n+    \"**/*.ts\",\n+    \"**/*.tsx\",\n+    \".next/types/**/*.ts\",\n+    \"server/signaling.js\",\n+    \"server/insdex.js\"\n+  ],\n   \"exclude\": [\"node_modules\"]\n }\n"
+                },
+                {
+                    "date": 1752254509626,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,8 +13,9 @@\n     \"isolatedModules\": true,\n     \"jsx\": \"preserve\",\n     \"incremental\": true,\n     \"forceConsistentCasingInFileNames\": true,\n+    \"baseUrl\": \".\",\n     \"plugins\": [\n       {\n         \"name\": \"next\"\n       }\n"
+                },
+                {
+                    "date": 1752254925575,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -21,10 +21,10 @@\n       }\n     ],\n     \"paths\": {\n       \"@/*\": [\"./*\"],\n-      \"@/utils/*\": [\"utils/*\"],\n-      \"@/components/*\": [\"components/*\"]\n+      \"@/utils/*\": [\"src/utils/*\"],\n+      \"@/components/*\": [\"src/components/*\"]\n     }\n   },\n   \"include\": [\n     \"next-env.d.ts\",\n"
+                },
+                {
+                    "date": 1752324547995,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,9 +5,11 @@\n     \"allowJs\": true,\n     \"skipLibCheck\": true,\n     \"strict\": true,\n     \"noEmit\": true,\n+    \"moduleResolution\": \"node\",\n     \"esModuleInterop\": true,\n+    \"allowSyntheticDefaultImports\": true\n     \"module\": \"esnext\",\n     \"moduleResolution\": \"bundler\",\n     \"resolveJsonModule\": true,\n     \"isolatedModules\": true,\n"
+                },
+                {
+                    "date": 1752324564042,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,11 +5,9 @@\n     \"allowJs\": true,\n     \"skipLibCheck\": true,\n     \"strict\": true,\n     \"noEmit\": true,\n-    \"moduleResolution\": \"node\",\n     \"esModuleInterop\": true,\n-    \"allowSyntheticDefaultImports\": true\n     \"module\": \"esnext\",\n     \"moduleResolution\": \"bundler\",\n     \"resolveJsonModule\": true,\n     \"isolatedModules\": true,\n"
+                },
+                {
+                    "date": 1752324609653,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,9 @@\n     \"strict\": true,\n     \"noEmit\": true,\n     \"esModuleInterop\": true,\n     \"module\": \"esnext\",\n-    \"moduleResolution\": \"bundler\",\n+    \"moduleResolution\": \"node\",\n     \"resolveJsonModule\": true,\n     \"isolatedModules\": true,\n     \"jsx\": \"preserve\",\n     \"incremental\": true,\n"
+                },
+                {
+                    "date": 1752324650394,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,9 @@\n     \"strict\": true,\n     \"noEmit\": true,\n     \"esModuleInterop\": true,\n     \"module\": \"esnext\",\n-    \"moduleResolution\": \"node\",\n+    \"moduleResolution\": \"node16\",\n     \"resolveJsonModule\": true,\n     \"isolatedModules\": true,\n     \"jsx\": \"preserve\",\n     \"incremental\": true,\n"
+                },
+                {
+                    "date": 1752324949257,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,9 @@\n     \"strict\": true,\n     \"noEmit\": true,\n     \"esModuleInterop\": true,\n     \"module\": \"esnext\",\n-    \"moduleResolution\": \"node16\",\n+    \"moduleResolution\": \"bundler\",\n     \"resolveJsonModule\": true,\n     \"isolatedModules\": true,\n     \"jsx\": \"preserve\",\n     \"incremental\": true,\n"
                 }
             ],
             "date": 1752231069830,
