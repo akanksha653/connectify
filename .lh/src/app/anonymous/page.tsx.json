@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1752230813207,
@@ -12,6 +12,10 @@
                 {
                     "date": 1752230994578,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n \"use client\";\r\n \r\n import React from \"react\";\r\n // Update the import path below to the correct relative path if needed\r\n-import AnonymousChatRoom from \"../features/anonymousChat/components/AnonymousChatRoom\";\r\n+import AnonymousChatRoom from \"../../../features/anonymousChat/components/AnonymousChatRoom\";\r\n \r\n export default function AnonymousPage() {\r\n   return (\r\n     <main className=\"flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-200 dark:from-neutral-900 dark:to-neutral-800 px-4\">\r\n"
+                },
+                {
+                    "date": 1752419007826,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,13 +1,14 @@\n \"use client\";\r\n \r\n import React from \"react\";\r\n-// Update the import path below to the correct relative path if needed\r\n import AnonymousChatRoom from \"../../../features/anonymousChat/components/AnonymousChatRoom\";\r\n \r\n export default function AnonymousPage() {\r\n   return (\r\n-    <main className=\"flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-200 dark:from-neutral-900 dark:to-neutral-800 px-4\">\r\n-      <AnonymousChatRoom />\r\n+    <main className=\"min-h-screen w-full bg-gradient-to-br from-neutral-50 to-neutral-200 dark:from-neutral-900 dark:to-neutral-800\">\r\n+      <div className=\"max-w-screen-2xl mx-auto h-full\">\r\n+        <AnonymousChatRoom />\r\n+      </div>\r\n     </main>\r\n   );\r\n }\r\n"
                 }
             ],
             "date": 1752230813207,

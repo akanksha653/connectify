@@ -14,7 +14,6 @@ export default function AnonymousChatRoom() {
   const [isOfferer, setIsOfferer] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
-  const [lastAction, setLastAction] = useState<"skipped" | null>(null); // 🔧 Track skip
 
   const socket = useSocket();
   const { localStream, remoteStream } = useWebRTC(roomId, isOfferer, sessionStarted);
@@ -25,7 +24,6 @@ export default function AnonymousChatRoom() {
       setRoomId(roomId);
       setIsOfferer(isOfferer);
       setLoading(false);
-      setLastAction(null); // reset skip message
     },
     []
   );
@@ -93,7 +91,6 @@ export default function AnonymousChatRoom() {
   const handleSkip = () => {
     handleStop();
     handleStart();
-    setLastAction("skipped");
     console.log("⏭️ Skipped to new partner");
   };
 
@@ -134,9 +131,9 @@ export default function AnonymousChatRoom() {
   };
 
   return (
-    <div className="grid md:grid-cols-3 h-screen overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+    <div className="flex flex-col md:grid md:grid-cols-3 h-screen bg-neutral-100 dark:bg-neutral-900">
       {/* Video Section */}
-      <div className="md:col-span-2 relative flex items-center justify-center bg-black p-2 md:p-4 overflow-hidden">
+      <div className="md:col-span-2 relative flex items-center justify-center bg-black p-2 md:p-4">
         {!sessionStarted ? (
           <div className="text-white text-xl font-semibold text-center px-4">
             Click Start to begin searching
@@ -162,10 +159,6 @@ export default function AnonymousChatRoom() {
         <div className="flex-grow overflow-y-auto bg-white dark:bg-neutral-900">
           {roomId ? (
             <ChatBox socket={socket} roomId={roomId} />
-          ) : lastAction === "skipped" ? (
-            <div className="flex items-center justify-center h-full text-neutral-500 dark:text-neutral-400 text-sm px-4 text-center">
-              You skipped the chat. Click Start for a new partner...
-            </div>
           ) : (
             <div className="flex items-center justify-center h-full text-neutral-400 text-sm px-4 text-center">
               You’ll be able to chat once you’re matched.

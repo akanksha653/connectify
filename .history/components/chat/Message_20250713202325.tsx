@@ -15,7 +15,7 @@ interface MessageProps {
   onReact?: (reaction: string) => void;
 }
 
-const topEmojis = ["😂", "❤️", "🔥", "👍", "😍", "😭"];
+const topEmojis = ["😂", "❤️", "🔥", "👍", "😍", "😭"]; // only top 6
 
 export default function Message({
   sender,
@@ -53,7 +53,7 @@ export default function Message({
           <img
             src={content}
             alt="Image"
-            className="rounded-xl max-w-xs mt-2 border border-gray-300 dark:border-gray-600"
+            className="rounded max-w-xs mt-2 object-cover border border-gray-300 dark:border-gray-600"
           />
         );
       case "audio":
@@ -63,7 +63,7 @@ export default function Message({
           <video
             controls
             src={content}
-            className="mt-2 w-full rounded-lg max-h-64"
+            className="mt-2 w-full rounded max-h-64 object-cover"
           />
         );
       default:
@@ -72,7 +72,7 @@ export default function Message({
   };
 
   return (
-    <div className="w-full px-4 py-3 flex">
+    <div className="w-full px-3 py-2 flex">
       <div
         className={`flex flex-col gap-1 ${
           isSender ? "items-end ml-auto" : "items-start mr-auto"
@@ -85,24 +85,23 @@ export default function Message({
 
         {/* Message bubble */}
         <div
-          className={`relative group px-4 py-2 rounded-2xl text-sm shadow-sm transition-all max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent ${
+          className={`relative group px-4 py-2 rounded-lg text-sm shadow-md transition-all ${
             isSender
-              ? "bg-blue-600 text-white rounded-br-md"
-              : "bg-neutral-100 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-bl-md"
+              ? "bg-blue-600 text-white rounded-br-none"
+              : "bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-bl-none"
           }`}
         >
           {isEditing ? (
             <div className="flex flex-col gap-1">
               <input
                 type="text"
-                className="text-black px-3 py-2 rounded-md text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="text-black px-2 py-1 rounded text-sm border border-gray-300 focus:outline-none focus:ring focus:ring-blue-500"
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
                 autoFocus
                 placeholder="Edit your message"
-                title="Edit message"
               />
-              <div className="flex justify-end gap-3 mt-2 text-xs">
+              <div className="flex gap-2 justify-end text-xs mt-1">
                 <button
                   onClick={handleEditSubmit}
                   className="text-green-600 hover:underline"
@@ -126,7 +125,7 @@ export default function Message({
 
               {/* Reactions */}
               {Object.values(reactions).length > 0 && (
-                <div className="mt-2 flex gap-1 text-xl flex-wrap">
+                <div className="mt-2 flex gap-1 text-lg flex-wrap">
                   {Object.values(reactions).map((emoji, idx) => (
                     <span key={idx}>{emoji}</span>
                   ))}
@@ -135,11 +134,11 @@ export default function Message({
             </>
           )}
 
-          {/* Hover Buttons */}
+          {/* Action buttons (on hover) */}
           {!isEditing && (
             <div
               className={`absolute top-1 ${
-                isSender ? "right-2 text-white" : "left-2 text-black dark:text-white"
+                isSender ? "right-1 text-white" : "left-1 text-black dark:text-white"
               } hidden group-hover:flex gap-1 text-sm z-10`}
             >
               {isSender && onEdit && (
@@ -163,10 +162,10 @@ export default function Message({
             </div>
           )}
 
-          {/* Emoji Reaction Picker */}
+          {/* Emoji Picker */}
           {showReactions && (
             <div
-              className={`absolute top-full mt-2 z-50 bg-white dark:bg-neutral-800 p-2 border border-neutral-300 dark:border-neutral-700 rounded-lg shadow-lg flex flex-wrap gap-2 ${
+              className={`absolute top-full mt-2 z-50 bg-white dark:bg-neutral-800 p-2 border rounded shadow flex flex-wrap gap-2 ${
                 isSender ? "right-0" : "left-0"
               }`}
             >
@@ -177,7 +176,7 @@ export default function Message({
                     onReact?.(emoji);
                     setShowReactions(false);
                   }}
-                  className="text-xl hover:scale-125 transition-transform duration-150"
+                  className="text-xl hover:scale-110 transition-transform"
                 >
                   {emoji}
                 </button>

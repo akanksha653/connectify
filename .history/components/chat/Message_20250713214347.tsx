@@ -85,7 +85,7 @@ export default function Message({
 
         {/* Message bubble */}
         <div
-          className={`relative group px-4 py-2 rounded-2xl text-sm shadow-sm transition-all max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent ${
+          className={`relative group px-4 py-2 rounded-2xl text-sm shadow-sm transition-all ${
             isSender
               ? "bg-blue-600 text-white rounded-br-md"
               : "bg-neutral-100 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-bl-md"

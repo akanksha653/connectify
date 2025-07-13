@@ -128,7 +128,7 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
   return (
     <div className="flex flex-col h-full bg-white dark:bg-neutral-900 border rounded-lg overflow-hidden shadow-lg relative">
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-700">
+      <div className="flex-1 overflow-y-scroll px-4 py-3 space-y-3 scrollbar scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-700">
         {messages.map((msg) => (
           <Message
             key={msg.id}
@@ -163,7 +163,7 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
 
       {/* Emoji Picker */}
       {showEmojiPicker && (
-        <div className="absolute bottom-20 left-4 z-50 bg-white dark:bg-neutral-800 border rounded-md shadow-lg p-3 w-64 max-h-64 overflow-y-auto grid grid-cols-5 gap-2 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700">
+        <div className="absolute bottom-20 left-4 z-50 bg-white dark:bg-neutral-800 border rounded-md shadow-lg p-3 w-64 max-h-64 overflow-y-auto grid grid-cols-5 gap-2 scrollbar scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700">
           {topEmojis.map((emoji) => (
             <button
               key={emoji}
@@ -179,7 +179,6 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
 
       {/* Input Controls */}
       <div className="w-full border-t dark:border-neutral-700 px-4 py-3 flex items-center gap-3 bg-white dark:bg-neutral-900">
-        {/* Emoji Toggle */}
         <button
           onClick={() => setShowEmojiPicker((prev) => !prev)}
           className="text-2xl hover:scale-110 transition-transform"
@@ -188,7 +187,6 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
           😊
         </button>
 
-        {/* Text Input */}
         <input
           type="text"
           placeholder="Type a message..."
@@ -201,7 +199,6 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
           className="flex-1 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-sm px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        {/* File Uploads */}
         <div className="flex items-center gap-2 text-xl">
           <label className="cursor-pointer" title="Send Image">
             📎
@@ -217,7 +214,6 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
           </label>
         </div>
 
-        {/* Send Button */}
         <button
           onClick={sendText}
           disabled={!input.trim()}

@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1752230256638,
@@ -16,6 +16,10 @@
                 {
                     "date": 1752335999207,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,27 @@\n \"use client\";\r\n \r\n import React from \"react\";\r\n+import clsx from \"clsx\";\r\n \r\n-interface VideoPlayerProps {\r\n+interface VideoPlayerProps extends React.HTMLAttributes<HTMLDivElement> {\r\n   children: React.ReactNode;\r\n-  className?: string; // allows passing extra classes if needed\r\n+  className?: string;\r\n+  \"aria-label\"?: string;\r\n }\r\n \r\n-export default function VideoPlayer({ children, className = \"\" }: VideoPlayerProps) {\r\n+export default function VideoPlayer({\r\n+  children,\r\n+  className,\r\n+  \"aria-label\": ariaLabel = \"Video player container\",\r\n+  ...rest\r\n+}: VideoPlayerProps) {\r\n   return (\r\n-    <div className={`relative w-full h-full bg-black overflow-hidden ${className}`}>\r\n+    <div\r\n+      className={clsx(\"relative w-full h-full bg-black overflow-hidden\", className)}\r\n+      aria-label={ariaLabel}\r\n+      {...rest}\r\n+    >\r\n       {children}\r\n     </div>\r\n   );\r\n }\r\n"
+                },
+                {
+                    "date": 1752418866275,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,9 +16,12 @@\n   ...rest\r\n }: VideoPlayerProps) {\r\n   return (\r\n     <div\r\n-      className={clsx(\"relative w-full h-full bg-black overflow-hidden\", className)}\r\n+      className={clsx(\r\n+        \"relative w-full h-full bg-black rounded-xl overflow-hidden shadow-lg\",\r\n+        className\r\n+      )}\r\n       aria-label={ariaLabel}\r\n       {...rest}\r\n     >\r\n       {children}\r\n"
                 }
             ],
             "date": 1752230256638,

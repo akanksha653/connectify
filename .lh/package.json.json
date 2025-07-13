@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1752232766275,
@@ -16,6 +16,18 @@
                 {
                     "date": 1752233249709,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,10 +4,10 @@\n   \"private\": true,\n   \"scripts\": {\n     \"dev\": \"next dev\",\n     \"build\": \"next build\",\n-    \"start\": \"next start\",\n-    \"signaling\": \"ts-node server/signaling.ts\",\n+    \"start:signaling\": \"node server/signaling.js\",\n+    \"start:server\": \"node server/index.js\",\n     \"lint\": \"next lint\"\n   },\n   \"dependencies\": {\n     \"next\": \"15.3.5\",\n"
+                },
+                {
+                    "date": 1752398257473,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,6 @@\n {\n-  \"name\": \"my-omegle-clone\",\n+  \"name\": \"connectify\",\n   \"version\": \"0.1.0\",\n   \"private\": true,\n   \"scripts\": {\n     \"dev\": \"next dev\",\n@@ -9,22 +9,34 @@\n     \"start:server\": \"node server/index.js\",\n     \"lint\": \"next lint\"\n   },\n   \"dependencies\": {\n+    \"@emoji-mart/data\": \"^1.2.1\",\n+    \"clsx\": \"^2.1.1\",\n+    \"emoji-mart\": \"^5.6.0\",\n+    \"framer-motion\": \"^12.23.3\",\n+    \"lodash\": \"^4.17.21\",\n+    \"lodash.debounce\": \"^4.0.8\",\n+    \"lucide-react\": \"^0.525.0\",\n     \"next\": \"15.3.5\",\n     \"react\": \"^19.0.0\",\n     \"react-dom\": \"^19.0.0\",\n     \"socket.io\": \"^4.8.1\",\n     \"socket.io-client\": \"^4.8.1\",\n+    \"tailwind-merge\": \"^3.3.1\",\n+    \"tailwind-scrollbar\": \"^4.0.2\",\n+    \"uuid\": \"^11.1.0\",\n     \"zustand\": \"^5.0.6\"\n   },\n   \"devDependencies\": {\n-    \"@tailwindcss/postcss\": \"^4\",\n+    \"@tailwindcss/postcss\": \"^4.1.11\",\n     \"@types/node\": \"^20\",\n     \"@types/react\": \"^19\",\n     \"@types/react-dom\": \"^19\",\n     \"@types/socket.io\": \"^3.0.1\",\n-    \"tailwindcss\": \"^4\",\n+    \"autoprefixer\": \"^10.4.21\",\n+    \"postcss\": \"^8.5.6\",\n+    \"tailwindcss\": \"^4.1.11\",\n     \"ts-node\": \"^10.9.2\",\n     \"typescript\": \"^5\"\n   }\n }\n"
+                },
+                {
+                    "date": 1752398291938,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,14 +2,16 @@\n   \"name\": \"connectify\",\n   \"version\": \"0.1.0\",\n   \"private\": true,\n   \"scripts\": {\n-    \"dev\": \"next dev\",\n-    \"build\": \"next build\",\n-    \"start:signaling\": \"node server/signaling.js\",\n-    \"start:server\": \"node server/index.js\",\n-    \"lint\": \"next lint\"\n-  },\n+  \"dev\": \"next dev\",\n+  \"build\": \"next build\",\n+  \"start\": \"node server/signaling.js\",  // 👈 Add this\n+  \"start:signaling\": \"node server/signaling.js\",\n+  \"start:server\": \"node server/index.js\",\n+  \"lint\": \"next lint\"\n+}\n+,\n   \"dependencies\": {\n     \"@emoji-mart/data\": \"^1.2.1\",\n     \"clsx\": \"^2.1.1\",\n     \"emoji-mart\": \"^5.6.0\",\n"
+                },
+                {
+                    "date": 1752398297984,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,9 +4,9 @@\n   \"private\": true,\n   \"scripts\": {\n   \"dev\": \"next dev\",\n   \"build\": \"next build\",\n-  \"start\": \"node server/signaling.js\",  // 👈 Add this\n+  \"start\": \"node server/signaling.js\",\n   \"start:signaling\": \"node server/signaling.js\",\n   \"start:server\": \"node server/index.js\",\n   \"lint\": \"next lint\"\n }\n"
                 }
             ],
             "date": 1752232766275,

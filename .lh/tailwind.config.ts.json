@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1752258439001,
@@ -12,6 +12,14 @@
                 {
                     "date": 1752319634034,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,18 +16,18 @@\n           \"40%\": { transform: \"scale(1)\" },\r\n         },\r\n       },\r\n       animation: {\r\n-        // default Tailwind animations\r\n         spin: \"spin 1s linear infinite\",\r\n         ping: \"ping 1s cubic-bezier(0, 0, 0.2, 1) infinite\",\r\n         pulse: \"pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite\",\r\n         bounce: \"bounce 1s infinite\",\r\n-        // custom animations\r\n         bounceDelay: \"bounceDelay 1.4s infinite both\",\r\n       },\r\n     },\r\n   },\r\n-  plugins: [],\r\n+  plugins: [\r\n+    require(\"tailwind-scrollbar\"),\r\n+  ],\r\n };\r\n \r\n export default config;\r\n"
+                },
+                {
+                    "date": 1752424236050,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -27,7 +27,10 @@\n   },\r\n   plugins: [\r\n     require(\"tailwind-scrollbar\"),\r\n   ],\r\n+  variants: {\r\n+    scrollbar: [\"rounded\"],\r\n+  },\r\n };\r\n \r\n export default config;\r\n"
+                },
+                {
+                    "date": 1752424322523,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,12 +25,9 @@\n       },\r\n     },\r\n   },\r\n   plugins: [\r\n-    require(\"tailwind-scrollbar\"),\r\n+    require(\"tailwind-scrollbar\")({ nocompatible: true }),\r\n   ],\r\n-  variants: {\r\n-    scrollbar: [\"rounded\"],\r\n-  },\r\n };\r\n \r\n export default config;\r\n"
                 }
             ],
             "date": 1752258439001,

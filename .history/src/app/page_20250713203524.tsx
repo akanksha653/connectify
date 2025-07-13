@@ -29,7 +29,7 @@ export default function HomePage() {
       </section>
 
       <footer className="mt-12 text-xs text-neutral-500 dark:text-neutral-400">
-        © {new Date().getFullYear()} Connectify. All rights reserved.
+        © {new Date().getFullYear()} MyOmegleClone. All rights reserved.
       </footer>
     </main>
   );

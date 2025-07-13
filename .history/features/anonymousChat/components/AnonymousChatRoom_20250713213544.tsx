@@ -164,7 +164,7 @@ export default function AnonymousChatRoom() {
             <ChatBox socket={socket} roomId={roomId} />
           ) : lastAction === "skipped" ? (
             <div className="flex items-center justify-center h-full text-neutral-500 dark:text-neutral-400 text-sm px-4 text-center">
-              You skipped the chat. Click Start for a new partner...
+              You skipped the chat. Looking for a new partner...
             </div>
           ) : (
             <div className="flex items-center justify-center h-full text-neutral-400 text-sm px-4 text-center">

@@ -12,10 +12,7 @@ interface ChatBoxProps {
   roomId: string;
 }
 
-const topEmojis = [
-  "😀", "😂", "😍", "🤣", "😊", "😭", "🥰", "😎", "👍", "🙏",
-  "😘", "😅", "🎉", "🤔", "🙄", "😢", "🔥", "💯", "❤️", "👏"
-];
+const topEmojis = ["😀", "😂", "😍", "🤣", "😊", "😭", "🥰", "😎", "👍", "🙏", "😘", "😅", "🎉", "🤔", "🙄", "😢", "🔥", "💯", "❤️", "👏"];
 
 export default function ChatBox({ socket, roomId }: ChatBoxProps) {
   const [messages, setMessages] = useState<any[]>([]);
@@ -33,11 +30,7 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
 
     const onMessage = (msg: any) => {
       setMessages((prev) => [...prev, msg]);
-      socket.emit("message-status", {
-        roomId,
-        messageId: msg.id,
-        status: "seen",
-      });
+      socket.emit("message-status", { roomId, messageId: msg.id, status: "seen" });
       setPartnerTyping(false);
     };
 
@@ -49,11 +42,7 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
     };
 
     const onStatus = ({ messageId, status }: any) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === messageId ? { ...m, status } : m
-        )
-      );
+      setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, status } : m)));
     };
 
     const onDelete = ({ messageId }: any) => {
@@ -63,12 +52,7 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
     const onReact = ({ messageId, reaction, user }: any) => {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === messageId
-            ? {
-                ...m,
-                reactions: { ...m.reactions, [user]: reaction },
-              }
-            : m
+          m.id === messageId ? { ...m, reactions: { ...m.reactions, [user]: reaction } } : m
         )
       );
     };
@@ -115,10 +99,7 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
     sendMessage({ content: input.trim(), type: "text", roomId });
   };
 
-  const handleFile = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: string
-  ) => {
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const f = e.target.files?.[0];
     if (!f) return;
     const url = URL.createObjectURL(f);
@@ -126,34 +107,20 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-neutral-900 border rounded-lg overflow-hidden shadow-lg relative">
+    <div className="flex flex-col h-full bg-white dark:bg-neutral-900 border rounded-lg overflow-hidden shadow-lg">
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-700">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 custom-scrollbar">
         {messages.map((msg) => (
           <Message
             key={msg.id}
             {...msg}
             sender={msg.sender === socket.id ? "me" : "partner"}
-            onDelete={() =>
-              socket.emit("delete-message", {
-                roomId,
-                messageId: msg.id,
-              })
-            }
+            onDelete={() => socket.emit("delete-message", { roomId, messageId: msg.id })}
             onEdit={(newContent: string) =>
-              socket.emit("edit-message", {
-                roomId,
-                messageId: msg.id,
-                content: newContent,
-              })
+              socket.emit("edit-message", { roomId, messageId: msg.id, content: newContent })
             }
             onReact={(reaction: string) =>
-              socket.emit("react-message", {
-                roomId,
-                messageId: msg.id,
-                reaction,
-                user: socket.id,
-              })
+              socket.emit("react-message", { roomId, messageId: msg.id, reaction, user: socket.id })
             }
           />
         ))}
@@ -163,7 +130,7 @@ export default function ChatBox({ socket, roomId }: ChatBoxProps) {
 
       {/* Emoji Picker */}
       {showEmojiPicker && (
-        <div className="absolute bottom-20 left-4 z-50 bg-white dark:bg-neutral-800 border rounded-md shadow-lg p-3 w-64 max-h-64 overflow-y-auto grid grid-cols-5 gap-2 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700">
+        <div className="absolute bottom-20 left-4 z-50 bg-white dark:bg-neutral-800 border rounded-md shadow-lg p-3 w-64 max-h-64 overflow-y-auto grid grid-cols-5 gap-2">
           {topEmojis.map((emoji) => (
             <button
               key={emoji}

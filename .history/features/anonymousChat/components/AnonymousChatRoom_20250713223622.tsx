@@ -159,7 +159,8 @@ export default function AnonymousChatRoom() {
 
       {/* Chat + Controls */}
       <div className="flex flex-col h-full border-t md:border-t-0 md:border-l border-neutral-300 dark:border-neutral-700">
-        <div className="flex-grow overflow-y-auto bg-white dark:bg-neutral-900">
+        {/* Permanent Scrollbar Enabled Here */}
+        <div className="flex-grow overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent bg-white dark:bg-neutral-900">
           {roomId ? (
             <ChatBox socket={socket} roomId={roomId} />
           ) : lastAction === "skipped" ? (

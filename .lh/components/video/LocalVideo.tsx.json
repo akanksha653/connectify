@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 18,
+            "activePatchIndex": 19,
             "patches": [
                 {
                     "date": 1752230243251,
@@ -80,6 +80,10 @@
                 {
                     "date": 1752341773645,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,9 +15,9 @@\n     }\r\n   }, [stream]);\r\n \r\n   return (\r\n-    <div className=\"absolute bottom-5 right-5 w-36 h-36 border-2 rounded overflow-hidden\">\r\n+    <div className=\"absolute bottom-5 right-5 w-36 h-36 rounded overflow-hidden\">\r\n       <div\r\n         className=\"absolute top-4 left-4 z-50\"\r\n         style={{ width: 144, height: 144 }}\r\n       >\r\n@@ -25,9 +25,9 @@\n           ref={videoRef}\r\n           autoPlay\r\n           muted\r\n           playsInline\r\n-          className=\"w-full h-full object-cover rounded-lg border-2 shadow-lg\"\r\n+          className=\"w-full h-full object-cover rounded-lg shadow-lg\"\r\n         />\r\n       </div>\r\n     </div>\r\n   );\r\n"
+                },
+                {
+                    "date": 1752418824366,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,20 +15,15 @@\n     }\r\n   }, [stream]);\r\n \r\n   return (\r\n-    <div className=\"absolute bottom-5 right-5 w-36 h-36 rounded overflow-hidden\">\r\n-      <div\r\n-        className=\"absolute top-4 left-4 z-50\"\r\n-        style={{ width: 144, height: 144 }}\r\n-      >\r\n-        <video\r\n-          ref={videoRef}\r\n-          autoPlay\r\n-          muted\r\n-          playsInline\r\n-          className=\"w-full h-full object-cover rounded-lg shadow-lg\"\r\n-        />\r\n-      </div>\r\n+    <div className=\"w-full h-full\">\r\n+      <video\r\n+        ref={videoRef}\r\n+        autoPlay\r\n+        muted\r\n+        playsInline\r\n+        className=\"w-full h-full object-cover rounded-xl border-2 border-white shadow-lg\"\r\n+      />\r\n     </div>\r\n   );\r\n }\r\n"
                 }
             ],
             "date": 1752230243251,

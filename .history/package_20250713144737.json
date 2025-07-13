@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node server/signaling.js",
     "start:signaling": "node server/signaling.js",
     "start:server": "node server/index.js",
     "lint": "next lint"

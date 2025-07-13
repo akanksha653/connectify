@@ -4,7 +4,8 @@
 ├── components
 │   ├── chat
 │   │   ├── ChatBox.tsx
-│   │   └── Message.tsx
+│   │   ├── Message.tsx
+│   │   └── TypingIndicator.tsx
 │   ├── common
 │   │   ├── Button.tsx
 │   │   ├── Loader.tsx
