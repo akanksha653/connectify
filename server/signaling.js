@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://my-omegle-clone.vercel.app", // ✅ Update to your deployed frontend
+    origin: "https://connectify-hub.vercel.app/", // ✅ Update if needed
     methods: ["GET", "POST"]
   },
 });
@@ -17,33 +17,66 @@ app.get("/", (req, res) => {
   res.send("🚀 Signaling server is running!");
 });
 
-let waitingUser = null;
+// Store all waiting users with their metadata
+let waitingUsers = [];
 
 io.on("connection", (socket) => {
   console.log("✅ User connected:", socket.id);
 
-  socket.on("start-looking", () => {
-    if (waitingUser && waitingUser.connected) {
+  socket.on("start-looking", (userInfo) => {
+    const {
+      gender,
+      country,
+      age,
+      name,
+      filterGender = "",
+      filterCountry = ""
+    } = userInfo || {};
+
+    // Attach user info and filters to socket
+    socket.userData = { gender, country, age, name, filterGender, filterCountry };
+
+    // Try to match with another waiting user
+    const index = waitingUsers.findIndex((other) => {
+      if (!other.connected || !other.userData) return false;
+
+      const my = socket.userData;
+      const their = other.userData;
+
+      const mutualFilterMatch =
+        // You match their preferences
+        (!their.filterGender || their.filterGender === my.gender) &&
+        (!their.filterCountry || their.filterCountry.toLowerCase() === my.country?.toLowerCase()) &&
+        // They match your preferences
+        (!my.filterGender || my.filterGender === their.gender) &&
+        (!my.filterCountry || my.filterCountry.toLowerCase() === their.country?.toLowerCase());
+
+      return mutualFilterMatch;
+    });
+
+    if (index !== -1) {
+      const partner = waitingUsers.splice(index, 1)[0];
+
       const roomId = uuidv4();
-
       socket.join(roomId);
-      waitingUser.join(roomId);
+      partner.join(roomId);
 
-      waitingUser.emit("matched", {
+      // Send match info to both users
+      partner.emit("matched", {
         roomId,
         partnerId: socket.id,
         isOfferer: true,
+        partnerName: socket.userData?.name || "Stranger"
       });
 
       socket.emit("matched", {
         roomId,
-        partnerId: waitingUser.id,
+        partnerId: partner.id,
         isOfferer: false,
+        partnerName: partner.userData?.name || "Stranger"
       });
-
-      waitingUser = null;
     } else {
-      waitingUser = socket;
+      waitingUsers.push(socket);
     }
   });
 
@@ -56,9 +89,8 @@ io.on("connection", (socket) => {
     socket.leave(roomId);
     socket.to(roomId).emit("partner-left", { partnerId: socket.id });
 
-    if (waitingUser && waitingUser.id === socket.id) {
-      waitingUser = null;
-    }
+    // Remove from waitingUsers if still waiting
+    waitingUsers = waitingUsers.filter((s) => s.id !== socket.id);
   });
 
   // Skip and requeue
@@ -70,11 +102,8 @@ io.on("connection", (socket) => {
       }
     });
 
-    if (waitingUser && waitingUser.id === socket.id) {
-      waitingUser = null;
-    }
-
-    socket.emit("start-looking");
+    waitingUsers = waitingUsers.filter((s) => s.id !== socket.id);
+    socket.emit("start-looking", socket.userData); // retry with current user info
   });
 
   // --- WebRTC signaling ---
@@ -92,24 +121,20 @@ io.on("connection", (socket) => {
 
   // --- Chat Features ---
 
-  // Chat message
   socket.on("send-message", (msg) => {
     const { roomId } = msg;
     console.log(`💬 New message in ${roomId}:`, msg);
     socket.to(roomId).emit("receive-message", msg);
   });
 
-  // Typing indicator
   socket.on("typing", ({ roomId, sender }) => {
     socket.to(roomId).emit("typing", { sender });
   });
 
-  // Seen/Delivered
   socket.on("message-status", ({ roomId, messageId, status }) => {
     socket.to(roomId).emit("message-status-update", { messageId, status });
   });
 
-  // Edit
   socket.on("edit-message", ({ roomId, messageId, content }) => {
     socket.to(roomId).emit("receive-message", {
       id: messageId,
@@ -119,22 +144,17 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Delete
   socket.on("delete-message", ({ roomId, messageId }) => {
     socket.to(roomId).emit("message-deleted", { messageId });
   });
 
-  // React
   socket.on("react-message", ({ roomId, messageId, reaction, user }) => {
     socket.to(roomId).emit("message-react", { messageId, reaction, user });
   });
 
   socket.on("disconnect", () => {
     console.log("❌ User disconnected:", socket.id);
-
-    if (waitingUser && waitingUser.id === socket.id) {
-      waitingUser = null;
-    }
+    waitingUsers = waitingUsers.filter((s) => s.id !== socket.id);
 
     socket.rooms.forEach((roomId) => {
       if (roomId !== socket.id) {
