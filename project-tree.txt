@@ -21,21 +21,26 @@
 │       ├── Dockerfile
 │       └── turnserver.conf
 ├── features
-│   └── anonymousChat
+│   ├── anonymousChat
+│   │   ├── components
+│   │   │   ├── AnonymousChatRoom.tsx
+│   │   │   ├── ControlBar.tsx
+│   │   │   ├── FindingPartner.tsx
+│   │   │   └── IdleMessage.tsx
+│   │   ├── hooks
+│   │   │   ├── useChatHandlers.ts
+│   │   │   ├── useSocket.ts
+│   │   │   ├── useSoundPlayer.ts
+│   │   │   └── useWebRTC.ts
+│   │   ├── services
+│   │   │   └── signalingService.ts
+│   │   └── utils
+│   │       └── iceServers.ts
+│   └── RoomChat
 │       ├── components
-│       │   ├── AnonymousChatRoom.tsx
-│       │   ├── ControlBar.tsx
-│       │   ├── FindingPartner.tsx
-│       │   └── IdleMessage.tsx
 │       ├── hooks
-│       │   ├── useChatHandlers.ts
-│       │   ├── useSocket.ts
-│       │   ├── useSoundPlayer.ts
-│       │   └── useWebRTC.ts
 │       ├── services
-│       │   └── signalingService.ts
 │       └── utils
-│           └── iceServers.ts
 ├── generate-tree.js
 ├── lib
 │   └── razorpay.ts

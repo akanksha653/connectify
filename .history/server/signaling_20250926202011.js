@@ -69,15 +69,30 @@ function matchUsers(socket) {
 }
 
 // ===== Room System =====
-let rooms = {}; // { roomId: { id, name, topic, description, password, users: [], sockets: [] } }
+let rooms = {}; // { roomId: { id, name, topic, description, password, users: [] } }
 
 io.on("connection", (socket) => {
   console.log("✅ User connected:", socket.id);
 
   // ---------- 1-1 Anonymous Chat ----------
   socket.on("start-looking", (userInfo) => {
-    socket.userData = userInfo;
+    const {
+      gender,
+      country,
+      age,
+      name,
+      filterGender = "",
+      filterCountry = "",
+    } = userInfo || {};
+
+    socket.userData = { gender, country, age, name, filterGender, filterCountry };
     matchUsers(socket);
+  });
+
+  socket.on("leave-room", (roomId) => {
+    socket.leave(roomId);
+    waitingUsers = waitingUsers.filter((s) => s.id !== socket.id);
+    socket.to(roomId).emit("partner-left", { partnerId: socket.id });
   });
 
   socket.on("skip", () => {
@@ -91,17 +106,17 @@ io.on("connection", (socket) => {
     socket.emit("start-looking", socket.userData);
   });
 
-  // ---------- WebRTC Signaling for 1-1 & rooms ----------
-  socket.on("offer", ({ offer, roomId, to }) => {
-    socket.to(to).emit("offer", { offer, sender: socket.id });
+  // ---------- WebRTC Signaling (1-1 & rooms) ----------
+  socket.on("offer", ({ offer, roomId }) => {
+    socket.to(roomId).emit("offer", { offer, sender: socket.id });
   });
 
-  socket.on("answer", ({ answer, roomId, to }) => {
-    socket.to(to).emit("answer", { answer, sender: socket.id });
+  socket.on("answer", ({ answer, roomId }) => {
+    socket.to(roomId).emit("answer", { answer, sender: socket.id });
   });
 
-  socket.on("ice-candidate", ({ candidate, roomId, to }) => {
-    socket.to(to).emit("ice-candidate", { candidate, sender: socket.id });
+  socket.on("ice-candidate", ({ candidate, roomId }) => {
+    socket.to(roomId).emit("ice-candidate", { candidate, sender: socket.id });
   });
 
   // ---------- Chat Features ----------
@@ -113,8 +128,17 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("typing", { sender });
   });
 
+  socket.on("message-status", ({ roomId, messageId, status }) => {
+    socket.to(roomId).emit("message-status-update", { messageId, status });
+  });
+
   socket.on("edit-message", ({ roomId, messageId, content }) => {
-    socket.to(roomId).emit("receive-message", { id: messageId, content, edited: true });
+    socket.to(roomId).emit("receive-message", {
+      id: messageId,
+      content,
+      type: "text",
+      edited: true,
+    });
   });
 
   socket.on("delete-message", ({ roomId, messageId }) => {
@@ -128,21 +152,26 @@ io.on("connection", (socket) => {
   // ---------- Room System ----------
   socket.on("create-room", (roomData) => {
     const roomId = roomData.id || uuidv4();
-    rooms[roomId] = { ...roomData, id: roomId, users: [] };
-    io.emit("rooms", Object.values(rooms));
+    rooms[roomId] = {
+      ...roomData,
+      id: roomId,
+      users: [],
+    };
     socket.emit("room-created", rooms[roomId]);
+    io.emit("rooms", Object.values(rooms));
   });
 
   socket.on("list-rooms", () => {
     socket.emit("rooms", Object.values(rooms));
   });
 
-  socket.on("join-room-dynamic", ({ roomId, userInfo }) => {
+  socket.on("join-room", (roomId) => {
     const room = rooms[roomId];
     if (room) {
       socket.join(roomId);
-      room.users.push({ id: socket.id, userInfo });
+      room.users.push(socket.id);
       io.to(roomId).emit("room-update", room);
+      socket.emit("joined-room", roomId);
     }
   });
 
@@ -150,7 +179,7 @@ io.on("connection", (socket) => {
     const room = rooms[roomId];
     if (room) {
       socket.leave(roomId);
-      room.users = room.users.filter((u) => u.id !== socket.id);
+      room.users = room.users.filter((id) => id !== socket.id);
       io.to(roomId).emit("room-update", room);
     }
   });
@@ -164,8 +193,10 @@ io.on("connection", (socket) => {
 
     // Remove from rooms
     Object.values(rooms).forEach((room) => {
-      room.users = room.users.filter((u) => u.id !== socket.id);
-      io.to(room.id).emit("room-update", room);
+      if (room.users.includes(socket.id)) {
+        room.users = room.users.filter((id) => id !== socket.id);
+        io.to(room.id).emit("room-update", room);
+      }
     });
 
     // Notify 1-1 partners

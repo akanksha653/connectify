@@ -32,8 +32,7 @@ export default function RoomPage() {
   const [room, setRoom] = useState<RoomInfo | null>(null);
   const [peers, setPeers] = useState<{ [peerId: string]: MediaStream }>({});
 
-  // Store peer connections with name for labels
-  const peerConnections = useRef<{ [peerId: string]: { pc: RTCPeerConnection; name: string } }>({});
+  const peerConnections = useRef<{ [peerId: string]: RTCPeerConnection }>({});
 
   const userInfo: UserInfo = JSON.parse(localStorage.getItem("user-info") || "{}");
 
@@ -43,7 +42,8 @@ export default function RoomPage() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localStreamRef.current = stream;
-        setPeers((prev) => ({ ...prev })); // Force re-render
+        // Force re-render
+        setPeers((prev) => ({ ...prev }));
       } catch (err) {
         console.error("Camera error:", err);
       }
@@ -57,7 +57,7 @@ export default function RoomPage() {
     const socket = io(SOCKET_URL, { transports: ["websocket"] });
     socketRef.current = socket;
 
-    // Join room with user info
+    // Join room
     socket.emit("join-room-dynamic", { roomId: id, userInfo });
 
     socket.on("room-update", (data: RoomInfo) => setRoom(data));
@@ -66,7 +66,7 @@ export default function RoomPage() {
       if (!localStreamRef.current) return;
 
       const pc = createPeerConnection(userId, userName);
-      localStreamRef.current.getTracks().forEach((track) => pc.addTrack(track));
+      localStreamRef.current.getTracks().forEach((t) => pc.addTrack(t));
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -77,11 +77,9 @@ export default function RoomPage() {
       "room-offer",
       async ({ from, offer, name }: { from: string; offer: RTCSessionDescriptionInit; name: string }) => {
         if (!localStreamRef.current) return;
-
         const pc = createPeerConnection(from, name);
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
-        localStreamRef.current.getTracks().forEach((track) => pc.addTrack(track));
-
+        localStreamRef.current.getTracks().forEach((t) => pc.addTrack(t));
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         socket.emit("room-answer", { roomId: id, answer, to: from });
@@ -137,10 +135,9 @@ export default function RoomPage() {
 
   if (!localStreamRef.current) return <p>Loading camera...</p>;
 
-  // Responsive grid columns
   const totalUsers = Object.keys(peers).length + 1;
   const getGridCols = () => {
-    if (totalUsers === 1) return "grid-cols-1";
+    if (totalUsers <= 1) return "grid-cols-1";
     if (totalUsers === 2) return "grid-cols-2";
     if (totalUsers <= 4) return "grid-cols-2 md:grid-cols-2";
     if (totalUsers <= 6) return "grid-cols-2 md:grid-cols-3";
@@ -148,9 +145,19 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 p-4 min-h-screen">
+    <div className="p-4 space-y-4">
+      {/* Room info */}
+      {room && (
+        <div className="bg-gray-100 p-4 rounded-lg shadow">
+          <h1 className="text-2xl font-bold">{room.name}</h1>
+          <p className="text-sm text-gray-700">{room.topic}</p>
+          <p className="text-sm text-gray-500">{room.description}</p>
+          <p className="mt-2 text-sm font-medium">Users: {room.users.length}</p>
+        </div>
+      )}
+
       {/* Video Grid */}
-      <div className={`flex-1 grid ${getGridCols()} gap-4`}>
+      <div className={`grid ${getGridCols()} gap-4`}>
         <LocalVideo stream={localStreamRef.current} label={userInfo.name} />
         {Object.entries(peers).map(([peerId, stream]) => {
           const name = peerConnections.current[peerId]?.name || peerId;
@@ -159,19 +166,7 @@ export default function RoomPage() {
       </div>
 
       {/* Chat */}
-      <div className="md:w-80 flex-shrink-0">
-        {socketRef.current && <ChatBox socket={socketRef.current} roomId={id} userName={userInfo.name} />}
-      </div>
-
-      {/* Room Info */}
-      {room && (
-        <div className="md:w-64 p-4 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow flex-shrink-0">
-          <h2 className="text-lg font-bold">{room.name}</h2>
-          <p className="text-sm text-gray-700 dark:text-gray-300">{room.topic}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{room.description}</p>
-          <p className="mt-2 text-sm font-medium">Users: {room.users.length}</p>
-        </div>
-      )}
+      {socketRef.current && <ChatBox socket={socketRef.current} roomId={id} userName={userInfo.name} />}
     </div>
   );
 }

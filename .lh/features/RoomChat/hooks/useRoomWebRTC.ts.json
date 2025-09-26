@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/RoomChat/hooks/useRoomWebRTC.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1758898670717,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1758898670716,
+            "name": "Commit-0",
+            "content": "import { useEffect, useRef, useState } from \"react\";\r\nimport { sendRoomOffer, sendRoomAnswer, sendRoomIce } from \"../services/roomSocketService\";\r\n\r\ninterface PeersMap {\r\n  [peerId: string]: RTCPeerConnection;\r\n}\r\n\r\nexport default function useRoomWebRTC(localStream: MediaStream | null, roomId: string) {\r\n  const [remoteStreams, setRemoteStreams] = useState<{ [peerId: string]: MediaStream }>({});\r\n  const peerConnections = useRef<PeersMap>({});\r\n\r\n  const createPeerConnection = (peerId: string) => {\r\n    if (!localStream) throw new Error(\"Local stream not available\");\r\n\r\n    const pc = new RTCPeerConnection({ iceServers: [{ urls: \"stun:stun.l.google.com:19302\" }] });\r\n\r\n    // Add local tracks\r\n    localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));\r\n\r\n    // Handle remote tracks\r\n    pc.ontrack = (e) => {\r\n      setRemoteStreams((prev) => ({ ...prev, [peerId]: e.streams[0] }));\r\n    };\r\n\r\n    // ICE candidates\r\n    pc.onicecandidate = (e) => {\r\n      if (e.candidate) sendRoomIce(peerId, roomId, e.candidate);\r\n    };\r\n\r\n    peerConnections.current[peerId] = pc;\r\n    return pc;\r\n  };\r\n\r\n  const closePeerConnections = () => {\r\n    Object.values(peerConnections.current).forEach((pc) => pc.close());\r\n    peerConnections.current = {};\r\n    setRemoteStreams({});\r\n  };\r\n\r\n  return { remoteStreams, peerConnections, createPeerConnection, closePeerConnections };\r\n}\r\n"
+        }
+    ]
+}

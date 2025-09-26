@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/RoomChat/services/roomSocketService.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1758898616961,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1758898616961,
+            "name": "Commit-0",
+            "content": "import { io, Socket } from \"socket.io-client\";\r\nimport { v4 as uuidv4 } from \"uuid\";\r\n\r\nconst SOCKET_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || \"http://localhost:3001\";\r\n\r\nlet socket: Socket | null = null;\r\n\r\nexport const connectRoomSocket = () => {\r\n  if (!socket) {\r\n    socket = io(SOCKET_URL, { transports: [\"websocket\"] });\r\n\r\n    socket.on(\"connect\", () => {\r\n      console.log(\"✅ Connected to room server:\", socket?.id);\r\n    });\r\n\r\n    socket.on(\"disconnect\", () => {\r\n      console.log(\"❌ Disconnected from room server\");\r\n    });\r\n  }\r\n};\r\n\r\nexport const disconnectRoomSocket = () => {\r\n  socket?.disconnect();\r\n  socket = null;\r\n};\r\n\r\nexport const getRoomSocket = () => socket;\r\n\r\n// --- Room Operations ---\r\n\r\nexport const createRoom = (room: any) => {\r\n  socket?.emit(\"create-room\", room);\r\n};\r\n\r\nexport const listRooms = () => {\r\n  socket?.emit(\"list-rooms\");\r\n};\r\n\r\nexport const joinRoom = (roomId: string) => {\r\n  socket?.emit(\"join-room-dynamic\", { roomId });\r\n};\r\n\r\nexport const leaveRoom = (roomId: string) => {\r\n  socket?.emit(\"leave-room\", { roomId });\r\n};\r\n\r\n// --- Messaging ---\r\n\r\nexport const sendRoomMessage = (roomId: string, text: string) => {\r\n  const message = {\r\n    id: uuidv4(),\r\n    text,\r\n    user: socket?.id,\r\n    timestamp: new Date().toISOString(),\r\n  };\r\n  socket?.emit(\"room-message\", { roomId, ...message });\r\n};\r\n\r\nexport const onRoomMessage = (callback: (msg: any) => void) => {\r\n  socket?.off(\"room-message\").on(\"room-message\", callback);\r\n};\r\n\r\n// --- WebRTC ---\r\n\r\nexport const sendRoomOffer = (to: string, roomId: string, offer: RTCSessionDescriptionInit) => {\r\n  socket?.emit(\"room-offer\", { to, roomId, offer });\r\n};\r\n\r\nexport const sendRoomAnswer = (to: string, roomId: string, answer: RTCSessionDescriptionInit) => {\r\n  socket?.emit(\"room-answer\", { to, roomId, answer });\r\n};\r\n\r\nexport const sendRoomIce = (to: string, roomId: string, candidate: RTCIceCandidateInit) => {\r\n  socket?.emit(\"room-ice\", { to, roomId, candidate });\r\n};\r\n"
+        }
+    ]
+}
