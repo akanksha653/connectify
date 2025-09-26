@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 4,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1752230250267,
@@ -24,6 +24,10 @@
                 {
                     "date": 1752425426476,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -21,15 +21,15 @@\n     }\r\n \r\n     return () => {\r\n       if (videoElement) {\r\n-        videoElement.srcObject = null;\r\n+        videoElement.srcObject = null; // cleanup on unmount\r\n       }\r\n     };\r\n   }, [stream]);\r\n \r\n   return (\r\n-    <div className=\"relative w-full h-[300px] md:h-[360px] bg-black rounded-xl overflow-hidden shadow-xl flex-shrink-0\">\r\n+    <div className=\"relative w-full h-full bg-black rounded-xl overflow-hidden shadow-xl\">\r\n       {!stream && (\r\n         <div className=\"absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 text-white text-base font-medium\">\r\n           Waiting for partner...\r\n         </div>\r\n"
+                },
+                {
+                    "date": 1752603451142,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -21,17 +21,17 @@\n     }\r\n \r\n     return () => {\r\n       if (videoElement) {\r\n-        videoElement.srcObject = null; // cleanup on unmount\r\n+        videoElement.srcObject = null;\r\n       }\r\n     };\r\n   }, [stream]);\r\n \r\n   return (\r\n     <div className=\"relative w-full h-full bg-black rounded-xl overflow-hidden shadow-xl\">\r\n       {!stream && (\r\n-        <div className=\"absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 text-white text-base font-medium\">\r\n+        <div className=\"absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 text-white text-sm sm:text-base font-medium text-center px-4\">\r\n           Waiting for partner...\r\n         </div>\r\n       )}\r\n       <video\r\n"
                 }
             ],
             "date": 1752230250267,

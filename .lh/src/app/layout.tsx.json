@@ -3,11 +3,35 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 6,
             "patches": [
                 {
                     "date": 1752419047359,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752581148069,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,8 @@\n import type { Metadata } from \"next\";\n import { Geist, Geist_Mono } from \"next/font/google\";\n import \"./globals.css\";\n+import ProfileDropdown from \"@/components/common/ProfileDropdown\"; // ✅ Import added\n \n const geistSans = Geist({\n   variable: \"--font-geist-sans\",\n   subsets: [\"latin\"],\n@@ -26,8 +27,13 @@\n     <html lang=\"en\" className=\"scroll-smooth\">\n       <body\n         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 transition-colors duration-300`}\n       >\n+        {/* ✅ Profile Dropdown Header */}\n+        <header className=\"w-full px-6 py-4 flex justify-end\">\n+          <ProfileDropdown />\n+        </header>\n+\n         {children}\n       </body>\n     </html>\n   );\n"
+                },
+                {
+                    "date": 1752581169588,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n import type { Metadata } from \"next\";\n import { Geist, Geist_Mono } from \"next/font/google\";\n import \"./globals.css\";\n-import ProfileDropdown from \"@/components/common/ProfileDropdown\"; // ✅ Import added\n+import ProfileDropdown from \"../../components/common/ProfileDropdown\"; // ✅ Import added\n \n const geistSans = Geist({\n   variable: \"--font-geist-sans\",\n   subsets: [\"latin\"],\n"
+                },
+                {
+                    "date": 1752581948006,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n import type { Metadata } from \"next\";\n import { Geist, Geist_Mono } from \"next/font/google\";\n import \"./globals.css\";\n-import ProfileDropdown from \"../../components/common/ProfileDropdown\"; // ✅ Import added\n+import Navbar from \"../../components/common/Navbar\"; // ✅ Updated: Import full Navbar\n \n const geistSans = Geist({\n   variable: \"--font-geist-sans\",\n   subsets: [\"latin\"],\n@@ -27,12 +27,10 @@\n     <html lang=\"en\" className=\"scroll-smooth\">\n       <body\n         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 transition-colors duration-300`}\n       >\n-        {/* ✅ Profile Dropdown Header */}\n-        <header className=\"w-full px-6 py-4 flex justify-end\">\n-          <ProfileDropdown />\n-        </header>\n+        {/* ✅ Full Navbar */}\n+        <Navbar />\n \n         {children}\n       </body>\n     </html>\n"
+                },
+                {
+                    "date": 1752689642523,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,39 @@\n+import type { Metadata } from \"next\";\n+import { Geist, Geist_Mono } from \"next/font/google\";\n+import \"./globals.css\";\n+import Navbar from \"../../components/common/Navbar\"; // ✅ Updated: Import full Navbar\n+\n+const geistSans = Geist({\n+  variable: \"--font-geist-sans\",\n+  subsets: [\"latin\"],\n+});\n+\n+const geistMono = Geist_Mono({\n+  variable: \"--font-geist-mono\",\n+  subsets: [\"latin\"],\n+});\n+\n+export const metadata: Metadata = {\n+  title: \"Connectify\",\n+  description: \"Anonymous real-time chat & video app\",\n+};\n+\n+export default function RootLayout({\n+  children,\n+}: Readonly<{\n+  children: React.ReactNode;\n+}>) {\n+  return (\n+    <html lang=\"en\" className=\"scroll-smooth\">\n+      <body\n+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 transition-colors duration-300 pt-[56px]`}\n+      >\n+        {/* ✅ Sticky Navbar */}\n+        <Navbar />\n+\n+        {/* ✅ Content starts below navbar */}\n+        {children}\n+      </body>\n+    </html>\n+  );\n+}\n"
+                },
+                {
+                    "date": 1752690503074,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,47 +25,8 @@\n }>) {\n   return (\n     <html lang=\"en\" className=\"scroll-smooth\">\n       <body\n-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 transition-colors duration-300 pt-[56px]`}\n-      >\n-        {/* ✅ Sticky Navbar */}\n-        <Navbar />\n-\n-        {/* ✅ Content starts below navbar */}\n-        {children}\n-      </body>\n-    </html>\n-  );\n-}\n-import type { Metadata } from \"next\";\n-import { Geist, Geist_Mono } from \"next/font/google\";\n-import \"./globals.css\";\n-import Navbar from \"../../components/common/Navbar\"; // ✅ Updated: Import full Navbar\n-\n-const geistSans = Geist({\n-  variable: \"--font-geist-sans\",\n-  subsets: [\"latin\"],\n-});\n-\n-const geistMono = Geist_Mono({\n-  variable: \"--font-geist-mono\",\n-  subsets: [\"latin\"],\n-});\n-\n-export const metadata: Metadata = {\n-  title: \"Connectify\",\n-  description: \"Anonymous real-time chat & video app\",\n-};\n-\n-export default function RootLayout({\n-  children,\n-}: Readonly<{\n-  children: React.ReactNode;\n-}>) {\n-  return (\n-    <html lang=\"en\" className=\"scroll-smooth\">\n-      <body\n         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 transition-colors duration-300`}\n       >\n         {/* ✅ Full Navbar */}\n         <Navbar />\n"
+                },
+                {
+                    "date": 1752690567944,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -29,9 +29,8 @@\n         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 transition-colors duration-300`}\n       >\n         {/* ✅ Full Navbar */}\n         <Navbar />\n-\n         {children}\n       </body>\n     </html>\n   );\n"
                 }
             ],
             "date": 1752419047359,

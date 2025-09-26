@@ -1,0 +1,22 @@
+{
+    "sourceFile": "src/app/support/page.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752594946887,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752596822355,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,9 +28,9 @@\n           <a\r\n             href=\"mailto:support@connectify.chat\"\r\n             className=\"text-blue-600 dark:text-blue-400 underline\"\r\n           >\r\n-            support@connectify.chat\r\n+            connectify.hub.in@gmail.com\r\n           </a>\r\n         </li>\r\n       </ul>\r\n     </main>\r\n"
+                }
+            ],
+            "date": 1752594946887,
+            "name": "Commit-0",
+            "content": "// app/support/page.tsx\r\n\"use client\";\r\n\r\nimport React from \"react\";\r\nimport { HelpCircle } from \"lucide-react\";\r\n\r\nexport default function SupportPage() {\r\n  return (\r\n    <main className=\"max-w-2xl mx-auto px-4 py-10 text-neutral-800 dark:text-neutral-100\">\r\n      <div className=\"flex items-center gap-2 mb-6\">\r\n        <HelpCircle className=\"w-6 h-6 text-blue-500\" />\r\n        <h1 className=\"text-2xl font-semibold\">Support</h1>\r\n      </div>\r\n      <p className=\"mb-4\">\r\n        If you're experiencing any issues or have questions about using Connectify,\r\n        we’re here to help!\r\n      </p>\r\n\r\n      <ul className=\"list-disc list-inside space-y-2\">\r\n        <li>\r\n          Check our FAQ (Coming soon) for answers to common questions.\r\n        </li>\r\n        <li>\r\n          Contact our support team via the <strong>Contact Us</strong> page.\r\n        </li>\r\n        <li>\r\n          You can also reach us directly at{\" \"}\r\n          <a\r\n            href=\"mailto:support@connectify.chat\"\r\n            className=\"text-blue-600 dark:text-blue-400 underline\"\r\n          >\r\n            support@connectify.chat\r\n          </a>\r\n        </li>\r\n      </ul>\r\n    </main>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

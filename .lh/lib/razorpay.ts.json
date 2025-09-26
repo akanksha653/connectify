@@ -1,0 +1,22 @@
+{
+    "sourceFile": "lib/razorpay.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752595190989,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752598163358,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,14 +1,43 @@\n // lib/razorpay.ts\r\n+\r\n+/**\r\n+ * Dynamically loads the Razorpay checkout script\r\n+ * Returns a Promise that resolves to true on success, false on failure\r\n+ */\r\n export const loadRazorpayScript = (): Promise<boolean> => {\r\n   return new Promise((resolve) => {\r\n     const scriptId = \"razorpay-script\";\r\n+\r\n+    // Already loaded\r\n     if (document.getElementById(scriptId)) return resolve(true);\r\n \r\n+    // Create script element\r\n     const script = document.createElement(\"script\");\r\n     script.id = scriptId;\r\n     script.src = \"https://checkout.razorpay.com/v1/checkout.js\";\r\n-    script.onload = () => resolve(true);\r\n-    script.onerror = () => resolve(false);\r\n+    script.async = true;\r\n+    script.defer = true;\r\n+\r\n+    // Load success\r\n+    script.onload = () => {\r\n+      console.info(\"✅ Razorpay script loaded successfully.\");\r\n+      resolve(true);\r\n+    };\r\n+\r\n+    // Load error\r\n+    script.onerror = () => {\r\n+      console.error(\"❌ Failed to load Razorpay script.\");\r\n+      resolve(false);\r\n+    };\r\n+\r\n+    // Fallback timeout (10s)\r\n+    setTimeout(() => {\r\n+      if (!document.getElementById(scriptId)) {\r\n+        console.error(\"❌ Razorpay script loading timed out.\");\r\n+        resolve(false);\r\n+      }\r\n+    }, 10000);\r\n+\r\n     document.body.appendChild(script);\r\n   });\r\n };\r\n"
+                }
+            ],
+            "date": 1752595190989,
+            "name": "Commit-0",
+            "content": "// lib/razorpay.ts\r\nexport const loadRazorpayScript = (): Promise<boolean> => {\r\n  return new Promise((resolve) => {\r\n    const scriptId = \"razorpay-script\";\r\n    if (document.getElementById(scriptId)) return resolve(true);\r\n\r\n    const script = document.createElement(\"script\");\r\n    script.id = scriptId;\r\n    script.src = \"https://checkout.razorpay.com/v1/checkout.js\";\r\n    script.onload = () => resolve(true);\r\n    script.onerror = () => resolve(false);\r\n    document.body.appendChild(script);\r\n  });\r\n};\r\n"
+        }
+    ]
+}

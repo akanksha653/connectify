@@ -1,0 +1,62 @@
+"use client";
+
+import { CheckCircle } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
+
+export default function DonateSuccessPage() {
+  const searchParams = useSearchParams();
+  const paymentId = searchParams.get("payment_id");
+  const amount = searchParams.get("amount");
+
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-white dark:from-green-900 dark:to-neutral-900 px-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-8 w-full max-w-md text-center"
+      >
+        <CheckCircle className="text-green-600 w-12 h-12 mx-auto mb-4 animate-pulse" />
+        <h1 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">
+          Payment Successful!
+        </h1>
+        <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-6">
+          Thank you for your donation 💖. Your support helps us keep Connectify free and growing.
+        </p>
+
+        <div className="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4 text-left text-sm text-neutral-800 dark:text-white shadow-inner mb-6">
+          <p className="mb-1 font-medium">🧾 Donation Receipt</p>
+          {paymentId ? (
+            <>
+              <div className="border-t border-neutral-300 dark:border-neutral-600 my-2 pt-2">
+                <p>
+                  <span className="font-semibold">Payment ID:</span>{" "}
+                  <span className="break-words">{paymentId}</span>
+                </p>
+                {amount && (
+                  <p>
+                    <span className="font-semibold">Amount:</span> ₹{amount}
+                  </p>
+                )}
+                <p>
+                  <span className="font-semibold">Status:</span> Confirmed ✅
+                </p>
+              </div>
+            </>
+          ) : (
+            <p className="text-red-500">No payment details found.</p>
+          )}
+        </div>
+
+        <Link
+          href="/"
+          className="inline-block px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow transition"
+        >
+          Back to Home
+        </Link>
+      </motion.div>
+    </main>
+  );
+}

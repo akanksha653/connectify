@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/anonymousChat/hooks/useSoundPlayer.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752664922234,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752664922234,
+            "name": "Commit-0",
+            "content": "import { useRef } from \"react\";\r\n\r\nexport function useSoundPlayer(soundOn: boolean) {\r\n  const matchSoundRef = useRef<HTMLAudioElement>(null);\r\n  const leaveSoundRef = useRef<HTMLAudioElement>(null);\r\n\r\n  const playSound = (type: \"match\" | \"leave\") => {\r\n    if (!soundOn) return;\r\n    const audioRef = type === \"match\" ? matchSoundRef : leaveSoundRef;\r\n    const play = async () => {\r\n      try {\r\n        const audio = audioRef.current;\r\n        if (!audio) return;\r\n        audio.volume = 0.8;\r\n        await audio.play();\r\n      } catch (err) {\r\n        const ctx = new AudioContext();\r\n        await ctx.resume();\r\n      }\r\n    };\r\n    play();\r\n  };\r\n\r\n  return { matchSoundRef, leaveSoundRef, playSound };\r\n}\r\n"
+        }
+    ]
+}

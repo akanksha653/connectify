@@ -1,0 +1,22 @@
+{
+    "sourceFile": "pages/api/razorpay-webhook.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752598289651,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752682054414,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,34 +2,44 @@\n import crypto from \"crypto\";\r\n \r\n export const config = {\r\n   api: {\r\n-    bodyParser: false, // Important: we'll parse raw body manually\r\n+    bodyParser: false, // Razorpay requires raw body for signature validation\r\n   },\r\n };\r\n \r\n-const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET || \"your_razorpay_secret\"; // secure in .env\r\n+const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET || \"your_razorpay_secret\";\r\n \r\n export default async function handler(req: NextApiRequest, res: NextApiResponse) {\r\n   if (req.method !== \"POST\") return res.status(405).end(\"Method not allowed\");\r\n \r\n-  const chunks: Uint8Array[] = [];\r\n-  for await (const chunk of req) chunks.push(chunk);\r\n-  const body = Buffer.concat(chunks);\r\n-  const signature = req.headers[\"x-razorpay-signature\"];\r\n+  try {\r\n+    const chunks: Uint8Array[] = [];\r\n+    for await (const chunk of req) chunks.push(chunk);\r\n+    const body = Buffer.concat(chunks);\r\n+    const signature = req.headers[\"x-razorpay-signature\"];\r\n \r\n-  const expectedSignature = crypto\r\n-    .createHmac(\"sha256\", RAZORPAY_SECRET)\r\n-    .update(body)\r\n-    .digest(\"hex\");\r\n+    const expectedSignature = crypto\r\n+      .createHmac(\"sha256\", RAZORPAY_SECRET)\r\n+      .update(body)\r\n+      .digest(\"hex\");\r\n \r\n-  if (signature !== expectedSignature) {\r\n-    return res.status(400).json({ status: \"Invalid signature\" });\r\n-  }\r\n+    if (signature !== expectedSignature) {\r\n+      console.warn(\"❌ Invalid Razorpay Signature\");\r\n+      return res.status(400).json({ status: \"Invalid signature\" });\r\n+    }\r\n \r\n-  const data = JSON.parse(body.toString());\r\n+    const data = JSON.parse(body.toString());\r\n \r\n-  // You can store transaction info in DB here\r\n-  console.log(\"✅ Verified Payment:\", data);\r\n+    // ✅ Optional: log important fields\r\n+    console.log(\"✅ Webhook Received:\", data.event);\r\n+    console.log(\"📌 Payment ID:\", data.payload?.payment?.entity?.id);\r\n+    console.log(\"💰 Amount:\", data.payload?.payment?.entity?.amount / 100);\r\n \r\n-  res.status(200).json({ received: true });\r\n+    // ✅ Optional: store in DB here\r\n+\r\n+    res.status(200).json({ received: true });\r\n+  } catch (error) {\r\n+    console.error(\"Webhook error:\", error);\r\n+    res.status(500).json({ error: \"Internal Server Error\" });\r\n+  }\r\n }\r\n"
+                }
+            ],
+            "date": 1752598289651,
+            "name": "Commit-0",
+            "content": "import type { NextApiRequest, NextApiResponse } from \"next\";\r\nimport crypto from \"crypto\";\r\n\r\nexport const config = {\r\n  api: {\r\n    bodyParser: false, // Important: we'll parse raw body manually\r\n  },\r\n};\r\n\r\nconst RAZORPAY_SECRET = process.env.RAZORPAY_SECRET || \"your_razorpay_secret\"; // secure in .env\r\n\r\nexport default async function handler(req: NextApiRequest, res: NextApiResponse) {\r\n  if (req.method !== \"POST\") return res.status(405).end(\"Method not allowed\");\r\n\r\n  const chunks: Uint8Array[] = [];\r\n  for await (const chunk of req) chunks.push(chunk);\r\n  const body = Buffer.concat(chunks);\r\n  const signature = req.headers[\"x-razorpay-signature\"];\r\n\r\n  const expectedSignature = crypto\r\n    .createHmac(\"sha256\", RAZORPAY_SECRET)\r\n    .update(body)\r\n    .digest(\"hex\");\r\n\r\n  if (signature !== expectedSignature) {\r\n    return res.status(400).json({ status: \"Invalid signature\" });\r\n  }\r\n\r\n  const data = JSON.parse(body.toString());\r\n\r\n  // You can store transaction info in DB here\r\n  console.log(\"✅ Verified Payment:\", data);\r\n\r\n  res.status(200).json({ received: true });\r\n}\r\n"
+        }
+    ]
+}

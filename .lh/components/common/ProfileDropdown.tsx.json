@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/common/ProfileDropdown.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752581107030,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752581107030,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React, { useEffect, useState, useRef } from \"react\";\r\nimport { useRouter } from \"next/navigation\";\r\nimport { UserCircle, ChevronDown } from \"lucide-react\";\r\n\r\nexport default function ProfileDropdown() {\r\n  const [userInfo, setUserInfo] = useState<{ name: string; age: string; country: string } | null>(null);\r\n  const [open, setOpen] = useState(false);\r\n  const router = useRouter();\r\n  const dropdownRef = useRef<HTMLDivElement>(null);\r\n\r\n  useEffect(() => {\r\n    const stored = localStorage.getItem(\"user-info\");\r\n    if (stored) {\r\n      try {\r\n        const parsed = JSON.parse(stored);\r\n        if (parsed.name && parsed.age && parsed.country) {\r\n          setUserInfo(parsed);\r\n        }\r\n      } catch {\r\n        setUserInfo(null);\r\n      }\r\n    }\r\n  }, []);\r\n\r\n  useEffect(() => {\r\n    const handleClickOutside = (e: MouseEvent) => {\r\n      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {\r\n        setOpen(false);\r\n      }\r\n    };\r\n    document.addEventListener(\"mousedown\", handleClickOutside);\r\n    return () => document.removeEventListener(\"mousedown\", handleClickOutside);\r\n  }, []);\r\n\r\n  if (!userInfo) return null;\r\n\r\n  return (\r\n    <div className=\"relative\" ref={dropdownRef}>\r\n      <button\r\n        onClick={() => setOpen(!open)}\r\n        className=\"flex items-center gap-2 text-sm font-medium text-neutral-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition\"\r\n      >\r\n        <UserCircle className=\"w-6 h-6\" />\r\n        <span>{userInfo.name}</span>\r\n        <ChevronDown className=\"w-4 h-4\" />\r\n      </button>\r\n\r\n      {open && (\r\n        <div className=\"absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 z-50 p-4 space-y-2\">\r\n          <div>\r\n            <p className=\"text-xs text-neutral-500\">Name</p>\r\n            <p className=\"font-medium\">{userInfo.name}</p>\r\n          </div>\r\n          <div>\r\n            <p className=\"text-xs text-neutral-500\">Age</p>\r\n            <p className=\"font-medium\">{userInfo.age}</p>\r\n          </div>\r\n          <div>\r\n            <p className=\"text-xs text-neutral-500\">Country</p>\r\n            <p className=\"font-medium\">{userInfo.country}</p>\r\n          </div>\r\n\r\n          <hr className=\"border-neutral-300 dark:border-neutral-600\" />\r\n\r\n          <button\r\n            onClick={() => router.push(\"/profile\")}\r\n            className=\"text-sm w-full text-left text-blue-600 hover:underline\"\r\n          >\r\n            View Full Profile\r\n          </button>\r\n          <button\r\n            onClick={() => {\r\n              localStorage.removeItem(\"user-info\");\r\n              router.push(\"/\");\r\n            }}\r\n            className=\"text-sm w-full text-left text-red-600 hover:underline\"\r\n          >\r\n            Logout\r\n          </button>\r\n        </div>\r\n      )}\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

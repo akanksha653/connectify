@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 5,
+            "activePatchIndex": 15,
             "patches": [
                 {
                     "date": 1752316961772,
@@ -28,6 +28,46 @@
                 {
                     "date": 1752419075943,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,26 +1,39 @@\n @import \"tailwindcss\";\n \n+/* Light/Dark Theme Variables */\n :root {\n-  --background: #ffffff;\n-  --foreground: #171717;\n-}\n+  --color-background: #ffffff;\n+  --color-foreground: #171717;\n \n-:root {\n-  --color-background: var(--background);\n-  --color-foreground: var(--foreground);\n-  --font-sans: var(--font-geist-sans);\n-  --font-mono: var(--font-geist-mono);\n+  --font-sans: var(--font-geist-sans, system-ui, sans-serif);\n+  --font-mono: var(--font-geist-mono, monospace);\n }\n \n @media (prefers-color-scheme: dark) {\n   :root {\n-    --background: #0a0a0a;\n-    --foreground: #ededed;\n+    --color-background: #0a0a0a;\n+    --color-foreground: #ededed;\n   }\n }\n \n+/* Global Styling */\n body {\n-  background: var(--background);\n-  color: var(--foreground);\n-  font-family: Arial, Helvetica, sans-serif;\n+  background-color: var(--color-background);\n+  color: var(--color-foreground);\n+  font-family: var(--font-sans);\n+  line-height: 1.5;\n+  -webkit-font-smoothing: antialiased;\n+  -moz-osx-font-smoothing: grayscale;\n+  transition: background-color 0.3s ease, color 0.3s ease;\n }\n+\n+/* Smooth transitions */\n+html {\n+  scroll-behavior: smooth;\n+}\n+\n+/* Remove default outlines only when mouse is used */\n+*:focus-visible {\n+  outline: 2px solid #3b82f6; /* blue-500 */\n+  outline-offset: 2px;\n+}\n"
+                },
+                {
+                    "date": 1752582531455,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -16,9 +16,17 @@\n   }\n }\n \n /* Global Styling */\n+html,\n body {\n+  height: 100%;              /* ✅ Full height */\n+  margin: 0;                 /* ✅ Remove default spacing */\n+  padding: 0;\n+  overflow: hidden;          /* ✅ Prevent scrollbars */\n+}\n+\n+body {\n   background-color: var(--color-background);\n   color: var(--color-foreground);\n   font-family: var(--font-sans);\n   line-height: 1.5;\n"
+                },
+                {
+                    "date": 1752584242363,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,8 +37,9 @@\n \n /* Smooth transitions */\n html {\n   scroll-behavior: smooth;\n+  transition: background-color 0.3s ease, color 0.3s ease; /* ✅ Added for <html> too */\n }\n \n /* Remove default outlines only when mouse is used */\n *:focus-visible {\n"
+                },
+                {
+                    "date": 1752665930559,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,18 +15,9 @@\n     --color-foreground: #ededed;\n   }\n }\n \n-/* Global Styling */\n-html,\n body {\n-  height: 100%;              /* ✅ Full height */\n-  margin: 0;                 /* ✅ Remove default spacing */\n-  padding: 0;\n-  overflow: hidden;          /* ✅ Prevent scrollbars */\n-}\n-\n-body {\n   background-color: var(--color-background);\n   color: var(--color-foreground);\n   font-family: var(--font-sans);\n   line-height: 1.5;\n"
+                },
+                {
+                    "date": 1752684739064,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,9 +15,18 @@\n     --color-foreground: #ededed;\n   }\n }\n \n+/* Global Styling */\n+html,\n body {\n+  height: 100%;              /* ✅ Full height */\n+  margin: 0;                 /* ✅ Remove default spacing */\n+  padding: 0;\n+  overflow: hidden;          /* ✅ Prevent scrollbars */\n+}\n+\n+body {\n   background-color: var(--color-background);\n   color: var(--color-foreground);\n   font-family: var(--font-sans);\n   line-height: 1.5;\n"
+                },
+                {
+                    "date": 1752685148023,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,9 +18,8 @@\n \n /* Global Styling */\n html,\n body {\n-  height: 100%;              /* ✅ Full height */\n   margin: 0;                 /* ✅ Remove default spacing */\n   padding: 0;\n   overflow: hidden;          /* ✅ Prevent scrollbars */\n }\n"
+                },
+                {
+                    "date": 1752685268364,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,8 +18,9 @@\n \n /* Global Styling */\n html,\n body {\n+  height: 100%;              /* ✅ Full height */\n   margin: 0;                 /* ✅ Remove default spacing */\n   padding: 0;\n   overflow: hidden;          /* ✅ Prevent scrollbars */\n }\n"
+                },
+                {
+                    "date": 1752689973247,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,10 +19,8 @@\n /* Global Styling */\n html,\n body {\n   height: 100%;              /* ✅ Full height */\n-  margin: 0;                 /* ✅ Remove default spacing */\n-  padding: 0;\n   overflow: hidden;          /* ✅ Prevent scrollbars */\n }\n \n body {\n"
+                },
+                {
+                    "date": 1752690247693,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,12 +17,8 @@\n }\n \n /* Global Styling */\n html,\n-body {\n-  height: 100%;              /* ✅ Full height */\n-  overflow: hidden;          /* ✅ Prevent scrollbars */\n-}\n \n body {\n   background-color: var(--color-background);\n   color: var(--color-foreground);\n"
+                },
+                {
+                    "date": 1752690378925,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,8 +17,12 @@\n }\n \n /* Global Styling */\n html,\n+body {\n+  height: 100%;              /* ✅ Full height */\n+  overflow: hidden;          /* ✅ Prevent scrollbars */\n+}\n \n body {\n   background-color: var(--color-background);\n   color: var(--color-foreground);\n"
+                },
+                {
+                    "date": 1753187084114,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,8 @@\n /* Global Styling */\n html,\n body {\n   height: 100%;              /* ✅ Full height */\n-  overflow: hidden;          /* ✅ Prevent scrollbars */\n }\n \n body {\n   background-color: var(--color-background);\n"
                 }
             ],
             "date": 1752316961772,

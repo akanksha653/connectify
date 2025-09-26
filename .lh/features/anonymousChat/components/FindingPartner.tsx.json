@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1752230178700,
@@ -16,6 +16,10 @@
                 {
                     "date": 1752418973470,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,20 +3,24 @@\n import React from \"react\";\r\n \r\n export default function FindingPartner() {\r\n   return (\r\n-    <div className=\"flex flex-col items-center justify-center h-full py-20\">\r\n+    <div className=\"flex flex-col items-center justify-center h-full px-4 py-20 text-center\">\r\n       {/* Spinner */}\r\n       <div\r\n-        className=\"w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-6\"\r\n+        className=\"w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-6\"\r\n         role=\"status\"\r\n         aria-label=\"Loading spinner\"\r\n-      ></div>\r\n+      />\r\n \r\n-      {/* Animated loading text */}\r\n-      <p className=\"text-neutral-700 dark:text-neutral-300 text-lg flex items-center\">\r\n+      {/* Animated text */}\r\n+      <p className=\"text-lg sm:text-xl font-medium text-neutral-700 dark:text-neutral-200\">\r\n         Looking for a partner\r\n-        <span className=\"ml-1 animate-pulse\">...</span>\r\n+        <span className=\"inline-block animate-pulse ml-1\">...</span>\r\n       </p>\r\n+\r\n+      <p className=\"text-sm text-neutral-500 dark:text-neutral-400 mt-2\">\r\n+        Please wait while we connect you anonymously.\r\n+      </p>\r\n     </div>\r\n   );\r\n }\r\n"
+                },
+                {
+                    "date": 1752603483151,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,27 @@\n+\"use client\";\r\n+\r\n+import React from \"react\";\r\n+\r\n+export default function FindingPartner() {\r\n+  return (\r\n+    <div className=\"flex flex-col items-center justify-center h-full px-4 py-16 sm:py-20 text-center space-y-4\">\r\n+      {/* Spinner */}\r\n+      <div\r\n+        className=\"w-12 sm:w-14 h-12 sm:h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin\"\r\n+        role=\"status\"\r\n+        aria-label=\"Searching for a partner\"\r\n+      />\r\n+\r\n+      {/* Main Message */}\r\n+      <p className=\"text-base sm:text-lg md:text-xl font-medium text-neutral-700 dark:text-neutral-200\">\r\n+        Looking for a partner\r\n+        <span className=\"inline-block animate-pulse ml-1\">...</span>\r\n+      </p>\r\n+\r\n+      {/* Subtext */}\r\n+      <p className=\"text-sm sm:text-base text-neutral-500 dark:text-neutral-400 max-w-xs sm:max-w-sm\">\r\n+        Please wait while we connect you anonymously.\r\n+      </p>\r\n+    </div>\r\n+  );\r\n+}\r\n"
                 }
             ],
             "date": 1752230178700,

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/anonymousChat/components/IdleMessage.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752664938842,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752664938842,
+            "name": "Commit-0",
+            "content": "import { Smile, UserX, Users } from \"lucide-react\";\r\n\r\nexport default function IdleMessage({ lastAction }: { lastAction: \"skipped\" | \"left\" | null }) {\r\n  const baseStyle =\r\n    \"flex flex-col items-center justify-center h-full text-center text-neutral-500 dark:text-neutral-400 p-4 text-sm gap-2\";\r\n\r\n  if (lastAction === \"skipped\") {\r\n    return (\r\n      <div className={baseStyle}>\r\n        <Smile className=\"w-8 h-8 text-yellow-400\" />\r\n        <p>You skipped the chat.</p>\r\n        <p>Click <b>Start</b> to connect with someone new!</p>\r\n      </div>\r\n    );\r\n  } else if (lastAction === \"left\") {\r\n    return (\r\n      <div className={baseStyle}>\r\n        <UserX className=\"w-8 h-8 text-red-400\" />\r\n        <p>Your partner left the chat.</p>\r\n        <p>Click <b>Start</b> to begin again.</p>\r\n      </div>\r\n    );\r\n  } else {\r\n    return (\r\n      <div className={baseStyle}>\r\n        <Users className=\"w-8 h-8 text-neutral-400\" />\r\n        <p>Click <b>Start</b> to begin searching for a partner.</p>\r\n      </div>\r\n    );\r\n  }\r\n}\r\n"
+        }
+    ]
+}

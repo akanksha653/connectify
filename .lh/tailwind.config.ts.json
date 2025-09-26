@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 3,
+            "activePatchIndex": 4,
             "patches": [
                 {
                     "date": 1752258439001,
@@ -20,6 +20,10 @@
                 {
                     "date": 1752424322523,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,12 +25,9 @@\n       },\r\n     },\r\n   },\r\n   plugins: [\r\n-    require(\"tailwind-scrollbar\"),\r\n+    require(\"tailwind-scrollbar\")({ nocompatible: true }),\r\n   ],\r\n-  variants: {\r\n-    scrollbar: [\"rounded\"],\r\n-  },\r\n };\r\n \r\n export default config;\r\n"
+                },
+                {
+                    "date": 1752584184431,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,8 +22,11 @@\n         pulse: \"pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite\",\r\n         bounce: \"bounce 1s infinite\",\r\n         bounceDelay: \"bounceDelay 1.4s infinite both\",\r\n       },\r\n+      transitionProperty: {\r\n+        theme: \"background-color, color, border-color, fill, stroke\",\r\n+      },\r\n     },\r\n   },\r\n   plugins: [\r\n     require(\"tailwind-scrollbar\")({ nocompatible: true }),\r\n"
                 }
             ],
             "date": 1752258439001,

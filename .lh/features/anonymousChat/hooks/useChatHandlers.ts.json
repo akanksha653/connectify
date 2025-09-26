@@ -1,0 +1,22 @@
+{
+    "sourceFile": "features/anonymousChat/hooks/useChatHandlers.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752664929722,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1753191021782,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,8 +22,9 @@\n   setLastAction,\r\n }: HandlersProps) {\r\n   const handleMatched = useCallback(\r\n     ({ roomId, isOfferer, partnerInfo }: any) => {\r\n+      console.log(\"✅ handleMatched received:\", { roomId, isOfferer, partnerInfo });\r\n       setRoomId(roomId);\r\n       setIsOfferer(isOfferer);\r\n       setPartnerInfo(partnerInfo);\r\n       setLoading(false);\r\n"
+                }
+            ],
+            "date": 1752664929722,
+            "name": "Commit-0",
+            "content": "import { useEffect, useCallback } from \"react\";\r\n\r\ninterface HandlersProps {\r\n  socket: any;\r\n  playSound: (type: \"match\" | \"leave\") => void;\r\n  setRoomId: (id: string | null) => void;\r\n  setIsOfferer: (val: boolean | null) => void;\r\n  setPartnerInfo: (val: any) => void;\r\n  setLoading: (val: boolean) => void;\r\n  setSessionStarted: (val: boolean) => void;\r\n  setLastAction: (val: \"skipped\" | \"left\" | null) => void;\r\n}\r\n\r\nexport function useChatHandlers({\r\n  socket,\r\n  playSound,\r\n  setRoomId,\r\n  setIsOfferer,\r\n  setPartnerInfo,\r\n  setLoading,\r\n  setSessionStarted,\r\n  setLastAction,\r\n}: HandlersProps) {\r\n  const handleMatched = useCallback(\r\n    ({ roomId, isOfferer, partnerInfo }: any) => {\r\n      setRoomId(roomId);\r\n      setIsOfferer(isOfferer);\r\n      setPartnerInfo(partnerInfo);\r\n      setLoading(false);\r\n      setLastAction(null);\r\n      playSound(\"match\");\r\n    },\r\n    [playSound]\r\n  );\r\n\r\n  const handlePartnerLeft = useCallback(() => {\r\n    setRoomId(null);\r\n    setIsOfferer(null);\r\n    setSessionStarted(false);\r\n    setLoading(false);\r\n    setLastAction(\"left\");\r\n    playSound(\"leave\");\r\n  }, [playSound]);\r\n\r\n  useEffect(() => {\r\n    if (!socket) return;\r\n    socket.on(\"matched\", handleMatched);\r\n    socket.on(\"partner-left\", handlePartnerLeft);\r\n    return () => {\r\n      socket.off(\"matched\", handleMatched);\r\n      socket.off(\"partner-left\", handlePartnerLeft);\r\n    };\r\n  }, [socket, handleMatched, handlePartnerLeft]);\r\n\r\n  useEffect(() => {\r\n    if (!socket) return;\r\n    const handleDisconnect = () => {\r\n      setLoading(false);\r\n      setSessionStarted(false);\r\n    };\r\n    const handleConnect = () => {\r\n      console.log(\"Connected to socket:\", socket.id);\r\n    };\r\n    socket.on(\"disconnect\", handleDisconnect);\r\n    socket.on(\"connect\", handleConnect);\r\n    return () => {\r\n      socket.off(\"disconnect\", handleDisconnect);\r\n      socket.off(\"connect\", handleConnect);\r\n    };\r\n  }, [socket]);\r\n\r\n  useEffect(() => {\r\n    return () => {\r\n      if (socket) {\r\n        socket.emit(\"leave-room\");\r\n      }\r\n    };\r\n  }, [socket]);\r\n}\r\n"
+        }
+    ]
+}

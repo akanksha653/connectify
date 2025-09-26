@@ -1,0 +1,26 @@
+{
+    "sourceFile": "pages/api/create-upi-link.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1752681096199,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752681144326,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,6 @@\n // pages/api/create-upi-link.ts\r\n+\r\n import type { NextApiRequest, NextApiResponse } from \"next\";\r\n import Razorpay from \"razorpay\";\r\n \r\n const razorpay = new Razorpay({\r\n@@ -10,26 +11,27 @@\n export default async function handler(req: NextApiRequest, res: NextApiResponse) {\r\n   if (req.method !== \"POST\") return res.status(405).end();\r\n \r\n   const { amount } = req.body;\r\n+  if (!amount || amount < 1) return res.status(400).json({ error: \"Invalid amount\" });\r\n \r\n   try {\r\n     const paymentLink = await razorpay.paymentLink.create({\r\n       amount: amount * 100,\r\n       currency: \"INR\",\r\n-      description: \"Donate to Connectify\",\r\n+      description: \"Connectify UPI Donation\",\r\n       customer: {\r\n         name: \"Anonymous Donor\",\r\n-        email: \"connectify.donate@example.com\",\r\n+        email: \"donate@connectify.in\",\r\n       },\r\n       notify: {\r\n+        email: false,\r\n         sms: false,\r\n-        email: false,\r\n       },\r\n       reminder_enable: false,\r\n       callback_url: \"https://yourdomain.com/donate/success\",\r\n       callback_method: \"get\",\r\n-      upi_link: true, // Enable UPI QR\r\n+      upi_link: true,\r\n     });\r\n \r\n     res.status(200).json({ short_url: paymentLink.short_url });\r\n   } catch (err: any) {\r\n"
+                },
+                {
+                    "date": 1752682301427,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -27,9 +27,9 @@\n         email: false,\r\n         sms: false,\r\n       },\r\n       reminder_enable: false,\r\n-      callback_url: \"https://yourdomain.com/donate/success\",\r\n+      callback_url: \"https://connectify-hub.vercel.app/donate/success\",\r\n       callback_method: \"get\",\r\n       upi_link: true,\r\n     });\r\n \r\n"
+                }
+            ],
+            "date": 1752681096199,
+            "name": "Commit-0",
+            "content": "// pages/api/create-upi-link.ts\r\nimport type { NextApiRequest, NextApiResponse } from \"next\";\r\nimport Razorpay from \"razorpay\";\r\n\r\nconst razorpay = new Razorpay({\r\n  key_id: process.env.RAZORPAY_KEY!,\r\n  key_secret: process.env.RAZORPAY_SECRET!,\r\n});\r\n\r\nexport default async function handler(req: NextApiRequest, res: NextApiResponse) {\r\n  if (req.method !== \"POST\") return res.status(405).end();\r\n\r\n  const { amount } = req.body;\r\n\r\n  try {\r\n    const paymentLink = await razorpay.paymentLink.create({\r\n      amount: amount * 100,\r\n      currency: \"INR\",\r\n      description: \"Donate to Connectify\",\r\n      customer: {\r\n        name: \"Anonymous Donor\",\r\n        email: \"connectify.donate@example.com\",\r\n      },\r\n      notify: {\r\n        sms: false,\r\n        email: false,\r\n      },\r\n      reminder_enable: false,\r\n      callback_url: \"https://yourdomain.com/donate/success\",\r\n      callback_method: \"get\",\r\n      upi_link: true, // Enable UPI QR\r\n    });\r\n\r\n    res.status(200).json({ short_url: paymentLink.short_url });\r\n  } catch (err: any) {\r\n    console.error(err);\r\n    res.status(500).json({ error: \"Failed to create UPI link\" });\r\n  }\r\n}\r\n"
+        }
+    ]
+}
