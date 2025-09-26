@@ -13,7 +13,7 @@ export const connectRoomSocket = (): Socket => {
     socket = io(SOCKET_URL, { transports: ["websocket"] });
 
     socket.on("connect", () => {
-      console.log("✅ Connected to room server:", socket!.id);
+      console.log("✅ Connected to room server:", socket.id);
     });
 
     socket.on("disconnect", (reason) => {

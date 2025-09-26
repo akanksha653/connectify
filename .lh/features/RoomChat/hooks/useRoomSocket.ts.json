@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1758898655460,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1758906475682,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,22 @@\n-import { useEffect, useRef, useState } from \"react\";\r\n-import { connectRoomSocket, disconnectRoomSocket, getRoomSocket } from \"../services/roomSocketService\";\r\n+import { useEffect, useState } from \"react\";\r\n+import type { Socket } from \"socket.io-client\";\r\n+import {\r\n+  connectRoomSocket,\r\n+  disconnectRoomSocket,\r\n+  getRoomSocket,\r\n+} from \"../services/roomSocketService\";\r\n \r\n export default function useRoomSocket() {\r\n-  const [socket, setSocket] = useState<any>(null);\r\n+  const [socket, setSocket] = useState<Socket | null>(null);\r\n \r\n   useEffect(() => {\r\n-    connectRoomSocket();\r\n-    const s = getRoomSocket();\r\n+    // Establish connection\r\n+    const s = connectRoomSocket(); // Prefer connectRoomSocket() to return the socket\r\n     setSocket(s);\r\n \r\n     return () => {\r\n+      // Clean up connection on unmount\r\n       disconnectRoomSocket();\r\n       setSocket(null);\r\n     };\r\n   }, []);\r\n"
                 }
             ],
             "date": 1758898655460,

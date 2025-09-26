@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1758898670717,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1758906633254,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,84 @@\n+import { useEffect, useRef, useState } from \"react\";\r\n+import { sendRoomIce } from \"../services/roomSocketService\";\r\n+\r\n+interface PeersMap {\r\n+  [peerId: string]: RTCPeerConnection;\r\n+}\r\n+\r\n+export default function useRoomWebRTC(localStream: MediaStream | null, roomId: string) {\r\n+  const [remoteStreams, setRemoteStreams] = useState<Record<string, MediaStream>>({});\r\n+  const peerConnections = useRef<PeersMap>({});\r\n+\r\n+  /**\r\n+   * Create a new RTCPeerConnection for a given peer\r\n+   */\r\n+  const createPeerConnection = (peerId: string) => {\r\n+    if (!localStream) throw new Error(\"Local stream not available\");\r\n+\r\n+    const pc = new RTCPeerConnection({\r\n+      iceServers: [{ urls: \"stun:stun.l.google.com:19302\" }],\r\n+    });\r\n+\r\n+    // ✅ Add local tracks\r\n+    localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));\r\n+\r\n+    // ✅ Handle remote tracks\r\n+    pc.ontrack = (event) => {\r\n+      setRemoteStreams((prev) => ({\r\n+        ...prev,\r\n+        [peerId]: event.streams[0],\r\n+      }));\r\n+    };\r\n+\r\n+    // ✅ Handle ICE candidates\r\n+    pc.onicecandidate = (event) => {\r\n+      if (event.candidate) {\r\n+        sendRoomIce(peerId, roomId, event.candidate);\r\n+      }\r\n+    };\r\n+\r\n+    peerConnections.current[peerId] = pc;\r\n+    return pc;\r\n+  };\r\n+\r\n+  /**\r\n+   * Remove a specific peer and clean up its connection\r\n+   */\r\n+  const removePeerConnection = (peerId: string) => {\r\n+    const pc = peerConnections.current[peerId];\r\n+    if (pc) {\r\n+      pc.close();\r\n+      delete peerConnections.current[peerId];\r\n+      setRemoteStreams((prev) => {\r\n+        const updated = { ...prev };\r\n+        delete updated[peerId];\r\n+        return updated;\r\n+      });\r\n+    }\r\n+  };\r\n+\r\n+  /**\r\n+   * Close all peer connections\r\n+   */\r\n+  const closeAllPeers = () => {\r\n+    Object.values(peerConnections.current).forEach((pc) => pc.close());\r\n+    peerConnections.current = {};\r\n+    setRemoteStreams({});\r\n+  };\r\n+\r\n+  // ✅ Automatically close connections when hook is unmounted\r\n+  useEffect(() => {\r\n+    return () => {\r\n+      closeAllPeers();\r\n+    };\r\n+    // roomId is included so peers reset if user switches rooms\r\n+  }, [roomId]);\r\n+\r\n+  return {\r\n+    remoteStreams,\r\n+    peerConnections,\r\n+    createPeerConnection,\r\n+    removePeerConnection,\r\n+    closeAllPeers,\r\n+  };\r\n+}\r\n"
                 }
             ],
             "date": 1758898670716,
