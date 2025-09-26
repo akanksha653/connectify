@@ -9,17 +9,12 @@ import ChatBox from "../../../../features/RoomChat/components/ChatBox";
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || "http://localhost:3001";
 
-interface RoomUser {
-  id: string;
-  userInfo: UserInfo;
-}
-
 interface RoomInfo {
   id: string;
   name: string;
   topic: string;
   description?: string;
-  users: RoomUser[];
+  users: string[];
 }
 
 interface UserInfo {
@@ -37,6 +32,7 @@ export default function RoomPage() {
   const [room, setRoom] = useState<RoomInfo | null>(null);
   const [peers, setPeers] = useState<{ [peerId: string]: MediaStream }>({});
 
+  // Store peer connections with name for labels
   const peerConnections = useRef<{ [peerId: string]: { pc: RTCPeerConnection; name: string } }>({});
 
   const userInfo: UserInfo = JSON.parse(localStorage.getItem("user-info") || "{}");
@@ -47,7 +43,7 @@ export default function RoomPage() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localStreamRef.current = stream;
-        setPeers((prev) => ({ ...prev }));
+        setPeers((prev) => ({ ...prev })); // Force re-render
       } catch (err) {
         console.error("Camera error:", err);
       }
@@ -64,17 +60,17 @@ export default function RoomPage() {
     // Join room with user info
     socket.emit("join-room-dynamic", { roomId: id, userInfo });
 
-    // Update room info
-    socket.on("room-update", async (data: RoomInfo) => {
-      setRoom(data);
+    socket.on("room-update", (data: RoomInfo) => setRoom(data));
 
-      // Create peer connections for new users
-      for (const user of data.users) {
-        if (user.id === socket.id) continue;
-        if (!peerConnections.current[user.id]) {
-          await createOfferToPeer(user.id, user.userInfo.name);
-        }
-      }
+    socket.on("user-joined", async ({ userId, userName }: { userId: string; userName: string }) => {
+      if (!localStreamRef.current) return;
+
+      const pc = createPeerConnection(userId, userName);
+      localStreamRef.current.getTracks().forEach((track) => pc.addTrack(track));
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      socket.emit("room-offer", { roomId: id, offer, to: userId });
     });
 
     socket.on(
@@ -139,20 +135,9 @@ export default function RoomPage() {
     return pc;
   };
 
-  const createOfferToPeer = async (peerId: string, name: string) => {
-    if (!localStreamRef.current || peerConnections.current[peerId]) return;
-
-    const pc = createPeerConnection(peerId, name);
-    localStreamRef.current.getTracks().forEach((track) => pc.addTrack(track));
-
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-
-    socketRef.current?.emit("room-offer", { roomId: id, offer, to: peerId });
-  };
-
   if (!localStreamRef.current) return <p>Loading camera...</p>;
 
+  // Responsive grid columns
   const totalUsers = Object.keys(peers).length + 1;
   const getGridCols = () => {
     if (totalUsers === 1) return "grid-cols-1";
@@ -164,6 +149,7 @@ export default function RoomPage() {
 
   return (
     <div className="flex flex-col md:flex-row gap-4 p-4 min-h-screen">
+      {/* Video Grid */}
       <div className={`flex-1 grid ${getGridCols()} gap-4`}>
         <LocalVideo stream={localStreamRef.current} label={userInfo.name} />
         {Object.entries(peers).map(([peerId, stream]) => {
@@ -172,10 +158,12 @@ export default function RoomPage() {
         })}
       </div>
 
+      {/* Chat */}
       <div className="md:w-80 flex-shrink-0">
         {socketRef.current && <ChatBox socket={socketRef.current} roomId={id} userName={userInfo.name} />}
       </div>
 
+      {/* Room Info */}
       {room && (
         <div className="md:w-64 p-4 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow flex-shrink-0">
           <h2 className="text-lg font-bold">{room.name}</h2>
