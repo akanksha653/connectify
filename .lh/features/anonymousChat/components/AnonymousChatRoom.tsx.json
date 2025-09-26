@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 111,
+            "activePatchIndex": 112,
             "patches": [
                 {
                     "date": 1752230193627,
@@ -452,6 +452,10 @@
                 {
                     "date": 1758894061306,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -104,10 +104,10 @@\n             <FindingPartner />\r\n           ) : (\r\n             <>\r\n               {Object.entries(remoteStreams).map(([peerId, stream]) => (\r\n-  <RemoteVideo key={peerId} stream={stream} />\r\n-))}\r\n+                 <RemoteVideo key={peerId} stream={stream} />\r\n+              ))}\r\n \r\n               <div className=\"absolute top-4 right-4 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded overflow-hidden border-2 border-white shadow-lg z-20\">\r\n                 {localStream ? (\r\n                   <LocalVideo stream={localStream} />\r\n"
+                },
+                {
+                    "date": 1758897472083,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n   const [genderFilter, setGenderFilter] = useState(\"\");\r\n   const [countryFilter, setCountryFilter] = useState(\"\");\r\n \r\n   const socket = useSocket();\r\n-  const { localStream, remoteStreams } = useWebRTC(roomId, isOfferer, sessionStarted);\r\n+  const { localStream, remoteStream } = useWebRTC(roomId, isOfferer, sessionStarted);\r\n   const { matchSoundRef, leaveSoundRef, playSound } = useSoundPlayer(soundOn);\r\n \r\n   useChatHandlers({\r\n     socket,\r\n@@ -103,12 +103,9 @@\n           ) : loading ? (\r\n             <FindingPartner />\r\n           ) : (\r\n             <>\r\n-              {Object.entries(remoteStreams).map(([peerId, stream]) => (\r\n-                 <RemoteVideo key={peerId} stream={stream} />\r\n-              ))}\r\n-\r\n+              <RemoteVideo stream={remoteStream} />\r\n               <div className=\"absolute top-4 right-4 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded overflow-hidden border-2 border-white shadow-lg z-20\">\r\n                 {localStream ? (\r\n                   <LocalVideo stream={localStream} />\r\n                 ) : (\r\n"
                 }
             ],
             "date": 1752230193627,
