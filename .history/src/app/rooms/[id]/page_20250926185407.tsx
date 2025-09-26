@@ -4,8 +4,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 
-// Signaling server URL
-const SOCKET_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || "http://localhost:3001";
+// ⚡ Adjust to your signaling server endpoint
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SIGNALING_URL || "http://localhost:3001";
 
 interface RoomInfo {
   id: string;
@@ -33,12 +34,12 @@ export default function RoomPage() {
 
   const peerConnections = useRef<{ [peerId: string]: RTCPeerConnection }>({});
 
-  // Connect to room & handle WebRTC
+  // 🟢 Connect to room and handle WebRTC
   useEffect(() => {
     const socket = io(SOCKET_URL, { transports: ["websocket"] });
     socketRef.current = socket;
 
-    socket.emit("join-room-dynamic", { roomId: id });
+    socket.emit("join-room", { roomId: id });
 
     socket.on("room-update", (data: RoomInfo) => setRoom(data));
 
@@ -50,9 +51,7 @@ export default function RoomPage() {
       if (!localVideoRef.current?.srcObject) return;
 
       const pc = createPeerConnection(userId);
-      (localVideoRef.current.srcObject as MediaStream)
-        .getTracks()
-        .forEach((t) => pc.addTrack(t));
+      (localVideoRef.current.srcObject as MediaStream).getTracks().forEach((t) => pc.addTrack(t));
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -64,9 +63,7 @@ export default function RoomPage() {
       async ({ from, offer }: { from: string; offer: RTCSessionDescriptionInit }) => {
         const pc = createPeerConnection(from);
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
-        (localVideoRef.current?.srcObject as MediaStream)
-          ?.getTracks()
-          .forEach((t) => pc.addTrack(t));
+        (localVideoRef.current?.srcObject as MediaStream)?.getTracks().forEach((t) => pc.addTrack(t));
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         socket.emit("room-answer", { roomId: id, answer, to: from });
@@ -108,7 +105,7 @@ export default function RoomPage() {
     };
   }, [id]);
 
-  // Start local camera & mic
+  // 🎥 Start local video/audio
   useEffect(() => {
     (async () => {
       try {
@@ -123,14 +120,14 @@ export default function RoomPage() {
     })();
   }, []);
 
-  // Send chat message
+  // 💬 Send chat message
   const sendMessage = () => {
     if (!input.trim() || !socketRef.current) return;
     socketRef.current.emit("room-message", { roomId: id, text: input.trim() });
     setInput("");
   };
 
-  // Create peer connection
+  // ===== WebRTC helper =====
   const createPeerConnection = (peerId: string) => {
     const socket = socketRef.current!;
     const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
@@ -198,7 +195,7 @@ export default function RoomPage() {
   );
 }
 
-// Remote video component
+// ✅ Component for remote streams
 function RemoteVideo({ stream }: { stream: MediaStream }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {

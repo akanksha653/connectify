@@ -12,7 +12,6 @@ type Room = {
   description?: string;
   userCount: number;
   hasPassword: boolean;
-  password?: string | null;
 };
 
 let socket: Socket | null = null;
@@ -44,12 +43,6 @@ export default function RoomsPage() {
       setRooms((prev) => [...prev, newRoom]);
     });
 
-    socket.on("room-updated", (updatedRoom: Room) => {
-      setRooms((prev) =>
-        prev.map((r) => (r.id === updatedRoom.id ? updatedRoom : r))
-      );
-    });
-
     socket.on("disconnect", () => {
       console.log("⚠️ Disconnected from server");
     });
@@ -66,7 +59,7 @@ export default function RoomsPage() {
       return;
     }
 
-    const newRoom: Room = {
+    const newRoom = {
       id: uuidv4(),
       name: form.name.trim(),
       topic: form.topic.trim(),
@@ -84,7 +77,7 @@ export default function RoomsPage() {
   const handleJoinRoom = (room: Room) => {
     if (room.hasPassword) {
       const pass = prompt("Enter room password:");
-      if (!pass || pass !== room.password) {
+      if (!pass || pass !== (room as any).password) {
         alert("Incorrect password!");
         return;
       }

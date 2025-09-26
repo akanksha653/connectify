@@ -9,7 +9,9 @@
 │   ├── common
 │   │   ├── Button.tsx
 │   │   ├── Loader.tsx
-│   │   └── Modal.tsx
+│   │   ├── Modal.tsx
+│   │   ├── Navbar.tsx
+│   │   └── ProfileDropdown.tsx
 │   └── video
 │       ├── LocalVideo.tsx
 │       ├── RemoteVideo.tsx
@@ -22,20 +24,28 @@
 │   └── anonymousChat
 │       ├── components
 │       │   ├── AnonymousChatRoom.tsx
-│       │   └── FindingPartner.tsx
+│       │   ├── ControlBar.tsx
+│       │   ├── FindingPartner.tsx
+│       │   └── IdleMessage.tsx
 │       ├── hooks
+│       │   ├── useChatHandlers.ts
 │       │   ├── useSocket.ts
+│       │   ├── useSoundPlayer.ts
 │       │   └── useWebRTC.ts
 │       ├── services
 │       │   └── signalingService.ts
 │       └── utils
 │           └── iceServers.ts
 ├── generate-tree.js
+├── lib
+│   └── razorpay.ts
 ├── next-env.d.ts
 ├── next.config.ts
 ├── package.json
 ├── pages
 │   └── api
+│       ├── create-upi-link.ts
+│       ├── razorpay-webhook.ts
 │       └── socket.ts
 ├── postcss.config.mjs
 ├── project-tree.txt
@@ -43,6 +53,11 @@
 │   ├── file.svg
 │   ├── globe.svg
 │   ├── next.svg
+│   ├── sounds
+│   │   ├── leave.mp3
+│   │   ├── match.mp3
+│   │   ├── receive.mp3
+│   │   └── sent.mp3
 │   ├── vercel.svg
 │   └── window.svg
 ├── README.md
@@ -55,10 +70,24 @@
 │   ├── app
 │   │   ├── anonymous
 │   │   │   └── page.tsx
+│   │   ├── contact
+│   │   │   └── page.tsx
+│   │   ├── donate
+│   │   │   ├── page.tsx
+│   │   │   └── success
+│   │   │       └── page.tsx
 │   │   ├── favicon.ico
 │   │   ├── globals.css
 │   │   ├── layout.tsx
-│   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   ├── profile
+│   │   │   └── page.tsx
+│   │   ├── rooms
+│   │   │   ├── page.tsx
+│   │   │   └── [id]
+│   │   │       └── page.tsx
+│   │   └── support
+│   │       └── page.tsx
 │   └── utils
 │       └── cn.ts
 ├── store

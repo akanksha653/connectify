@@ -105,8 +105,8 @@ export default function AnonymousChatRoom() {
           ) : (
             <>
               {Object.entries(remoteStreams).map(([peerId, stream]) => (
-                 <RemoteVideo key={peerId} stream={stream} />
-              ))}
+  <RemoteVideo key={peerId} stream={stream} />
+))}
 
               <div className="absolute top-4 right-4 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded overflow-hidden border-2 border-white shadow-lg z-20">
                 {localStream ? (

@@ -2,16 +2,16 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { io, Socket } from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 
-// Signaling server URL
-const SOCKET_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || "http://localhost:3001";
+// ⚡️ Adjust to your signaling server endpoint
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://connectify-z9gv.onrender.com/";
 
 interface RoomInfo {
   id: string;
   name: string;
   topic: string;
-  description?: string;
+  description: string;
   users: string[];
 }
 
@@ -31,48 +31,61 @@ export default function RoomPage() {
   const [input, setInput] = useState("");
   const [peers, setPeers] = useState<{ [peerId: string]: MediaStream }>({});
 
+  // Store peer connections in a ref to persist across renders
   const peerConnections = useRef<{ [peerId: string]: RTCPeerConnection }>({});
 
-  // Connect to room & handle WebRTC
+  // 🟢 Join Room on mount
   useEffect(() => {
     const socket = io(SOCKET_URL, { transports: ["websocket"] });
     socketRef.current = socket;
 
-    socket.emit("join-room-dynamic", { roomId: id });
+    socket.emit("join-room", { roomId: id });
 
+    // ✅ Room info updates
     socket.on("room-update", (data: RoomInfo) => setRoom(data));
 
+    // ✅ Chat messages
     socket.on("room-message", (msg: ChatMessage) =>
       setMessages((prev) => [...prev, msg])
     );
 
+    // ✅ New user joins (start WebRTC)
     socket.on("user-joined", async ({ userId }: { userId: string }) => {
       if (!localVideoRef.current?.srcObject) return;
 
       const pc = createPeerConnection(userId);
+
+      // Add local stream tracks
       (localVideoRef.current.srcObject as MediaStream)
         .getTracks()
-        .forEach((t) => pc.addTrack(t));
+        .forEach((track) => pc.addTrack(track));
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       socket.emit("room-offer", { roomId: id, offer, to: userId });
     });
 
+    // ✅ Handle incoming offer
     socket.on(
       "room-offer",
       async ({ from, offer }: { from: string; offer: RTCSessionDescriptionInit }) => {
         const pc = createPeerConnection(from);
+
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
-        (localVideoRef.current?.srcObject as MediaStream)
-          ?.getTracks()
-          .forEach((t) => pc.addTrack(t));
+
+        if (localVideoRef.current?.srcObject) {
+          (localVideoRef.current.srcObject as MediaStream)
+            .getTracks()
+            .forEach((track) => pc.addTrack(track));
+        }
+
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         socket.emit("room-answer", { roomId: id, answer, to: from });
       }
     );
 
+    // ✅ Handle answer
     socket.on(
       "room-answer",
       async ({ from, answer }: { from: string; answer: RTCSessionDescriptionInit }) => {
@@ -81,6 +94,7 @@ export default function RoomPage() {
       }
     );
 
+    // ✅ Handle ICE candidates
     socket.on(
       "room-ice",
       ({ from, candidate }: { from: string; candidate: RTCIceCandidateInit }) => {
@@ -89,10 +103,12 @@ export default function RoomPage() {
       }
     );
 
+    // ✅ User left
     socket.on("user-left", ({ userId }: { userId: string }) => {
       const pc = peerConnections.current[userId];
       if (pc) pc.close();
       delete peerConnections.current[userId];
+
       setPeers((prev) => {
         const updated = { ...prev };
         delete updated[userId];
@@ -108,7 +124,7 @@ export default function RoomPage() {
     };
   }, [id]);
 
-  // Start local camera & mic
+  // 🎥 Start local camera
   useEffect(() => {
     (async () => {
       try {
@@ -118,28 +134,37 @@ export default function RoomPage() {
         });
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
       } catch (err) {
-        console.error("Camera error:", err);
+        console.error("Camera error", err);
       }
     })();
   }, []);
 
-  // Send chat message
+  // 💬 Send chat message
   const sendMessage = () => {
     if (!input.trim() || !socketRef.current) return;
-    socketRef.current.emit("room-message", { roomId: id, text: input.trim() });
+    socketRef.current.emit("room-message", {
+      roomId: id,
+      text: input.trim(),
+    });
     setInput("");
   };
 
-  // Create peer connection
+  // ======= WebRTC Helper =======
   const createPeerConnection = (peerId: string) => {
     const socket = socketRef.current!;
-    const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    });
 
     pc.onicecandidate = (e) => {
-      if (e.candidate) socket.emit("room-ice", { roomId: id, candidate: e.candidate, to: peerId });
+      if (e.candidate) {
+        socket.emit("room-ice", { roomId: id, candidate: e.candidate, to: peerId });
+      }
     };
 
-    pc.ontrack = (e) => setPeers((prev) => ({ ...prev, [peerId]: e.streams[0] }));
+    pc.ontrack = (e) => {
+      setPeers((prev) => ({ ...prev, [peerId]: e.streams[0] }));
+    };
 
     peerConnections.current[peerId] = pc;
     return pc;
@@ -152,7 +177,9 @@ export default function RoomPage() {
           <h1 className="text-2xl font-bold">{room.name}</h1>
           <p className="text-sm text-gray-700">{room.topic}</p>
           <p className="text-sm text-gray-500">{room.description}</p>
-          <p className="mt-2 text-sm font-medium">Users: {room.users.length}</p>
+          <p className="mt-2 text-sm font-medium">
+            Users in Room: {room.users.length}
+          </p>
         </div>
       ) : (
         <p>Loading room...</p>
@@ -189,7 +216,10 @@ export default function RoomPage() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
-          <button onClick={sendMessage} className="bg-blue-500 text-white px-4 py-2 rounded">
+          <button
+            onClick={sendMessage}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
             Send
           </button>
         </div>
@@ -198,11 +228,18 @@ export default function RoomPage() {
   );
 }
 
-// Remote video component
+// ✅ Component for remote streams
 function RemoteVideo({ stream }: { stream: MediaStream }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     if (ref.current) ref.current.srcObject = stream;
   }, [stream]);
-  return <video ref={ref} autoPlay playsInline className="w-full h-48 bg-black rounded-lg" />;
+  return (
+    <video
+      ref={ref}
+      autoPlay
+      playsInline
+      className="w-full h-48 bg-black rounded-lg"
+    />
+  );
 }

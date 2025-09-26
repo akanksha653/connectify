@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 107,
+            "activePatchIndex": 111,
             "patches": [
                 {
                     "date": 1752230193627,
@@ -436,6 +436,22 @@
                 {
                     "date": 1752688595693,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -86,9 +86,9 @@\n     setLastAction(\"skipped\");\r\n   };\r\n \r\n   return (\r\n-    <div className=\"h-screen mt-[1px]\">  {/* Covers full screen below navbar */}\r\n+    <div className=\"h-[calc(100vh-56px)]\"> {/* Covers full screen below navbar */}\r\n       <audio ref={matchSoundRef} src=\"/sounds/match.mp3\" preload=\"auto\" />\r\n       <audio ref={leaveSoundRef} src=\"/sounds/leave.mp3\" preload=\"auto\" />\r\n \r\n       {/* === Main Container: Wraps both video container and chat+control container === */}\r\n"
+                },
+                {
+                    "date": 1758894007341,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n   const [genderFilter, setGenderFilter] = useState(\"\");\r\n   const [countryFilter, setCountryFilter] = useState(\"\");\r\n \r\n   const socket = useSocket();\r\n-  const { localStream, remoteStream } = useWebRTC(roomId, isOfferer, sessionStarted);\r\n+  const { localStream, remoteStreams } = useWebRTC(roomId, isOfferer, sessionStarted);\r\n   const { matchSoundRef, leaveSoundRef, playSound } = useSoundPlayer(soundOn);\r\n \r\n   useChatHandlers({\r\n     socket,\r\n"
+                },
+                {
+                    "date": 1758894024467,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n   const [genderFilter, setGenderFilter] = useState(\"\");\r\n   const [countryFilter, setCountryFilter] = useState(\"\");\r\n \r\n   const socket = useSocket();\r\n-  const { localStream, remoteStreams } = useWebRTC(roomId, isOfferer, sessionStarted);\r\n+  const { localStream, remoteStream } = useWebRTC(roomId, isOfferer, sessionStarted);\r\n   const { matchSoundRef, leaveSoundRef, playSound } = useSoundPlayer(soundOn);\r\n \r\n   useChatHandlers({\r\n     socket,\r\n"
+                },
+                {
+                    "date": 1758894045688,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n   const [genderFilter, setGenderFilter] = useState(\"\");\r\n   const [countryFilter, setCountryFilter] = useState(\"\");\r\n \r\n   const socket = useSocket();\r\n-  const { localStream, remoteStream } = useWebRTC(roomId, isOfferer, sessionStarted);\r\n+  const { localStream, remoteStreams } = useWebRTC(roomId, isOfferer, sessionStarted);\r\n   const { matchSoundRef, leaveSoundRef, playSound } = useSoundPlayer(soundOn);\r\n \r\n   useChatHandlers({\r\n     socket,\r\n@@ -103,9 +103,12 @@\n           ) : loading ? (\r\n             <FindingPartner />\r\n           ) : (\r\n             <>\r\n-              <RemoteVideo stream={remoteStream} />\r\n+              {Object.entries(remoteStreams).map(([peerId, stream]) => (\r\n+  <RemoteVideo key={peerId} stream={stream} />\r\n+))}\r\n+\r\n               <div className=\"absolute top-4 right-4 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded overflow-hidden border-2 border-white shadow-lg z-20\">\r\n                 {localStream ? (\r\n                   <LocalVideo stream={localStream} />\r\n                 ) : (\r\n"
+                },
+                {
+                    "date": 1758894061306,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -104,10 +104,10 @@\n             <FindingPartner />\r\n           ) : (\r\n             <>\r\n               {Object.entries(remoteStreams).map(([peerId, stream]) => (\r\n-  <RemoteVideo key={peerId} stream={stream} />\r\n-))}\r\n+                 <RemoteVideo key={peerId} stream={stream} />\r\n+              ))}\r\n \r\n               <div className=\"absolute top-4 right-4 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded overflow-hidden border-2 border-white shadow-lg z-20\">\r\n                 {localStream ? (\r\n                   <LocalVideo stream={localStream} />\r\n"
                 }
             ],
             "date": 1752230193627,
