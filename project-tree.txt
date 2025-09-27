@@ -38,9 +38,17 @@
 │   │       └── iceServers.ts
 │   └── RoomChat
 │       ├── components
+│       │   ├── ChatBox.tsx
+│       │   ├── LocalVideo.tsx
+│       │   ├── RemoteVideo.tsx
+│       │   └── VideoGrid.tsx
 │       ├── hooks
+│       │   ├── useRoomSocket.ts
+│       │   └── useRoomWebRTC.ts
 │       ├── services
+│       │   └── roomSocketService.ts
 │       └── utils
+│           └── getUserInfo.ts
 ├── generate-tree.js
 ├── lib
 │   └── razorpay.ts
