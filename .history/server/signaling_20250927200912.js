@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*", // Allow all or replace with your frontend URL
+    origin: "https://connectify-hub.vercel.app/", // Replace with your frontend URL
     methods: ["GET", "POST"],
   },
 });
@@ -19,12 +19,14 @@ app.use(express.json());
 // Rooms storage
 // ----------------------------
 let rooms = {}; 
-// rooms: { roomId: { name, users: [{ id, userInfo }], createdAt } }
+// rooms structure: { roomId: { name: string, users: [socketId, ...], createdAt: timestamp } }
 
-// List rooms API
+// ----------------------------
+// API to list rooms
+// ----------------------------
 app.get("/rooms", (_, res) => {
-  const roomList = Object.entries(rooms).map(([id, room]) => ({
-    id,
+  const roomList = Object.entries(rooms).map(([roomId, room]) => ({
+    roomId,
     name: room.name,
     usersCount: room.users.length,
     createdAt: room.createdAt,
@@ -39,48 +41,35 @@ io.on("connection", (socket) => {
   console.log("✅ User connected:", socket.id);
 
   // Create room
-  socket.on("create-room", ({ name, topic, password, userInfo }) => {
+  socket.on("create-room", ({ name }) => {
     const roomId = uuidv4();
-    rooms[roomId] = {
-      name: name || "Untitled Room",
-      topic: topic || "",
-      password: password || null,
-      users: [{ id: socket.id, userInfo }],
-      createdAt: Date.now(),
-    };
+    rooms[roomId] = { name: name || "Untitled Room", users: [socket.id], createdAt: Date.now() };
     socket.join(roomId);
-    socket.emit("room-created", { roomId, ...rooms[roomId] });
-    io.emit("rooms-update", rooms);
+    socket.emit("room-created", { roomId, name: rooms[roomId].name });
+    io.emit("rooms-update", rooms); // broadcast updated room list
     console.log(`📦 Room created: ${roomId} by ${socket.id}`);
   });
 
-  // Join a room
-  socket.on("join-room-dynamic", ({ roomId, userInfo }) => {
+  // Join room
+  socket.on("join-room", ({ roomId }) => {
     const room = rooms[roomId];
     if (!room) return socket.emit("error", { message: "Room does not exist" });
-
-    // Add user if not already present
-    if (!room.users.find((u) => u.id === socket.id)) {
-      room.users.push({ id: socket.id, userInfo });
-    }
-
+    if (!room.users.includes(socket.id)) room.users.push(socket.id);
     socket.join(roomId);
-    socket.emit("room-joined", { roomId, ...room });
-    socket.to(roomId).emit("user-joined", { id: socket.id, userInfo });
+    socket.emit("room-joined", { roomId, name: room.name });
+    io.to(roomId).emit("user-joined", { userId: socket.id });
     io.emit("rooms-update", rooms);
     console.log(`${socket.id} joined room ${roomId}`);
   });
 
-  // Leave a room
+  // Leave room
   socket.on("leave-room", ({ roomId }) => {
     const room = rooms[roomId];
     if (!room) return;
-
-    room.users = room.users.filter((u) => u.id !== socket.id);
+    room.users = room.users.filter(id => id !== socket.id);
     socket.leave(roomId);
-    socket.to(roomId).emit("user-left", { id: socket.id });
+    socket.to(roomId).emit("user-left", { userId: socket.id });
 
-    // Delete room if empty after 10 min inactivity
     if (room.users.length === 0) {
       setTimeout(() => {
         if (rooms[roomId]?.users.length === 0) {
@@ -88,7 +77,7 @@ io.on("connection", (socket) => {
           io.emit("rooms-update", rooms);
           console.log(`🗑️ Room deleted due to inactivity: ${roomId}`);
         }
-      }, 10 * 60 * 1000); // 10 min
+      }, 10 * 60 * 1000);
     }
 
     io.emit("rooms-update", rooms);
@@ -96,24 +85,29 @@ io.on("connection", (socket) => {
   });
 
   // Chat in room
-  socket.on("room-message", ({ roomId, id, user, text, timestamp }) => {
-    socket.to(roomId).emit("room-message", { roomId, id, user, text, timestamp });
+  socket.on("room-message", ({ roomId, content, type = "text" }) => {
+    socket.to(roomId).emit("room-message", {
+      id: uuidv4(),
+      senderId: socket.id,
+      content,
+      type,
+      createdAt: Date.now(),
+    });
   });
 
   // WebRTC signaling
-  socket.on("room-offer", ({ to, offer }) => io.to(to).emit("room-offer", { offer, sender: socket.id }));
-  socket.on("room-answer", ({ to, answer }) => io.to(to).emit("room-answer", { answer, sender: socket.id }));
-  socket.on("room-ice", ({ to, candidate }) => io.to(to).emit("room-ice", { candidate, sender: socket.id }));
+  socket.on("room-offer", ({ offer, targetId }) => io.to(targetId).emit("room-offer", { offer, sender: socket.id }));
+  socket.on("room-answer", ({ answer, targetId }) => io.to(targetId).emit("room-answer", { answer, sender: socket.id }));
+  socket.on("room-ice", ({ candidate, targetId }) => io.to(targetId).emit("room-ice", { candidate, sender: socket.id }));
 
-  // Disconnect handling
+  // Disconnect cleanup
   socket.on("disconnect", () => {
-    console.log("❌ User disconnected:", socket.id);
+    console.log("❌ Disconnected:", socket.id);
     for (const roomId in rooms) {
       const room = rooms[roomId];
-      room.users = room.users.filter((u) => u.id !== socket.id);
-      socket.to(roomId).emit("user-left", { id: socket.id });
+      room.users = room.users.filter(id => id !== socket.id);
+      socket.to(roomId).emit("user-left", { userId: socket.id });
 
-      // Delete room if empty after 10 min inactivity
       if (room.users.length === 0) {
         setTimeout(() => {
           if (rooms[roomId]?.users.length === 0) {
