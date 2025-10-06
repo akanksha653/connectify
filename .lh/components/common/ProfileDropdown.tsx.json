@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1752581107030,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1758995199600,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,29 +2,38 @@\n \r\n import React, { useEffect, useState, useRef } from \"react\";\r\n import { useRouter } from \"next/navigation\";\r\n import { UserCircle, ChevronDown } from \"lucide-react\";\r\n+import { useAuth } from \"../../src/app/auth/authContext\"; // your Firebase auth context\r\n+import { ref, get } from \"firebase/database\";\r\n+import { database } from \"@/lib/firebaseConfig\";\r\n \r\n export default function ProfileDropdown() {\r\n+  const { userId } = useAuth();\r\n   const [userInfo, setUserInfo] = useState<{ name: string; age: string; country: string } | null>(null);\r\n   const [open, setOpen] = useState(false);\r\n   const router = useRouter();\r\n   const dropdownRef = useRef<HTMLDivElement>(null);\r\n \r\n+  // Fetch user info from Firebase Realtime Database\r\n   useEffect(() => {\r\n-    const stored = localStorage.getItem(\"user-info\");\r\n-    if (stored) {\r\n+    const fetchUser = async () => {\r\n+      if (!userId) return;\r\n       try {\r\n-        const parsed = JSON.parse(stored);\r\n-        if (parsed.name && parsed.age && parsed.country) {\r\n-          setUserInfo(parsed);\r\n+        const userRef = ref(database, `users/${userId}`);\r\n+        const snapshot = await get(userRef);\r\n+        if (snapshot.exists()) {\r\n+          const data = snapshot.val();\r\n+          setUserInfo({ name: data.name, age: String(data.age), country: data.country });\r\n         }\r\n-      } catch {\r\n-        setUserInfo(null);\r\n+      } catch (err) {\r\n+        console.error(\"Error fetching user info:\", err);\r\n       }\r\n-    }\r\n-  }, []);\r\n+    };\r\n+    fetchUser();\r\n+  }, [userId]);\r\n \r\n+  // Close dropdown if clicked outside\r\n   useEffect(() => {\r\n     const handleClickOutside = (e: MouseEvent) => {\r\n       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {\r\n         setOpen(false);\r\n@@ -71,10 +80,12 @@\n             View Full Profile\r\n           </button>\r\n           <button\r\n             onClick={() => {\r\n+              // Logout: clear auth state and redirect\r\n               localStorage.removeItem(\"user-info\");\r\n               router.push(\"/\");\r\n+              window.location.reload(); // optional: force reload to reset auth state\r\n             }}\r\n             className=\"text-sm w-full text-left text-red-600 hover:underline\"\r\n           >\r\n             Logout\r\n"
                 }
             ],
             "date": 1752581107030,

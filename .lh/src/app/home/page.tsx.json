@@ -1,0 +1,38 @@
+{
+    "sourceFile": "src/app/home/page.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 5,
+            "patches": [
+                {
+                    "date": 1758993935882,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1759331288353,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,10 @@\n \"use client\";\r\n \r\n import { useRouter } from \"next/navigation\";\r\n-import { useAuth } from \"../auth/authContext\";\r\n+import { useAuth } from \"@/app/auth/authContext\";\r\n \r\n-export default function AnonymousPage() {\r\n+export default function HomePage() {\r\n   const router = useRouter();\r\n   const { userId } = useAuth();\r\n \r\n   // Redirect to login/register if not logged in\r\n@@ -23,15 +23,17 @@\n           Choose how you want to chat\r\n         </p>\r\n \r\n         <div className=\"flex flex-col sm:flex-row gap-4 justify-center\">\r\n+          {/* Anonymous Chat Button */}\r\n           <button\r\n             onClick={() => router.push(\"/anonymous/chat\")}\r\n             className=\"flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-md transition\"\r\n           >\r\n             Anonymous Chat\r\n           </button>\r\n \r\n+          {/* Room Chat Button */}\r\n           <button\r\n             onClick={() => router.push(\"/rooms\")}\r\n             className=\"flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-md shadow-md transition\"\r\n           >\r\n"
+                },
+                {
+                    "date": 1759331396417,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n \"use client\";\r\n \r\n import { useRouter } from \"next/navigation\";\r\n-import { useAuth } from \"@/app/auth/authContext\";\r\n+import { useAuth } from \"../auth/authContext\";\r\n \r\n export default function HomePage() {\r\n   const router = useRouter();\r\n   const { userId } = useAuth();\r\n"
+                },
+                {
+                    "date": 1759339265135,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n \r\n         <div className=\"flex flex-col sm:flex-row gap-4 justify-center\">\r\n           {/* Anonymous Chat Button */}\r\n           <button\r\n-            onClick={() => router.push(\"/anonymous/chat\")}\r\n+            onClick={() => router.push(\"/AnonymousChatRoom\")}\r\n             className=\"flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-md transition\"\r\n           >\r\n             Anonymous Chat\r\n           </button>\r\n"
+                },
+                {
+                    "date": 1759339446548,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n \r\n         <div className=\"flex flex-col sm:flex-row gap-4 justify-center\">\r\n           {/* Anonymous Chat Button */}\r\n           <button\r\n-            onClick={() => router.push(\"/AnonymousChatRoom\")}\r\n+            onClick={() => router.push(\"/anonymous/chat\")}\r\n             className=\"flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-md transition\"\r\n           >\r\n             Anonymous Chat\r\n           </button>\r\n"
+                },
+                {
+                    "date": 1759340697693,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,9 +25,9 @@\n \r\n         <div className=\"flex flex-col sm:flex-row gap-4 justify-center\">\r\n           {/* Anonymous Chat Button */}\r\n           <button\r\n-            onClick={() => router.push(\"/anonymous/chat\")}\r\n+            onClick={() => router.push(\"/anonymous\")}\r\n             className=\"flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-md transition\"\r\n           >\r\n             Anonymous Chat\r\n           </button>\r\n"
+                }
+            ],
+            "date": 1758993935882,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport { useRouter } from \"next/navigation\";\r\nimport { useAuth } from \"../auth/authContext\";\r\n\r\nexport default function AnonymousPage() {\r\n  const router = useRouter();\r\n  const { userId } = useAuth();\r\n\r\n  // Redirect to login/register if not logged in\r\n  if (!userId) {\r\n    router.replace(\"/auth\");\r\n    return null;\r\n  }\r\n\r\n  return (\r\n    <main className=\"min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-200 dark:from-neutral-900 dark:to-neutral-800 px-4\">\r\n      <div className=\"max-w-md w-full text-center p-6 rounded-2xl shadow-2xl bg-white/90 dark:bg-neutral-900/80 backdrop-blur-md space-y-6\">\r\n        <h1 className=\"text-3xl font-bold text-neutral-900 dark:text-white\">\r\n          Welcome to Connectify\r\n        </h1>\r\n        <p className=\"text-neutral-700 dark:text-neutral-300\">\r\n          Choose how you want to chat\r\n        </p>\r\n\r\n        <div className=\"flex flex-col sm:flex-row gap-4 justify-center\">\r\n          <button\r\n            onClick={() => router.push(\"/anonymous/chat\")}\r\n            className=\"flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-md transition\"\r\n          >\r\n            Anonymous Chat\r\n          </button>\r\n\r\n          <button\r\n            onClick={() => router.push(\"/rooms\")}\r\n            className=\"flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-md shadow-md transition\"\r\n          >\r\n            Chat in Room\r\n          </button>\r\n        </div>\r\n      </div>\r\n    </main>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

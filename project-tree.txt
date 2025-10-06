@@ -1,5 +1,10 @@
 📁 Project File Tree:
 ├── .env.production
+├── .firebaserc
+├── .github
+│   └── workflows
+│       ├── firebase-hosting-merge.yml
+│       └── firebase-hosting-pull-request.yml
 ├── .gitignore
 ├── components
 │   ├── chat
@@ -16,6 +21,15 @@
 │       ├── LocalVideo.tsx
 │       ├── RemoteVideo.tsx
 │       └── VideoPlayer.tsx
+├── database.rules.json
+├── dataconnect
+│   ├── dataconnect.yaml
+│   ├── example
+│   │   ├── connector.yaml
+│   │   ├── mutations.gql
+│   │   └── queries.gql
+│   └── schema
+│       └── schema.gql
 ├── docker
 │   └── coturn
 │       ├── Dockerfile
@@ -45,12 +59,17 @@
 │       ├── hooks
 │       │   ├── useRoomSocket.ts
 │       │   └── useRoomWebRTC.ts
+│       ├── page.tsx
 │       ├── services
 │       │   └── roomSocketService.ts
 │       └── utils
 │           └── getUserInfo.ts
+├── firebase.json
+├── firestore.indexes.json
+├── firestore.rules
 ├── generate-tree.js
 ├── lib
+│   ├── firebaseConfig.ts
 │   └── razorpay.ts
 ├── next-env.d.ts
 ├── next.config.ts
@@ -65,6 +84,7 @@
 ├── public
 │   ├── file.svg
 │   ├── globe.svg
+│   ├── index.html
 │   ├── next.svg
 │   ├── sounds
 │   │   ├── leave.mp3
@@ -81,8 +101,14 @@
 │   └── signaling.js
 ├── src
 │   ├── app
-│   │   ├── anonymous
-│   │   │   └── page.tsx
+│   │   ├── auth
+│   │   │   ├── authContext.tsx
+│   │   │   ├── firebaseAuth.ts
+│   │   │   ├── login
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── register
+│   │   │       └── page.tsx
 │   │   ├── contact
 │   │   │   └── page.tsx
 │   │   ├── donate
@@ -91,6 +117,8 @@
 │   │   │       └── page.tsx
 │   │   ├── favicon.ico
 │   │   ├── globals.css
+│   │   ├── home
+│   │   │   └── page.tsx
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
 │   │   ├── profile
@@ -101,12 +129,29 @@
 │   │   │       └── page.tsx
 │   │   └── support
 │   │       └── page.tsx
+│   ├── dataconnect-generated
+│   │   ├── esm
+│   │   │   ├── index.esm.js
+│   │   │   └── package.json
+│   │   ├── index.cjs.js
+│   │   ├── index.d.ts
+│   │   ├── package.json
+│   │   ├── react
+│   │   │   ├── esm
+│   │   │   │   ├── index.esm.js
+│   │   │   │   └── package.json
+│   │   │   ├── index.cjs.js
+│   │   │   ├── index.d.ts
+│   │   │   ├── package.json
+│   │   │   └── README.md
+│   │   └── README.md
 │   └── utils
 │       └── cn.ts
+├── storage.rules
 ├── store
 │   └── chatstore.ts
 ├── tailwind.config.ts
-├── TEXT
+├── TEXT.txt
 ├── tsconfig.json
 ├── types
 │   └── next.d.ts

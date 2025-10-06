@@ -1,0 +1,30 @@
+{
+    "sourceFile": "src/app/auth/firebaseAuth.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1758987784657,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1758987959551,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-import { auth, database } from \"@/lib/firebaseConfig\";\r\n+import { auth, database } from \"../../../lib/firebaseConfig\";\r\n import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from \"firebase/auth\";\r\n import { ref, set } from \"firebase/database\";\r\n \r\n // Register new user\r\n"
+                },
+                {
+                    "date": 1758988057322,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-import { auth, database } from \"../../../lib/firebaseConfig\";\r\n+import { auth, database } from \"@/lib/firebaseConfig\";\r\n import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from \"firebase/auth\";\r\n import { ref, set } from \"firebase/database\";\r\n \r\n // Register new user\r\n"
+                },
+                {
+                    "date": 1758993118484,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,47 @@\n+// src/app/auth/firebaseAuth.ts\r\n+import { auth, database } from \"@/lib/firebaseConfig\";\r\n+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from \"firebase/auth\";\r\n+import { ref, set } from \"firebase/database\";\r\n+\r\n+interface UserData {\r\n+  name: string;\r\n+  age: number;\r\n+  gender: string;\r\n+  country: string;\r\n+  currentStatus?: string;\r\n+  lastSeen?: number;\r\n+}\r\n+\r\n+// ------------------ Register New User ------------------\r\n+export async function registerUser(email: string, password: string, userData: UserData) {\r\n+  try {\r\n+    // Create user in Firebase Auth\r\n+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);\r\n+    const userId = userCredential.user.uid;\r\n+\r\n+    // Save user info in Realtime Database\r\n+    await set(ref(database, `users/${userId}`), {\r\n+      uid: userId,\r\n+      email,\r\n+      ...userData,\r\n+      currentStatus: \"idle\",\r\n+      lastSeen: Date.now(),\r\n+    });\r\n+\r\n+    return userId;\r\n+  } catch (err: any) {\r\n+    console.error(\"Register Error:\", err);\r\n+    throw new Error(err.message || \"Failed to register user\");\r\n+  }\r\n+}\r\n+\r\n+// ------------------ Login Existing User ------------------\r\n+export async function loginUser(email: string, password: string) {\r\n+  try {\r\n+    const userCredential = await signInWithEmailAndPassword(auth, email, password);\r\n+    return userCredential.user.uid;\r\n+  } catch (err: any) {\r\n+    console.error(\"Login Error:\", err);\r\n+    throw new Error(err.message || \"Failed to login user\");\r\n+  }\r\n+}\r\n"
+                }
+            ],
+            "date": 1758987784657,
+            "name": "Commit-0",
+            "content": "import { auth, database } from \"@/lib/firebaseConfig\";\r\nimport { createUserWithEmailAndPassword, signInWithEmailAndPassword } from \"firebase/auth\";\r\nimport { ref, set } from \"firebase/database\";\r\n\r\n// Register new user\r\nexport async function registerUser(email: string, password: string, userData: any) {\r\n  const userCredential = await createUserWithEmailAndPassword(auth, email, password);\r\n  const userId = userCredential.user.uid;\r\n\r\n  // Save user info in Realtime Database\r\n  await set(ref(database, `users/${userId}`), {\r\n    ...userData,\r\n    currentStatus: \"idle\",\r\n    lastSeen: Date.now(),\r\n  });\r\n\r\n  return userId;\r\n}\r\n\r\n// Login existing user\r\nexport async function loginUser(email: string, password: string) {\r\n  const userCredential = await signInWithEmailAndPassword(auth, email, password);\r\n  return userCredential.user.uid;\r\n}\r\n"
+        }
+    ]
+}

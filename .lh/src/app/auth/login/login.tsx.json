@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/app/auth/login/login.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1758992452589,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1758992452589,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport { useState } from \"react\";\r\nimport { useRouter } from \"next/navigation\";\r\nimport { loginUser } from \"../firebaseAuth\";\r\nimport { useAuth } from \"../authContext\";\r\n\r\nexport default function LoginPage() {\r\n  const { setUserId } = useAuth();\r\n  const router = useRouter();\r\n\r\n  const [email, setEmail] = useState(\"\");\r\n  const [password, setPassword] = useState(\"\");\r\n  const [loading, setLoading] = useState(false);\r\n\r\n  const handleLogin = async () => {\r\n    if (!email || !password) {\r\n      alert(\"Please enter email and password\");\r\n      return;\r\n    }\r\n\r\n    try {\r\n      setLoading(true);\r\n      const uid = await loginUser(email, password);\r\n      setUserId(uid);\r\n      router.push(\"/anonymous\"); // Redirect after login\r\n    } catch (err) {\r\n      console.error(err);\r\n      alert(\"Login error: \" + err);\r\n    } finally {\r\n      setLoading(false);\r\n    }\r\n  };\r\n\r\n  return (\r\n    <div className=\"flex flex-col items-center justify-center min-h-screen space-y-4 px-4\">\r\n      <h1 className=\"text-2xl font-bold mb-4\">Login</h1>\r\n\r\n      <input\r\n        type=\"email\"\r\n        placeholder=\"Email\"\r\n        value={email}\r\n        onChange={(e) => setEmail(e.target.value)}\r\n        className=\"w-full max-w-md px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500\"\r\n      />\r\n      <input\r\n        type=\"password\"\r\n        placeholder=\"Password\"\r\n        value={password}\r\n        onChange={(e) => setPassword(e.target.value)}\r\n        className=\"w-full max-w-md px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500\"\r\n      />\r\n\r\n      <button\r\n        onClick={handleLogin}\r\n        disabled={loading}\r\n        className=\"w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md shadow-md transition\"\r\n      >\r\n        {loading ? \"Logging in...\" : \"Login\"}\r\n      </button>\r\n\r\n      <p className=\"text-sm text-gray-600 mt-2\">\r\n        Don’t have an account?{\" \"}\r\n        <a href=\"/auth/register\" className=\"text-blue-600 hover:underline\">\r\n          Register here\r\n        </a>\r\n      </p>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}
