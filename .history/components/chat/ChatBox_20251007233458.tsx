@@ -20,8 +20,8 @@ interface ChatBoxProps {
 }
 
 const topEmojis = [
-  "😀","😂","😍","🤣","😊","😭","🥰","😎","👍","🙏",
-  "😘","😅","🎉","🤔","🙄","😢","🔥","💯","❤️","👏"
+  "😀", "😂", "😍", "🤣", "😊", "😭", "🥰", "😎", "👍", "🙏",
+  "😘", "😅", "🎉", "🤔", "🙄", "😢", "🔥", "💯", "❤️", "👏",
 ];
 
 export default function ChatBox({
@@ -77,57 +77,44 @@ export default function ChatBox({
 useEffect(() => {
   if (!socket) return;
 
-  // Typing indicator
-  const typingHandler = (data: { sender: string }) => {
-    if (data.sender !== userId) {
+  socket.on("typing", ({ sender }) => {
+    if (sender !== userId) {
       setPartnerTyping(true);
       setTimeout(() => setPartnerTyping(false), 2500);
     }
-  };
-  socket.on("typing", typingHandler);
+  });
 
-  // Receive message
-  const receiveHandler = (data: { message: any; sender: string }) => {
-    setMessages((prev) => [...prev, data.message]);
+  socket.on("receive-message", ({ message, sender }) => {
+    setMessages((prev) => [...prev, message]);
     playSound("receive");
-  };
-  socket.on("receive-message", receiveHandler);
+  });
 
-  // Message deleted
-  const deletedHandler = (data: { messageId: string }) => {
-    setMessages((prev) => prev.filter((m) => m.id !== data.messageId));
-  };
-  socket.on("message-deleted", deletedHandler);
+  socket.on("message-deleted", ({ messageId }) => {
+    setMessages((prev) => prev.filter((m) => m.id !== messageId));
+  });
 
-  // Message edited
-  const editedHandler = (data: { messageId: string; content: string }) => {
+  socket.on("message-edited", ({ messageId, content, sender }) => {
     setMessages((prev) =>
-      prev.map((m) =>
-        m.id === data.messageId ? { ...m, content: data.content, edited: true } : m
-      )
+      prev.map((m) => (m.id === messageId ? { ...m, content, edited: true } : m))
     );
-  };
-  socket.on("message-edited", editedHandler);
+  });
 
-  // Message reacted
-  const reactedHandler = (data: { messageId: string; reaction: string; user: string }) => {
+  socket.on("message-reacted", ({ messageId, reaction, user }) => {
     setMessages((prev) =>
       prev.map((m) =>
-        m.id === data.messageId
-          ? { ...m, reactions: { ...m.reactions, [data.user]: data.reaction } }
+        m.id === messageId
+          ? { ...m, reactions: { ...m.reactions, [user]: reaction } }
           : m
       )
     );
-  };
-  socket.on("message-react", reactedHandler); // <-- make sure your backend emits "message-react"
+  });
 
-  // Cleanup
   return () => {
-    socket.off("typing", typingHandler);
-    socket.off("receive-message", receiveHandler);
-    socket.off("message-deleted", deletedHandler);
-    socket.off("message-edited", editedHandler);
-    socket.off("message-react", reactedHandler);
+    socket.off("typing");
+    socket.off("receive-message");
+    socket.off("message-deleted");
+    socket.off("message-edited");
+    socket.off("message-reacted");
   };
 }, [socket, userId]);
 
@@ -196,7 +183,10 @@ useEffect(() => {
   };
 
   const handleReact = (msgId: string, emoji: string) => {
-    set(ref(database, `rooms/${roomId}/messages/${msgId}/reactions/${userId}`), emoji).catch(console.error);
+    set(
+      ref(database, `rooms/${roomId}/messages/${msgId}/reactions/${userId}`),
+      emoji
+    ).catch(console.error);
     socket.emit("react-message", { roomId, messageId: msgId, reaction: emoji, user: userId });
   };
 

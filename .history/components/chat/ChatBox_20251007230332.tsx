@@ -8,6 +8,13 @@ import debounce from "lodash/debounce";
 
 import Message from "./Message";
 import TypingIndicator from "./TypingIndicator";
+import {
+  sendTyping,
+  deleteMessage,
+  editMessage,
+  reactToMessage,
+  sendFile,
+} from "@/features/anonymousChat/services/signalingService";
 
 interface ChatBoxProps {
   socket: any;
@@ -20,8 +27,8 @@ interface ChatBoxProps {
 }
 
 const topEmojis = [
-  "😀","😂","😍","🤣","😊","😭","🥰","😎","👍","🙏",
-  "😘","😅","🎉","🤔","🙄","😢","🔥","💯","❤️","👏"
+  "😀", "😂", "😍", "🤣", "😊", "😭", "🥰", "😎", "👍", "🙏",
+  "😘", "😅", "🎉", "🤔", "🙄", "😢", "🔥", "💯", "❤️", "👏",
 ];
 
 export default function ChatBox({
@@ -42,12 +49,12 @@ export default function ChatBox({
   const sentSoundRef = useRef<HTMLAudioElement>(null);
   const receiveSoundRef = useRef<HTMLAudioElement>(null);
 
-  // ------------------ PLAY SOUND ------------------
+  // ------------------ SOUNDS ------------------
   const playSound = async (type: "sent" | "receive") => {
     if (!soundOn) return;
     try {
-      const ref = type === "sent" ? sentSoundRef : receiveSoundRef;
-      const audio = ref.current;
+      const audioRef = type === "sent" ? sentSoundRef : receiveSoundRef;
+      const audio = audioRef.current;
       if (audio) {
         audio.volume = 0.8;
         await audio.play();
@@ -74,65 +81,58 @@ export default function ChatBox({
   }, [roomId]);
 
   // ------------------ SOCKET EVENTS ------------------
-useEffect(() => {
-  if (!socket) return;
+  useEffect(() => {
+    if (!socket) return;
 
-  // Typing indicator
-  const typingHandler = (data: { sender: string }) => {
-    if (data.sender !== userId) {
-      setPartnerTyping(true);
-      setTimeout(() => setPartnerTyping(false), 2500);
-    }
-  };
-  socket.on("typing", typingHandler);
+    // Typing indicator
+    socket.on("typing", ({ sender }) => {
+      if (sender !== userId) {
+        setPartnerTyping(true);
+        setTimeout(() => setPartnerTyping(false), 2500);
+      }
+    });
 
-  // Receive message
-  const receiveHandler = (data: { message: any; sender: string }) => {
-    setMessages((prev) => [...prev, data.message]);
-    playSound("receive");
-  };
-  socket.on("receive-message", receiveHandler);
+    // Receive new message from partner
+    socket.on("receive-message", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+      playSound("receive");
+    });
 
-  // Message deleted
-  const deletedHandler = (data: { messageId: string }) => {
-    setMessages((prev) => prev.filter((m) => m.id !== data.messageId));
-  };
-  socket.on("message-deleted", deletedHandler);
+    // Partner deleted message
+    socket.on("message-deleted", ({ messageId }) => {
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+    });
 
-  // Message edited
-  const editedHandler = (data: { messageId: string; content: string }) => {
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === data.messageId ? { ...m, content: data.content, edited: true } : m
-      )
-    );
-  };
-  socket.on("message-edited", editedHandler);
+    // Partner edited message
+    socket.on("message-edited", ({ messageId, newContent }) => {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId ? { ...m, content: newContent } : m
+        )
+      );
+    });
 
-  // Message reacted
-  const reactedHandler = (data: { messageId: string; reaction: string; user: string }) => {
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === data.messageId
-          ? { ...m, reactions: { ...m.reactions, [data.user]: data.reaction } }
-          : m
-      )
-    );
-  };
-  socket.on("message-react", reactedHandler); // <-- make sure your backend emits "message-react"
+    // Partner reacted
+    socket.on("message-reacted", ({ messageId, emoji, user }) => {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId
+            ? { ...m, reactions: { ...m.reactions, [user]: emoji } }
+            : m
+        )
+      );
+    });
 
-  // Cleanup
-  return () => {
-    socket.off("typing", typingHandler);
-    socket.off("receive-message", receiveHandler);
-    socket.off("message-deleted", deletedHandler);
-    socket.off("message-edited", editedHandler);
-    socket.off("message-react", reactedHandler);
-  };
-}, [socket, userId]);
+    return () => {
+      socket.off("typing");
+      socket.off("receive-message");
+      socket.off("message-deleted");
+      socket.off("message-edited");
+      socket.off("message-reacted");
+    };
+  }, [socket, userId]);
 
-
-  // ------------------ TYPING ------------------
+  // ------------------ DEBOUNCED TYPING ------------------
   const debouncedTyping = useRef(
     debounce(() => {
       socket.emit("typing", { roomId, sender: userId });
@@ -173,13 +173,7 @@ useEffect(() => {
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      sendMessage(base64, file.type.startsWith("image") ? "image" : "file");
-    };
-    reader.readAsDataURL(file);
+    sendFile(roomId, file);
   };
 
   // ------------------ DELETE / EDIT / REACT ------------------
@@ -192,12 +186,12 @@ useEffect(() => {
     update(ref(database, `rooms/${roomId}/messages/${msgId}`), {
       content: newContent,
     }).catch(console.error);
-    socket.emit("edit-message", { roomId, messageId: msgId, content: newContent });
+    socket.emit("edit-message", { roomId, messageId: msgId, newContent });
   };
 
   const handleReact = (msgId: string, emoji: string) => {
     set(ref(database, `rooms/${roomId}/messages/${msgId}/reactions/${userId}`), emoji).catch(console.error);
-    socket.emit("react-message", { roomId, messageId: msgId, reaction: emoji, user: userId });
+    socket.emit("react-message", { roomId, messageId: msgId, emoji, user: userId });
   };
 
   // ------------------ RENDER ------------------
@@ -211,9 +205,7 @@ useEffect(() => {
         <span className="font-medium text-blue-600 dark:text-blue-400">{partnerName}</span>
         {partnerAge && <span className="ml-1">({partnerAge})</span>}
         {partnerCountry && (
-          <span className="ml-2 text-neutral-500 dark:text-neutral-400">
-            from {partnerCountry}
-          </span>
+          <span className="ml-2 text-neutral-500 dark:text-neutral-400">from {partnerCountry}</span>
         )}
       </div>
 

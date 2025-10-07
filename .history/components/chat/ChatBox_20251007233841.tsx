@@ -74,63 +74,49 @@ export default function ChatBox({
   }, [roomId]);
 
   // ------------------ SOCKET EVENTS ------------------
-useEffect(() => {
-  if (!socket) return;
+  useEffect(() => {
+    if (!socket) return;
 
-  // Typing indicator
-  const typingHandler = (data: { sender: string }) => {
-    if (data.sender !== userId) {
-      setPartnerTyping(true);
-      setTimeout(() => setPartnerTyping(false), 2500);
-    }
-  };
-  socket.on("typing", typingHandler);
+    socket.on("typing", ({ sender }) => {
+      if (sender !== userId) {
+        setPartnerTyping(true);
+        setTimeout(() => setPartnerTyping(false), 2500);
+      }
+    });
 
-  // Receive message
-  const receiveHandler = (data: { message: any; sender: string }) => {
-    setMessages((prev) => [...prev, data.message]);
-    playSound("receive");
-  };
-  socket.on("receive-message", receiveHandler);
+    socket.on("receive-message", ({ message, sender }) => {
+      setMessages((prev) => [...prev, message]);
+      playSound("receive");
+    });
 
-  // Message deleted
-  const deletedHandler = (data: { messageId: string }) => {
-    setMessages((prev) => prev.filter((m) => m.id !== data.messageId));
-  };
-  socket.on("message-deleted", deletedHandler);
+    socket.on("message-deleted", ({ messageId }) => {
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+    });
 
-  // Message edited
-  const editedHandler = (data: { messageId: string; content: string }) => {
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === data.messageId ? { ...m, content: data.content, edited: true } : m
-      )
-    );
-  };
-  socket.on("message-edited", editedHandler);
+    socket.on("message-edited", ({ messageId, content }) => {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === messageId ? { ...m, content, edited: true } : m))
+      );
+    });
 
-  // Message reacted
-  const reactedHandler = (data: { messageId: string; reaction: string; user: string }) => {
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === data.messageId
-          ? { ...m, reactions: { ...m.reactions, [data.user]: data.reaction } }
-          : m
-      )
-    );
-  };
-  socket.on("message-react", reactedHandler); // <-- make sure your backend emits "message-react"
+    socket.on("message-reacted", ({ messageId, reaction, user }) => {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId
+            ? { ...m, reactions: { ...m.reactions, [user]: reaction } }
+            : m
+        )
+      );
+    });
 
-  // Cleanup
-  return () => {
-    socket.off("typing", typingHandler);
-    socket.off("receive-message", receiveHandler);
-    socket.off("message-deleted", deletedHandler);
-    socket.off("message-edited", editedHandler);
-    socket.off("message-react", reactedHandler);
-  };
-}, [socket, userId]);
-
+    return () => {
+      socket.off("typing");
+      socket.off("receive-message");
+      socket.off("message-deleted");
+      socket.off("message-edited");
+      socket.off("message-reacted");
+    };
+  }, [socket, userId]);
 
   // ------------------ TYPING ------------------
   const debouncedTyping = useRef(
