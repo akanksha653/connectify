@@ -13,6 +13,7 @@ import FindingPartner from "./FindingPartner";
 import IdleMessage from "./IdleMessage";
 import ControlBar from "./ControlBar";
 import { useSoundPlayer } from "../hooks/useSoundPlayer";
+import { useChatHandlers } from "../hooks/useChatHandlers";
 import { UserInfo } from "@/types/user";
 import { useAuth } from "../../../src/app/auth/authContext";
 
@@ -50,6 +51,20 @@ export default function AnonymousChatRoom() {
     localStorage.setItem("userId", id);
     setUserId(id);
   }, [authUserId]);
+
+  // -------------------------
+  // Attach socket & chat handlers
+  // -------------------------
+  useChatHandlers({
+    socket,
+    playSound,
+    setRoomId,
+    setIsOfferer,
+    setPartnerInfo,
+    setLoading,
+    setSessionStarted,
+    setLastAction,
+  });
 
   // -------------------------
   // Redirect unauthenticated
@@ -92,6 +107,37 @@ export default function AnonymousChatRoom() {
   }, [userId, router]);
 
   // -------------------------
+  // Mark messages as seen
+  // -------------------------
+  useEffect(() => {
+    if (!roomId || !userId || !socket) return;
+
+    const markMessagesSeen = async () => {
+      try {
+        const messagesRef = ref(database, `rooms/${roomId}/messages`);
+        await update(messagesRef, {
+          lastSeenBy: { [userId]: new Date().toISOString() },
+        });
+
+        socket.emit("message-seen-sync", { roomId, userId });
+      } catch (err) {
+        console.error("Error marking messages seen:", err);
+      }
+    };
+
+    markMessagesSeen();
+  }, [roomId, userId, socket]);
+
+  // -------------------------
+  // Clean up on unmount
+  // -------------------------
+  useEffect(() => {
+    return () => {
+      if (socket && roomId) socket.emit("leave-room", roomId);
+    };
+  }, [socket, roomId]);
+
+  // -------------------------
   // Chat control handlers
   // -------------------------
   const handleStart = () => {
@@ -125,7 +171,7 @@ export default function AnonymousChatRoom() {
   };
 
   // -------------------------
-  // Listen for match & setup room
+  // Listen for match & create Firebase room
   // -------------------------
   useEffect(() => {
     if (!socket) return;
@@ -135,16 +181,16 @@ export default function AnonymousChatRoom() {
 
       setRoomId(roomId);
       setIsOfferer(isOfferer);
-      setPartnerInfo({
-        uid: partnerId,
-        name: partnerName || "Stranger",
-        age: partnerAge || "",
-        gender: "",
-        country: partnerCountry || "",
-        email: "",
-      });
+setPartnerInfo({
+  uid: partnerId,
+  name: partnerName || "Stranger",
+  age: partnerAge || "",
+  gender: "", // if unknown
+  country: partnerCountry || "",
+  email: "", // if unknown
+});
 
-      // ✅ Create room in Firebase if not exists
+      // ✅ Create room in Firebase if it doesn't exist
       const roomRef = ref(database, `rooms/${roomId}`);
       await set(roomRef, {
         createdAt: new Date().toISOString(),
@@ -157,21 +203,8 @@ export default function AnonymousChatRoom() {
 
     socket.on("matched", handleMatched);
 
-    const handlePartnerLeft = () => {
-      setRoomId(null);
-      setIsOfferer(null);
-      setPartnerInfo(null);
-      setSessionStarted(false);
-      setLoading(false);
-      setLastAction("left");
-      playSound("leave");
-    };
-
-    socket.on("partner-left", handlePartnerLeft);
-
     return () => {
       socket.off("matched", handleMatched);
-      socket.off("partner-left", handlePartnerLeft);
     };
   }, [socket, playSound]);
 
@@ -220,18 +253,16 @@ export default function AnonymousChatRoom() {
         {/* 💬 Chat Section */}
         <div className="w-full md:w-[420px] flex flex-col border-t md:border-t-0 md:border-l border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 h-[34vh] md:h-full">
           <div className="flex-1 min-h-0 overflow-hidden relative">
-            {roomId && partnerInfo ? (
+            {roomId ? (
               <ChatBox
                 socket={socket}
                 roomId={roomId}
                 userId={userId}
                 soundOn={soundOn}
-                partnerName={partnerInfo.name}
-                partnerAge={partnerInfo.age}
-                partnerCountry={partnerInfo.country}
+                partnerName={partnerInfo?.name || "Connecting..."}
+                partnerAge={partnerInfo?.age || ""}
+                partnerCountry={partnerInfo?.country || ""}
               />
-            ) : sessionStarted ? (
-              <FindingPartner />
             ) : (
               <IdleMessage lastAction={lastAction} />
             )}
