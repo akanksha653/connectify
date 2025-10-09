@@ -46,8 +46,7 @@ export default function AnonymousChatRoom() {
   // Stable userId
   // -------------------------
   useEffect(() => {
-    const id =
-      authUserId || localStorage.getItem("userId") || crypto.randomUUID();
+    const id = authUserId || localStorage.getItem("userId") || crypto.randomUUID();
     localStorage.setItem("userId", id);
     setUserId(id);
   }, [authUserId]);
@@ -133,19 +132,12 @@ export default function AnonymousChatRoom() {
 
     const handleMatched = async (data: any) => {
       console.log("✅ Matched event:", data);
-      const {
-        roomId,
-        partnerId,
-        isOfferer,
-        partnerName,
-        partnerAge,
-        partnerCountry,
-      } = data;
+      const { roomId, partnerId, isOfferer, partnerName, partnerAge, partnerCountry } = data;
 
       setRoomId(roomId);
       setIsOfferer(isOfferer);
 
-      // 🔥 Set partner info before rendering ChatBox
+      // 🔥 Always ensure partnerInfo is set BEFORE rendering ChatBox
       const info = {
         uid: partnerId,
         name: partnerName || "Stranger",
@@ -156,15 +148,12 @@ export default function AnonymousChatRoom() {
       };
       setPartnerInfo(info);
 
-      // ✅ Make sure Firebase room exists
+      // ✅ Make sure room exists
       const roomRef = ref(database, `rooms/${roomId}`);
       await set(roomRef, {
         createdAt: new Date().toISOString(),
         messages: {},
       });
-
-      // ✅ Notify chat component to connect immediately
-      socket.emit("chat-connected", { roomId });
 
       setLoading(false);
       playSound("match");
@@ -221,13 +210,7 @@ export default function AnonymousChatRoom() {
             <>
               <RemoteVideo stream={remoteStream} />
               <div className="absolute top-4 right-4 w-32 h-32 rounded overflow-hidden border-2 border-white shadow-lg">
-                {localStream ? (
-                  <LocalVideo stream={localStream} />
-                ) : (
-                  <div className="text-white text-sm p-2">
-                    Loading camera...
-                  </div>
-                )}
+                {localStream ? <LocalVideo stream={localStream} /> : <div className="text-white text-sm p-2">Loading camera...</div>}
               </div>
             </>
           )}
@@ -236,7 +219,7 @@ export default function AnonymousChatRoom() {
         {/* 💬 Chat Section */}
         <div className="w-full md:w-[420px] flex flex-col border-t md:border-l border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 h-[34vh] md:h-full">
           <div className="flex-1 min-h-0 overflow-hidden relative">
-            {/* ✅ Render ChatBox only when matched */}
+            {/* ✅ FIX: render ChatBox once partnerInfo && roomId exist */}
             {roomId && partnerInfo ? (
               <ChatBox
                 socket={socket}

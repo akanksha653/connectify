@@ -59,7 +59,7 @@ export default function ChatBox({
   // ---------- INITIAL CONNECTION ----------
   useEffect(() => {
     if (roomId && socket) {
-      setConnected(true);
+      setConnected(true); // ✅ ensure connected when room + socket available
     }
   }, [roomId, socket]);
 
@@ -78,7 +78,7 @@ export default function ChatBox({
     // Receive new message
     socket.on("receive-message", (msg: any) => {
       setMessages((prev) => [...prev, { ...msg, status: "delivered" }]);
-      socket.emit("message-status", { roomId, messageId: msg.id, status: "seen" });
+      socket.emit("seen-message", { roomId, messageId: msg.id });
       playSound("receive");
     });
 
@@ -112,12 +112,11 @@ export default function ChatBox({
       );
     });
 
-    // Partner left / disconnected / refresh / close
-    const handlePartnerLeft = () => {
+    // Partner left
+    socket.on("partner-left", () => {
       setConnected(false);
       setMessages([]);
-    };
-    socket.on("partner-left", handlePartnerLeft);
+    });
 
     return () => {
       socket.off("typing");
@@ -126,9 +125,9 @@ export default function ChatBox({
       socket.off("message-deleted");
       socket.off("message-edited");
       socket.off("message-react");
-      socket.off("partner-left", handlePartnerLeft);
+      socket.off("partner-left");
     };
-  }, [socket, roomId, userId, soundOn]);
+  }, [socket, roomId, userId]);
 
   // ---------- TYPING ----------
   const debouncedTyping = useRef(
@@ -188,15 +187,6 @@ export default function ChatBox({
       )
     );
   };
-
-  // ---------- BEFORE UNLOAD ----------
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (socket && roomId) socket.emit("leave-room", roomId);
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [socket, roomId]);
 
   // ---------- RENDER ----------
   return (
