@@ -20,8 +20,8 @@ interface ChatBoxProps {
 }
 
 const topEmojis = [
-  "😀", "😂", "😍", "🤣", "😊", "😭", "🥰", "😎", "👍", "🙏",
-  "😘", "😅", "🎉", "🤔", "🙄", "😢", "🔥", "💯", "❤️", "👏",
+  "😀","😂","😍","🤣","😊","😭","🥰","😎","👍","🙏",
+  "😘","😅","🎉","🤔","🙄","😢","🔥","💯","❤️","👏"
 ];
 
 export default function ChatBox({
@@ -37,28 +37,32 @@ export default function ChatBox({
   const [input, setInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [partnerTyping, setPartnerTyping] = useState(false);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const sentSoundRef = useRef<HTMLAudioElement>(null);
   const receiveSoundRef = useRef<HTMLAudioElement>(null);
 
-  // ---------- PLAY SOUND ----------
+  // ------------------ PLAY SOUND ------------------
   const playSound = async (type: "sent" | "receive") => {
     if (!soundOn) return;
     try {
       const ref = type === "sent" ? sentSoundRef : receiveSoundRef;
-      await ref.current?.play();
+      const audio = ref.current;
+      if (audio) {
+        audio.volume = 0.8;
+        await audio.play();
+      }
     } catch (err) {
       console.warn("Audio playback issue:", err);
     }
   };
 
-  // ---------- AUTO SCROLL ----------
+  // ------------------ AUTO SCROLL ------------------
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, partnerTyping]);
 
-  // ---------- FETCH MESSAGES (Firebase) ----------
+  // ------------------ FIREBASE LISTENER ------------------
   useEffect(() => {
     if (!roomId) return;
     const messagesRef = ref(database, `rooms/${roomId}/messages`);
@@ -72,70 +76,69 @@ export default function ChatBox({
     return () => off(messagesRef);
   }, [roomId]);
 
-  // ---------- SOCKET EVENTS ----------
+  // ------------------ SOCKET EVENTS ------------------
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("typing", ({ sender }: { sender: string }) => {
-      if (sender !== userId) {
+    // Typing indicator
+    const typingHandler = (data: { sender: string }) => {
+      if (data.sender !== userId) {
         setPartnerTyping(true);
-        setTimeout(() => setPartnerTyping(false), 2000);
+        setTimeout(() => setPartnerTyping(false), 2500);
       }
-    });
+    };
+    socket.on("typing", typingHandler);
 
-    socket.on("receive-message", (msg: any) => {
-      setMessages((prev) => [...prev, { ...msg, status: "delivered" }]);
-      socket.emit("seen-message", { roomId, messageId: msg.id }); // mark seen
-      playSound("receive");
-    });
+    // Message deleted
+    const deletedHandler = (data: { messageId: string }) => {
+      setMessages((prev) => prev.filter((m) => m.id !== data.messageId));
+    };
+    socket.on("message-deleted", deletedHandler);
 
-    socket.on("message-status-update", ({ messageId, status }: any) => {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === messageId ? { ...m, status } : m))
-      );
-    });
-
-    socket.on("message-deleted", ({ messageId }: any) => {
-      setMessages((prev) => prev.filter((m) => m.id !== messageId));
-    });
-
-    socket.on("message-edited", ({ id, content }: any) => {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, content, edited: true } : m))
-      );
-    });
-
-    socket.on("message-react", ({ messageId, reaction, user }: any) => {
+    // Message edited
+    const editedHandler = (data: { messageId: string; content: string }) => {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === messageId
-            ? { ...m, reactions: { ...m.reactions, [user]: reaction } }
+          m.id === data.messageId ? { ...m, content: data.content, edited: true } : m
+        )
+      );
+    };
+    socket.on("message-edited", editedHandler);
+
+    // Message reacted
+    const reactedHandler = (data: { messageId: string; reaction: string; user: string }) => {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === data.messageId
+            ? { ...m, reactions: { ...m.reactions, [data.user]: data.reaction } }
             : m
         )
       );
-    });
+    };
+    socket.on("message-react", reactedHandler);
 
     return () => {
-      socket.off("typing");
-      socket.off("receive-message");
-      socket.off("message-status-update");
-      socket.off("message-deleted");
-      socket.off("message-edited");
-      socket.off("message-react");
+      socket.off("typing", typingHandler);
+      socket.off("message-deleted", deletedHandler);
+      socket.off("message-edited", editedHandler);
+      socket.off("message-react", reactedHandler);
     };
-  }, [socket, roomId, userId]);
+  }, [socket, userId]);
 
-  // ---------- TYPING ----------
+  // ------------------ TYPING ------------------
   const debouncedTyping = useRef(
-    debounce(() => socket.emit("typing", { roomId, sender: userId }), 400)
+    debounce(() => {
+      socket.emit("typing", { roomId, sender: userId });
+    }, 400)
   ).current;
 
-  // ---------- SEND MESSAGE ----------
+  // ------------------ SEND MESSAGE ------------------
   const sendMessage = async (
     content: string,
     type: "text" | "image" | "audio" | "video" | "file" = "text"
   ) => {
     if (!content.trim() || !roomId) return;
+
     const msgId = uuidv4();
     const msg = {
       id: msgId,
@@ -146,17 +149,23 @@ export default function ChatBox({
       status: "sent",
       reactions: {},
     };
-    await set(ref(database, `rooms/${roomId}/messages/${msgId}`), msg);
-    socket.emit("send-message", { roomId, ...msg });
-    playSound("sent");
-    setInput("");
-    setShowEmojiPicker(false);
+
+    try {
+      // Save only to Firebase (Socket does not resend messages)
+      await set(ref(database, `rooms/${roomId}/messages/${msgId}`), msg);
+      playSound("sent");
+      setInput("");
+      setShowEmojiPicker(false);
+    } catch (err) {
+      console.error("Send error:", err);
+    }
   };
 
-  // ---------- HANDLE FILE ----------
+  // ------------------ FILE UPLOAD ------------------
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
@@ -165,33 +174,33 @@ export default function ChatBox({
     reader.readAsDataURL(file);
   };
 
-  // ---------- DELETE / EDIT / REACT ----------
-  const handleDelete = (id: string) => {
-    remove(ref(database, `rooms/${roomId}/messages/${id}`));
-    socket.emit("delete-message", { roomId, messageId: id });
+  // ------------------ DELETE / EDIT / REACT ------------------
+  const handleDelete = (msgId: string) => {
+    remove(ref(database, `rooms/${roomId}/messages/${msgId}`)).catch(console.error);
+    socket.emit("delete-message", { roomId, messageId: msgId });
   };
 
-  const handleEdit = (id: string, content: string) => {
-    update(ref(database, `rooms/${roomId}/messages/${id}`), { content });
-    socket.emit("edit-message", { roomId, messageId: id, content });
+  const handleEdit = (msgId: string, newContent: string) => {
+    update(ref(database, `rooms/${roomId}/messages/${msgId}`), {
+      content: newContent,
+    }).catch(console.error);
+    socket.emit("edit-message", { roomId, messageId: msgId, content: newContent });
   };
 
-  const handleReact = (id: string, emoji: string) => {
-    set(ref(database, `rooms/${roomId}/messages/${id}/reactions/${userId}`), emoji);
-    socket.emit("react-message", { roomId, messageId: id, reaction: emoji, user: userId });
+  const handleReact = (msgId: string, emoji: string) => {
+    set(ref(database, `rooms/${roomId}/messages/${msgId}/reactions/${userId}`), emoji).catch(console.error);
+    socket.emit("react-message", { roomId, messageId: msgId, reaction: emoji, user: userId });
   };
 
-  // ---------- RENDER ----------
+  // ------------------ RENDER ------------------
   return (
     <div className="flex flex-col h-full bg-white dark:bg-neutral-900 relative">
       <audio ref={sentSoundRef} src="/sounds/sent.mp3" preload="auto" />
       <audio ref={receiveSoundRef} src="/sounds/receive.mp3" preload="auto" />
 
-      {/* Header */}
+      {/* Partner Info */}
       <div className="px-4 py-2 border-b text-sm bg-white dark:bg-neutral-900 dark:border-neutral-700">
-        <span className="font-medium text-blue-600 dark:text-blue-400">
-          {partnerName}
-        </span>
+        <span className="font-medium text-blue-600 dark:text-blue-400">{partnerName}</span>
         {partnerAge && <span className="ml-1">({partnerAge})</span>}
         {partnerCountry && (
           <span className="ml-2 text-neutral-500 dark:text-neutral-400">
@@ -201,16 +210,18 @@ export default function ChatBox({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-4 space-y-3 scrollbar-thin scrollbar-thumb-blue-400 dark:scrollbar-thumb-blue-600">
         {messages.map((msg) => (
           <Message
             key={msg.id}
             {...msg}
             sender={msg.sender === userId ? "me" : "partner"}
             name={msg.sender === userId ? undefined : partnerName}
+            age={msg.sender === userId ? undefined : partnerAge}
+            country={msg.sender === userId ? undefined : partnerCountry}
             onDelete={() => handleDelete(msg.id)}
-            onEdit={(newContent) => handleEdit(msg.id, newContent)}
-            onReact={(emoji) => handleReact(msg.id, emoji)}
+            onEdit={(newContent: string) => handleEdit(msg.id, newContent)}
+            onReact={(emoji: string) => handleReact(msg.id, emoji)}
           />
         ))}
         {partnerTyping && <TypingIndicator name={partnerName} />}
@@ -219,7 +230,7 @@ export default function ChatBox({
 
       {/* Emoji Picker */}
       {showEmojiPicker && (
-        <div className="absolute bottom-20 left-3 bg-white dark:bg-neutral-800 border rounded-xl shadow-xl p-3 w-64 max-h-64 overflow-y-auto grid grid-cols-6 gap-2">
+        <div className="absolute bottom-20 left-2 sm:left-4 z-50 bg-white dark:bg-neutral-800 border rounded-xl shadow-xl p-3 w-64 sm:w-72 max-h-64 overflow-y-auto grid grid-cols-6 gap-2 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700">
           {topEmojis.map((emoji) => (
             <button
               key={emoji}
@@ -232,10 +243,10 @@ export default function ChatBox({
         </div>
       )}
 
-      {/* Input */}
-      <div className="border-t px-3 py-2 flex items-center gap-2">
+      {/* Input Bar */}
+      <div className="border-t dark:border-neutral-700 px-3 py-2 sm:px-4 sm:py-3 flex items-center gap-2 bg-white dark:bg-neutral-900">
         <button
-          onClick={() => setShowEmojiPicker((p) => !p)}
+          onClick={() => setShowEmojiPicker((prev) => !prev)}
           className="text-2xl hover:scale-110 transition-transform"
         >
           😊
@@ -248,17 +259,22 @@ export default function ChatBox({
             setInput(e.target.value);
             debouncedTyping();
           }}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage(input)}
-          className="flex-1 bg-neutral-100 dark:bg-neutral-800 px-3 py-2 rounded-lg focus:outline-none"
+          onKeyDown={(e) => e.key === "Enter" && sendMessage(input, "text")}
+          className="flex-1 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 text-sm px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <label className="cursor-pointer text-xl" title="Send file">
           📎
-          <input type="file" accept="image/*,audio/*,video/*" hidden onChange={handleFile} />
+          <input
+            type="file"
+            accept="image/*,audio/*,video/*"
+            hidden
+            onChange={handleFile}
+          />
         </label>
         <button
-          onClick={() => sendMessage(input)}
+          onClick={() => sendMessage(input, "text")}
           disabled={!input.trim()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg disabled:opacity-50"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 text-sm rounded-lg disabled:opacity-50 transition"
         >
           Send
         </button>

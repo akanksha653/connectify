@@ -43,14 +43,14 @@ export default function AnonymousChatRoom() {
 
   const { matchSoundRef, leaveSoundRef, playSound } = useSoundPlayer(soundOn);
 
-  // ✅ Ensure stable userId
+  // ✅ Ensure userId exists (auth or localStorage)
   useEffect(() => {
     const id = authUserId || localStorage.getItem("userId") || crypto.randomUUID();
     localStorage.setItem("userId", id);
     setUserId(id);
   }, [authUserId]);
 
-  // ✅ Attach all socket & chat handlers
+  // ✅ Attach chat/socket handlers
   useChatHandlers({
     socket,
     playSound,
@@ -67,7 +67,7 @@ export default function AnonymousChatRoom() {
     if (!authLoading && !authUserId) router.replace("/auth");
   }, [authLoading, authUserId, router]);
 
-  // ✅ Fetch current user info
+  // ✅ Fetch current user's info
   useEffect(() => {
     if (!userId) return;
 
@@ -98,47 +98,40 @@ export default function AnonymousChatRoom() {
     fetchUserInfo();
   }, [userId, router]);
 
-  // ✅ Mark messages as seen whenever active room updates
+  // ✅ Seen message sync: update seen status when room active
   useEffect(() => {
-    if (!roomId || !userId || !socket) return;
-
+    if (!roomId || !userId) return;
     const markMessagesSeen = async () => {
-      try {
-        const messagesRef = ref(database, `rooms/${roomId}/messages`);
-        await update(messagesRef, {
-          lastSeenBy: { [userId]: new Date().toISOString() },
-        });
-
-        socket.emit("message-seen-sync", { roomId, userId });
-      } catch (err) {
-        console.error("Error marking messages seen:", err);
-      }
+      const messagesRef = ref(database, `rooms/${roomId}/messages`);
+      await update(messagesRef, {
+        lastSeenBy: { [userId]: new Date().toISOString() },
+      });
+      socket?.emit("messages-seen", { roomId, userId });
     };
-
     markMessagesSeen();
   }, [roomId, userId, socket]);
 
-  // ✅ Clean up on unmount (leave room properly)
+  // ✅ Cleanup on unmount
   useEffect(() => {
     return () => {
       if (socket && roomId) socket.emit("leave-room", roomId);
     };
   }, [socket, roomId]);
 
-  // ✅ Chat control handlers
+  // ✅ Chat Controls
   const handleStart = () => {
-    if (sessionStarted || !userInfo) return;
-    setLoading(true);
-    setSessionStarted(true);
-
-    socket?.emit("start-looking", {
-      name: userInfo.name,
-      age: userInfo.age,
-      gender: userInfo.gender,
-      country: userInfo.country,
-      filterGender: genderFilter,
-      filterCountry: countryFilter,
-    });
+    if (!sessionStarted && userInfo) {
+      setLoading(true);
+      setSessionStarted(true);
+      socket?.emit("start-looking", {
+        name: userInfo.name,
+        age: userInfo.age,
+        gender: userInfo.gender,
+        country: userInfo.country,
+        filterGender: genderFilter,
+        filterCountry: countryFilter,
+      });
+    }
   };
 
   const handleStop = () => {
@@ -167,7 +160,6 @@ export default function AnonymousChatRoom() {
 
   return (
     <div className="h-[calc(100vh-56px)]">
-      {/* 🔊 Audio Feedback */}
       <audio ref={matchSoundRef} src="/sounds/match.mp3" preload="auto" />
       <audio ref={leaveSoundRef} src="/sounds/leave.mp3" preload="auto" />
 
@@ -203,16 +195,16 @@ export default function AnonymousChatRoom() {
                 roomId={roomId}
                 userId={userId}
                 soundOn={soundOn}
-                partnerName={partnerInfo?.name || "Connecting..."}
-                partnerAge={partnerInfo?.age || ""}
-                partnerCountry={partnerInfo?.country || ""}
+                partnerName={partnerInfo?.name || "Stranger"}
+                partnerAge={partnerInfo?.age}
+                partnerCountry={partnerInfo?.country}
               />
             ) : (
               <IdleMessage lastAction={lastAction} />
             )}
           </div>
 
-          {/* 🎮 Control Buttons */}
+          {/* 🎮 Controls */}
           <ControlBar
             userInfo={userInfo}
             soundOn={soundOn}
