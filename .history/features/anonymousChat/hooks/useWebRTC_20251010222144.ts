@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Socket } from "socket.io-client";
 
 interface UseWebRTCProps {
   roomId: string | null;
   isOfferer: boolean | null;
   isStarted: boolean;
-  socket: Socket | null; // Reuse the socket from useSocket
+  socket: Socket | null;
 }
 
 export default function useWebRTC({
@@ -22,10 +22,41 @@ export default function useWebRTC({
     iceServers: [
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun1.l.google.com:19302" },
-      // Add TURN server for production
+      // You can add a TURN server for production if needed
     ],
   };
 
+  /**
+   * 🧹 Cleanup — stops all streams and closes the peer connection
+   */
+  const cleanup = useCallback(() => {
+    console.log("🧹 Cleaning up WebRTC resources...");
+
+    try {
+      peerRef.current?.getSenders()?.forEach((sender) => {
+        if (sender.track) sender.track.stop();
+      });
+
+      peerRef.current?.close();
+      peerRef.current = null;
+
+      if (localStream) {
+        localStream.getTracks().forEach((track) => track.stop());
+        setLocalStream(null);
+      }
+
+      if (remoteStream) {
+        remoteStream.getTracks().forEach((track) => track.stop());
+        setRemoteStream(null);
+      }
+    } catch (err) {
+      console.error("Cleanup error:", err);
+    }
+  }, [localStream, remoteStream]);
+
+  /**
+   * 🎥 Initialize WebRTC
+   */
   useEffect(() => {
     if (!roomId || isOfferer === null || !isStarted || !socket) return;
 
@@ -33,12 +64,14 @@ export default function useWebRTC({
 
     const init = async () => {
       try {
-        // ✅ Get local media
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        console.log("🎬 Initializing WebRTC...");
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
         if (!isMounted) return;
         setLocalStream(stream);
 
-        // ✅ Create RTCPeerConnection
         const pc = new RTCPeerConnection(iceServers);
         peerRef.current = pc;
 
@@ -47,19 +80,21 @@ export default function useWebRTC({
 
         // Receive remote tracks
         pc.ontrack = (event) => {
+          console.log("📡 Remote stream received");
           setRemoteStream(event.streams[0]);
         };
 
-        // Send ICE candidates
+        // Handle ICE candidates
         pc.onicecandidate = (event) => {
           if (event.candidate) {
             socket.emit("ice-candidate", { candidate: event.candidate, roomId });
           }
         };
 
-        // Join room and handle offer/answer
+        // Join room
         socket.emit("join-room", roomId);
 
+        // Handle signaling events
         socket.on("joined-room", async () => {
           if (isOfferer) {
             const offer = await pc.createOffer();
@@ -69,24 +104,27 @@ export default function useWebRTC({
         });
 
         socket.on("offer", async ({ offer }) => {
-          await pc.setRemoteDescription(new RTCSessionDescription(offer));
-          const answer = await pc.createAnswer();
-          await pc.setLocalDescription(answer);
-          socket.emit("answer", { answer, roomId });
+          if (!pc.currentRemoteDescription) {
+            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            socket.emit("answer", { answer, roomId });
+          }
         });
 
         socket.on("answer", async ({ answer }) => {
-          await pc.setRemoteDescription(new RTCSessionDescription(answer));
+          if (!pc.currentRemoteDescription) {
+            await pc.setRemoteDescription(new RTCSessionDescription(answer));
+          }
         });
 
         socket.on("ice-candidate", async ({ candidate }) => {
           try {
             await pc.addIceCandidate(new RTCIceCandidate(candidate));
           } catch (err) {
-            console.error("Failed to add ICE candidate:", err);
+            console.error("❌ Failed to add ICE candidate:", err);
           }
         });
-
       } catch (err) {
         console.error("❌ WebRTC init error:", err);
       }
@@ -96,11 +134,9 @@ export default function useWebRTC({
 
     return () => {
       isMounted = false;
-      peerRef.current?.close();
-      localStream?.getTracks().forEach((t) => t.stop());
-      peerRef.current = null;
+      cleanup();
     };
-  }, [roomId, isOfferer, isStarted, socket]);
+  }, [roomId, isOfferer, isStarted, socket, cleanup]);
 
-  return { localStream, remoteStream };
+  return { localStream, remoteStream, cleanup };
 }
