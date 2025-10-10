@@ -6,7 +6,6 @@ interface UseWebRTCProps {
   isOfferer: boolean | null;
   isStarted: boolean;
   socket: Socket | null;
-  muted?: boolean; // ✅ Added optional muted prop
 }
 
 export default function useWebRTC({
@@ -14,7 +13,6 @@ export default function useWebRTC({
   isOfferer,
   isStarted,
   socket,
-  muted = false,
 }: UseWebRTCProps) {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
@@ -24,7 +22,7 @@ export default function useWebRTC({
     iceServers: [
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun1.l.google.com:19302" },
-      // Add TURN server for production if needed
+      // You can add a TURN server for production if needed
     ],
   };
 
@@ -72,10 +70,6 @@ export default function useWebRTC({
           audio: true,
         });
         if (!isMounted) return;
-
-        // ✅ Apply mute state immediately after getting stream
-        stream.getAudioTracks().forEach((track) => (track.enabled = !muted));
-
         setLocalStream(stream);
 
         const pc = new RTCPeerConnection(iceServers);
@@ -142,21 +136,7 @@ export default function useWebRTC({
       isMounted = false;
       cleanup();
     };
-  }, [roomId, isOfferer, isStarted, socket, cleanup, muted]);
-
-  /**
-   * 🎤 Sync mute state dynamically if user toggles mic
-   */
-  useEffect(() => {
-    if (!localStream) return;
-    try {
-      localStream.getAudioTracks().forEach((track) => {
-        track.enabled = !muted;
-      });
-    } catch (err) {
-      console.warn("⚠️ Failed to toggle mic:", err);
-    }
-  }, [muted, localStream]);
+  }, [roomId, isOfferer, isStarted, socket, cleanup]);
 
   return { localStream, remoteStream, cleanup };
 }
