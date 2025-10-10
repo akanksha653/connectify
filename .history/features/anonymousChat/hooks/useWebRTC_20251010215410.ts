@@ -6,6 +6,7 @@ interface UseWebRTCProps {
   isOfferer: boolean | null;
   isStarted: boolean;
   socket: Socket | null;
+  muted?: boolean; // optional mic mute
 }
 
 export default function useWebRTC({
@@ -13,6 +14,7 @@ export default function useWebRTC({
   isOfferer,
   isStarted,
   socket,
+  muted = false,
 }: UseWebRTCProps) {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
@@ -22,31 +24,33 @@ export default function useWebRTC({
     iceServers: [
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun1.l.google.com:19302" },
-      // You can add a TURN server for production if needed
+      // Add TURN server for production if needed
     ],
   };
 
   /**
-   * 🧹 Cleanup — stops all streams and closes the peer connection
+   * 🧹 Cleanup — stop tracks & close connection
    */
   const cleanup = useCallback(() => {
-    console.log("🧹 Cleaning up WebRTC resources...");
-
+    console.log("🧹 Cleaning up WebRTC...");
     try {
-      peerRef.current?.getSenders()?.forEach((sender) => {
+      // Stop all tracks in peer connection
+      peerRef.current?.getSenders().forEach((sender) => {
         if (sender.track) sender.track.stop();
       });
 
       peerRef.current?.close();
       peerRef.current = null;
 
+      // Stop local stream
       if (localStream) {
-        localStream.getTracks().forEach((track) => track.stop());
+        localStream.getTracks().forEach((t) => t.stop());
         setLocalStream(null);
       }
 
+      // Stop remote stream
       if (remoteStream) {
-        remoteStream.getTracks().forEach((track) => track.stop());
+        remoteStream.getTracks().forEach((t) => t.stop());
         setRemoteStream(null);
       }
     } catch (err) {
@@ -69,32 +73,30 @@ export default function useWebRTC({
           video: true,
           audio: true,
         });
+
         if (!isMounted) return;
+
+        // Apply initial mute
+        stream.getAudioTracks().forEach((track) => (track.enabled = !muted));
         setLocalStream(stream);
 
         const pc = new RTCPeerConnection(iceServers);
         peerRef.current = pc;
 
-        // Add local tracks
+        // Add tracks
         stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
-        // Receive remote tracks
-        pc.ontrack = (event) => {
-          console.log("📡 Remote stream received");
-          setRemoteStream(event.streams[0]);
-        };
+        // Remote tracks
+        pc.ontrack = (event) => setRemoteStream(event.streams[0]);
 
-        // Handle ICE candidates
+        // ICE candidates
         pc.onicecandidate = (event) => {
-          if (event.candidate) {
-            socket.emit("ice-candidate", { candidate: event.candidate, roomId });
-          }
+          if (event.candidate) socket.emit("ice-candidate", { candidate: event.candidate, roomId });
         };
 
         // Join room
         socket.emit("join-room", roomId);
 
-        // Handle signaling events
         socket.on("joined-room", async () => {
           if (isOfferer) {
             const offer = await pc.createOffer();
@@ -136,7 +138,17 @@ export default function useWebRTC({
       isMounted = false;
       cleanup();
     };
-  }, [roomId, isOfferer, isStarted, socket, cleanup]);
+  }, [roomId, isOfferer, isStarted, socket, cleanup, muted]);
+
+  /**
+   * 🎤 Dynamic mic toggle
+   */
+  useEffect(() => {
+    if (!localStream) return;
+    localStream.getAudioTracks().forEach((track) => {
+      track.enabled = !muted;
+    });
+  }, [muted, localStream]);
 
   return { localStream, remoteStream, cleanup };
 }
