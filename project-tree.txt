@@ -59,7 +59,6 @@
 │       ├── hooks
 │       │   ├── useRoomSocket.ts
 │       │   └── useRoomWebRTC.ts
-│       ├── page.tsx
 │       ├── services
 │       │   └── roomSocketService.ts
 │       └── utils
@@ -67,6 +66,17 @@
 ├── firebase.json
 ├── firestore.indexes.json
 ├── firestore.rules
+├── functions
+│   ├── .eslintrc.js
+│   ├── .gitignore
+│   ├── lib
+│   │   ├── index.js
+│   │   └── index.js.map
+│   ├── package.json
+│   ├── src
+│   │   └── index.ts
+│   ├── tsconfig.dev.json
+│   └── tsconfig.json
 ├── generate-tree.js
 ├── lib
 │   ├── firebaseConfig.ts
@@ -91,6 +101,7 @@
 │   │   ├── match.mp3
 │   │   ├── receive.mp3
 │   │   └── sent.mp3
+│   ├── upi-qr.png
 │   ├── vercel.svg
 │   └── window.svg
 ├── README.md
@@ -101,6 +112,11 @@
 │   └── signaling.js
 ├── src
 │   ├── app
+│   │   ├── anonymous
+│   │   │   └── page.tsx
+│   │   ├── api
+│   │   │   └── contact
+│   │   │       └── route.ts
 │   │   ├── auth
 │   │   │   ├── authContext.tsx
 │   │   │   ├── firebaseAuth.ts
@@ -154,7 +170,8 @@
 ├── TEXT.txt
 ├── tsconfig.json
 ├── types
-│   └── next.d.ts
+│   ├── next.d.ts
+│   └── user.ts
 └── utils
     ├── constants.ts
     └── helpers.ts

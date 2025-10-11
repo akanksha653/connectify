@@ -16,13 +16,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-if (!getApps().length) {
-  console.log("⚙️ Initializing Firebase app...");
-  initializeApp(firebaseConfig);
-} else {
-  console.log("✅ Firebase already initialized");
-}
-
+if (!getApps().length) initializeApp(firebaseConfig);
 const db = getFirestore();
 
 // ========================
@@ -33,56 +27,38 @@ const EMAIL_TO = process.env.EMAIL_TO;
 const EMAIL_FROM = process.env.EMAIL_FROM;
 
 if (!SENDGRID_API_KEY || !EMAIL_FROM || !EMAIL_TO) {
-  console.error("❌ Missing required environment variables for SendGrid:", {
-    SENDGRID_API_KEY: !!SENDGRID_API_KEY,
-    EMAIL_FROM,
-    EMAIL_TO,
-  });
-} else {
-  console.log("✅ SendGrid environment variables loaded");
+  console.error("❌ Missing required environment variables for SendGrid");
 }
 
-sgMail.setApiKey(SENDGRID_API_KEY || "");
+sgMail.setApiKey(SENDGRID_API_KEY!);
 
 // ========================
 // 📩 POST Handler
 // ========================
 export async function POST(req: NextRequest) {
-  console.log("📩 Received contact form submission");
-
   try {
     const { name, email, message } = await req.json();
 
-    // Step 1: Validate input
     if (!name || !email || !message) {
-      console.warn("⚠️ Missing required fields:", { name, email, message });
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
     }
 
-    console.log("📝 Valid data received:", { name, email });
+    // Save message to Firestore
+    await addDoc(collection(db, "contactMessages"), {
+      name,
+      email,
+      message,
+      timestamp: serverTimestamp(),
+    });
 
-    // Step 2: Save message to Firestore
-    try {
-      const docRef = await addDoc(collection(db, "contactMessages"), {
-        name,
-        email,
-        message,
-        timestamp: serverTimestamp(),
-      });
-      console.log("✅ Message saved to Firestore:", docRef.id);
-    } catch (firebaseErr: any) {
-      console.error("🔥 Firestore save failed:", firebaseErr);
-      // Continue — still try to send email
-    }
-
-    // Step 3: Send email via SendGrid
+    // Send email via SendGrid
     const msg = {
       to: EMAIL_TO!,
-      from: EMAIL_FROM!, // must be verified in SendGrid
+      from: EMAIL_FROM!, // ✅ must be verified sender
       subject: `📩 New Contact Form Submission from ${name}`,
       text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
       html: `
-        <h2>📬 New Message from Contact Form</h2>
+        <h2>New Message from Contact Form</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong></p>
@@ -90,30 +66,18 @@ export async function POST(req: NextRequest) {
       `,
     };
 
-    try {
-      const response = await sgMail.send(msg);
-      console.log("✅ Email sent successfully via SendGrid", response[0].statusCode);
-    } catch (sgErr: any) {
-      console.error("📮 SendGrid email error:", sgErr?.response?.body || sgErr);
-      return NextResponse.json(
-        {
-          message: "Failed to send email",
-          error: sgErr?.response?.body?.errors?.[0]?.message || sgErr.message,
-        },
-        { status: 500 }
-      );
-    }
+    await sgMail.send(msg);
+    console.log("✅ Email sent successfully");
 
-    // Step 4: Final success
-    console.log("🎉 Contact form processed successfully");
     return NextResponse.json({ message: "Message sent successfully ✅" });
+  } catch (error: any) {
+    // Log detailed SendGrid error if available
+    console.error("❌ SendGrid or Firestore error:", error?.response?.body || error);
 
-  } catch (err: any) {
-    console.error("❌ Unexpected server error:", err);
     return NextResponse.json(
       {
         message: "Internal server error",
-        error: err?.message || "Unknown error",
+        error: error?.response?.body?.errors?.[0]?.message || error.message || "Unknown error",
       },
       { status: 500 }
     );

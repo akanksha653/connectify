@@ -17,13 +17,10 @@ const io = new Server(server, {
 app.get("/", (req, res) => res.send("🚀 Signaling server is running!"));
 
 // -------------------------
-// In-memory waiting queue
+// 1-1 Anonymous Chat
 // -------------------------
 let waitingUsers = [];
 
-// -------------------------
-// Socket connection
-// -------------------------
 io.on("connection", (socket) => {
   console.log("✅ User connected:", socket.id);
 
@@ -35,7 +32,6 @@ io.on("connection", (socket) => {
     socket.userData = { gender, country, age, name, filterGender, filterCountry };
     socket.partnerId = null;
 
-    // Find a compatible partner
     const index = waitingUsers.findIndex((other) => {
       if (!other.connected || !other.userData) return false;
 
@@ -58,11 +54,9 @@ io.on("connection", (socket) => {
       socket.join(roomId);
       partner.join(roomId);
 
-      // Link partners
       socket.partnerId = partner.id;
       partner.partnerId = socket.id;
 
-      // Emit matched event to both
       partner.emit("matched", {
         roomId,
         partnerId: socket.id,
@@ -112,30 +106,29 @@ io.on("connection", (socket) => {
     socket.emit("start-looking", socket.userData);
   });
 
- // -------------------------
-// WebRTC Signaling
-// -------------------------
-socket.on("join-room", (roomId) => {
-  console.log(`📡 ${socket.id} joined WebRTC room ${roomId}`);
-  socket.join(roomId);
-  socket.emit("joined-room", roomId); // ✅ Important: notify client
-});
+  // -------------------------
+  // WebRTC Signaling for 1-1
+  // -------------------------
+  socket.on("join-room", (roomId) => {
+    console.log(`📡 ${socket.id} joined WebRTC room ${roomId}`);
+    socket.join(roomId);
+    socket.emit("joined-room", roomId);
+  });
 
-socket.on("offer", ({ offer, roomId }) =>
-  socket.to(roomId).emit("offer", { offer, sender: socket.id })
-);
+  socket.on("offer", ({ offer, roomId }) =>
+    socket.to(roomId).emit("offer", { offer, sender: socket.id })
+  );
 
-socket.on("answer", ({ answer, roomId }) =>
-  socket.to(roomId).emit("answer", { answer, sender: socket.id })
-);
+  socket.on("answer", ({ answer, roomId }) =>
+    socket.to(roomId).emit("answer", { answer, sender: socket.id })
+  );
 
-socket.on("ice-candidate", ({ candidate, roomId }) =>
-  socket.to(roomId).emit("ice-candidate", { candidate, sender: socket.id })
-);
-
+  socket.on("ice-candidate", ({ candidate, roomId }) =>
+    socket.to(roomId).emit("ice-candidate", { candidate, sender: socket.id })
+  );
 
   // -------------------------
-  // Chat / Messaging
+  // Chat / Messaging for 1-1
   // -------------------------
   socket.on("send-message", (msg) => {
     const { roomId } = msg;
@@ -165,7 +158,7 @@ socket.on("ice-candidate", ({ candidate, roomId }) =>
   );
 
   // -------------------------
-  // Disconnect / Page Refresh / Tab Close
+  // Disconnect
   // -------------------------
   socket.on("disconnect", (reason) => {
     console.log(`❌ User disconnected: ${socket.id} (${reason})`);
@@ -180,6 +173,48 @@ socket.on("ice-candidate", ({ candidate, roomId }) =>
     }
 
     socket.partnerId = null;
+  });
+});
+
+// -------------------------
+// Room Chat Namespace
+// -------------------------
+const roomIO = io.of("/rooms");
+const rooms = {}; // roomId -> { users: [], messages: [] }
+
+roomIO.on("connection", (socket) => {
+  console.log("✅ Room chat connected:", socket.id);
+
+  socket.on("join-room", ({ roomId, user }) => {
+    if (!rooms[roomId]) rooms[roomId] = { users: [], messages: [] };
+    rooms[roomId].users.push({ socketId: socket.id, ...user });
+    socket.join(roomId);
+    socket.to(roomId).emit("user-joined", user);
+  });
+
+  socket.on("send-message", ({ roomId, message }) => {
+    rooms[roomId]?.messages.push(message);
+    socket.to(roomId).emit("receive-message", message);
+  });
+
+  socket.on("typing", ({ roomId, userId }) => {
+    socket.to(roomId).emit("typing", { userId });
+  });
+
+  socket.on("leave-room", ({ roomId, userId }) => {
+    if (rooms[roomId]) {
+      rooms[roomId].users = rooms[roomId].users.filter(u => u.socketId !== socket.id);
+      socket.to(roomId).emit("user-left", { userId });
+      socket.leave(roomId);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    // Optional: remove user from any rooms
+    for (let roomId in rooms) {
+      rooms[roomId].users = rooms[roomId].users.filter(u => u.socketId !== socket.id);
+      socket.to(roomId).emit("user-left", { userId: socket.id });
+    }
   });
 });
 

@@ -1,12 +1,13 @@
 import { io, Socket } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 
+// ✅ Use your signaling server URL
 const SOCKET_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || "http://localhost:3001";
 
 // Single socket instance for /rooms namespace
 let socket: Socket | null = null;
 
-/** Connect to /rooms namespace */
+/** Connect to the room socket server (namespace /rooms) */
 export const connectRoomSocket = (): Socket => {
   if (!socket) {
     socket = io(`${SOCKET_URL}/rooms`, {
@@ -24,7 +25,7 @@ export const connectRoomSocket = (): Socket => {
   return socket;
 };
 
-/** Disconnect socket */
+/** Disconnect from room server */
 export const disconnectRoomSocket = (): void => {
   if (socket) {
     socket.disconnect();
@@ -32,11 +33,11 @@ export const disconnectRoomSocket = (): void => {
   }
 };
 
-/** Get current socket */
+/** Get current socket instance */
 export const getRoomSocket = (): Socket | null => socket;
 
 // -------------------------------------------------
-// Room Operations
+// ⚡ Room Operations
 // -------------------------------------------------
 export interface Room {
   id: string;
@@ -48,16 +49,18 @@ export interface Room {
   users?: { socketId: string; userInfo: any }[];
 }
 
+/** Join a room */
 export const joinRoom = (roomId: string, user: any): void => {
   socket?.emit("join-room", { roomId, user });
 };
 
+/** Leave a room */
 export const leaveRoom = (roomId: string, userId: string): void => {
   socket?.emit("leave-room", { roomId, userId });
 };
 
 // -------------------------------------------------
-// Messaging
+// 💬 Messaging
 // -------------------------------------------------
 export interface RoomMessage {
   id: string;
@@ -66,6 +69,7 @@ export interface RoomMessage {
   timestamp: string;
 }
 
+/** Send a message to the room */
 export const sendRoomMessage = (roomId: string, text: string): void => {
   const message: RoomMessage = {
     id: uuidv4(),
@@ -76,6 +80,7 @@ export const sendRoomMessage = (roomId: string, text: string): void => {
   socket?.emit("send-message", { roomId, message });
 };
 
+/** Listen for incoming room messages */
 export const onRoomMessage = (callback: (msg: RoomMessage) => void): void => {
   socket?.off("receive-message").on("receive-message", (data) => {
     callback(data.message);
@@ -83,7 +88,7 @@ export const onRoomMessage = (callback: (msg: RoomMessage) => void): void => {
 };
 
 // -------------------------------------------------
-// Typing
+// ⌨️ Typing indicator
 // -------------------------------------------------
 export const sendTyping = (roomId: string, userId: string): void => {
   socket?.emit("typing", { roomId, userId });
@@ -94,7 +99,7 @@ export const onTyping = (callback: (data: any) => void): void => {
 };
 
 // -------------------------------------------------
-// WebRTC
+// 🎥 WebRTC Signaling
 // -------------------------------------------------
 export const sendRoomOffer = (
   to: string,
