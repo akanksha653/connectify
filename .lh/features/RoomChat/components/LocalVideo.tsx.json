@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1758899027216,
@@ -12,6 +12,10 @@
                 {
                     "date": 1758899633472,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,15 +1,22 @@\n \"use client\";\r\n \r\n import React, { useEffect, useRef } from \"react\";\r\n+import { FiMicOff } from \"react-icons/fi\";\r\n \r\n interface Props {\r\n   stream: MediaStream | null;\r\n   muted?: boolean;\r\n   label?: string;\r\n+  isSpeaking?: boolean; // optional: highlight when speaking\r\n }\r\n \r\n-export default function LocalVideo({ stream, muted = true, label }: Props) {\r\n+export default function LocalVideo({\r\n+  stream,\r\n+  muted = true,\r\n+  label,\r\n+  isSpeaking = false,\r\n+}: Props) {\r\n   const videoRef = useRef<HTMLVideoElement>(null);\r\n \r\n   useEffect(() => {\r\n     if (videoRef.current && stream) {\r\n@@ -17,19 +24,26 @@\n     }\r\n   }, [stream]);\r\n \r\n   return (\r\n-    <div className=\"relative\">\r\n+    <div\r\n+      className={`relative rounded-lg overflow-hidden shadow-md transition-all duration-300 ${\r\n+        isSpeaking ? \"ring-2 ring-green-400\" : \"\"\r\n+      }`}\r\n+    >\r\n       <video\r\n         ref={videoRef}\r\n         autoPlay\r\n         playsInline\r\n         muted={muted}\r\n-        className=\"w-full h-48 rounded-lg bg-black\"\r\n+        className=\"w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover bg-black\"\r\n       />\r\n+\r\n+      {/* User Label */}\r\n       {label && (\r\n-        <div className=\"absolute bottom-1 left-1 bg-black/50 text-white px-2 py-0.5 text-xs rounded\">\r\n-          {label}\r\n+        <div className=\"absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 text-sm rounded flex items-center gap-1\">\r\n+          <span>{label}</span>\r\n+          {muted && <FiMicOff className=\"text-red-400\" />}\r\n         </div>\r\n       )}\r\n     </div>\r\n   );\r\n"
+                },
+                {
+                    "date": 1760188245304,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -6,9 +6,9 @@\n interface Props {\r\n   stream: MediaStream | null;\r\n   muted?: boolean;\r\n   label?: string;\r\n-  isSpeaking?: boolean; // optional: highlight when speaking\r\n+  isSpeaking?: boolean; // highlight when speaking\r\n }\r\n \r\n export default function LocalVideo({\r\n   stream,\r\n@@ -25,11 +25,10 @@\n   }, [stream]);\r\n \r\n   return (\r\n     <div\r\n-      className={`relative rounded-lg overflow-hidden shadow-md transition-all duration-300 ${\r\n-        isSpeaking ? \"ring-2 ring-green-400\" : \"\"\r\n-      }`}\r\n+      className={`relative rounded-xl overflow-hidden shadow-md transition-all duration-300\r\n+        ${isSpeaking ? \"ring-4 ring-green-400 animate-pulse\" : \"\"} hover:scale-105`}\r\n     >\r\n       <video\r\n         ref={videoRef}\r\n         autoPlay\r\n@@ -41,10 +40,16 @@\n       {/* User Label */}\r\n       {label && (\r\n         <div className=\"absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 text-sm rounded flex items-center gap-1\">\r\n           <span>{label}</span>\r\n-          {muted && <FiMicOff className=\"text-red-400\" />}\r\n         </div>\r\n       )}\r\n+\r\n+      {/* Mic Off Indicator */}\r\n+      {muted && (\r\n+        <div className=\"absolute top-2 right-2 bg-black/60 p-1 rounded-full\">\r\n+          <FiMicOff className=\"text-red-400 w-5 h-5\" />\r\n+        </div>\r\n+      )}\r\n     </div>\r\n   );\r\n }\r\n"
                 }
             ],
             "date": 1758899027216,
