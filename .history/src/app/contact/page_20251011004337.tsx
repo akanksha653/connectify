@@ -3,13 +3,17 @@
 
 import React, { useState } from "react";
 import { Mail } from "lucide-react";
+import { db } from "@/lib/firebaseConfig";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -18,18 +22,18 @@ export default function ContactPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      // Save message to Firestore
+      await addDoc(collection(db, "contactMessages"), {
+        name: form.name,
+        email: form.email,
+        message: form.message,
+        timestamp: serverTimestamp(),
       });
-
-      if (!res.ok) throw new Error("Failed to send message");
 
       setSubmitted(true);
       setForm({ name: "", email: "", message: "" });
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Error sending message:", error);
       alert("Failed to send message. Please try again.");
     } finally {
       setLoading(false);
@@ -50,7 +54,9 @@ export default function ContactPage() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium">Name</label>
+            <label htmlFor="name" className="block text-sm font-medium">
+              Name
+            </label>
             <input
               type="text"
               name="name"
@@ -63,7 +69,9 @@ export default function ContactPage() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -76,7 +84,9 @@ export default function ContactPage() {
           </div>
 
           <div>
-            <label htmlFor="message" className="block text-sm font-medium">Message</label>
+            <label htmlFor="message" className="block text-sm font-medium">
+              Message
+            </label>
             <textarea
               name="message"
               rows={5}
@@ -91,7 +101,9 @@ export default function ContactPage() {
           <button
             type="submit"
             disabled={loading}
-            className={`${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"} text-white text-sm px-5 py-2 rounded-lg shadow transition`}
+            className={`${
+              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            } text-white text-sm px-5 py-2 rounded-lg shadow transition`}
           >
             {loading ? "Sending..." : "Send Message"}
           </button>

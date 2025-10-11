@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Heart, IndianRupee, Download } from "lucide-react";
+import { Heart, IndianRupee } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { loadRazorpayScript } from "@/lib/razorpay";
-import { jsPDF } from "jspdf";
 
 declare global {
   interface Window {
@@ -31,8 +30,13 @@ export default function DonatePage() {
         const paymentId = response.razorpay_payment_id;
         router.push(`/donate/success?payment_id=${paymentId}&amount=${amount}`);
       },
-      prefill: { name: "", email: "" },
-      theme: { color: "#ec4899" },
+      prefill: {
+        name: "",
+        email: "",
+      },
+      theme: {
+        color: "#ec4899",
+      },
     };
 
     const rzp = new window.Razorpay(options);
@@ -54,65 +58,8 @@ export default function DonatePage() {
     }
   };
 
-  // ✅ Download QR as PDF
-  const handleDownloadQR = async () => {
-    const qrImg = "/upi-qr.png";
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-
-    // Add title
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(20);
-    pdf.text("Support Connectify ❤️", 105, 20, { align: "center" });
-
-    // Add QR image
-    const img = new Image();
-    img.src = qrImg;
-    img.onload = () => {
-      const imgWidth = 100;
-      const imgHeight = 100;
-      const x = (210 - imgWidth) / 2;
-      const y = 40;
-      pdf.addImage(img, "PNG", x, y, imgWidth, imgHeight);
-
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(14);
-      pdf.text("Scan the QR with any UPI app (Google Pay, Paytm, PhonePe)", 105, 160, { align: "center" });
-      pdf.text("UPI ID: connectify@upi", 105, 175, { align: "center" });
-
-      pdf.save("Connectify-UPI-QR.pdf");
-    };
-  };
-
   return (
     <main className="max-w-xl mx-auto px-4 py-10 text-neutral-800 dark:text-neutral-100">
-      {/* ✅ QR Section First */}
-      <div className="text-center mb-10">
-        <h2 className="text-lg font-semibold mb-3">Donate Instantly via UPI QR</h2>
-        <div className="flex flex-col items-center">
-          <img
-            src="/upi-qr.png"
-            alt="UPI QR Code"
-            className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg shadow-lg border border-neutral-300 dark:border-neutral-700"
-          />
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            Scan using any UPI app (PhonePe, Google Pay, Paytm)
-          </p>
-
-          <button
-            onClick={handleDownloadQR}
-            className="mt-4 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition text-sm"
-          >
-            <Download className="w-4 h-4" />
-            Download QR as PDF
-          </button>
-        </div>
-      </div>
-
-      {/* Donation Options */}
       <div className="flex items-center gap-2 mb-6">
         <Heart className="w-6 h-6 text-pink-600" />
         <h1 className="text-2xl font-semibold">Support Connectify with a Donation</h1>
@@ -172,8 +119,23 @@ export default function DonatePage() {
             }}
             className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg shadow transition"
           >
-            Pay via UPI Link
+            Pay via UPI QR
           </button>
+        </div>
+      </div>
+
+           {/* QR Payment Section */}
+      <div className="mt-8 text-center">
+        <h2 className="text-lg font-semibold mb-3">Or Scan the QR to Donate Instantly</h2>
+        <div className="flex flex-col items-center">
+          <img
+            src="/upi-qr.png"
+            alt="UPI QR Code"
+            className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg shadow-lg border border-neutral-300 dark:border-neutral-700"
+          />
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            Scan using any UPI app (PhonePe, Google Pay, Paytm)
+          </p>
         </div>
       </div>
 
@@ -183,6 +145,7 @@ export default function DonatePage() {
           connectify.hub.in@gmail.com
         </a>
       </p>
+
     </main>
   );
 }

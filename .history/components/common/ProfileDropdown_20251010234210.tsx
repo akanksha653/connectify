@@ -54,7 +54,7 @@ export default function ProfileDropdown() {
     try {
       await signOut(auth); // signs out of Firebase (works for email + Google)
       localStorage.removeItem("user-info");
-      if (setUserId) setUserId(null);
+      if (setUser) setUser(null); // optional, clear context state
       router.push("/");
       window.location.reload(); // refresh app state
     } catch (error) {

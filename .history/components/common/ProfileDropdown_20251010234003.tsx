@@ -9,7 +9,7 @@ import { database } from "@/lib/firebaseConfig";
 import { getAuth, signOut } from "firebase/auth"; // ✅ import Firebase signOut
 
 export default function ProfileDropdown() {
-  const { userId, setUserId } = useAuth();
+  const { userId, setUser } = useAuth(); // make sure your context exposes setUser (optional)
   const [userInfo, setUserInfo] = useState<{ name: string; age: string; country: string } | null>(null);
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function ProfileDropdown() {
     try {
       await signOut(auth); // signs out of Firebase (works for email + Google)
       localStorage.removeItem("user-info");
-      if (setUserId) setUserId(null);
+      if (setUser) setUser(null); // optional, clear context state
       router.push("/");
       window.location.reload(); // refresh app state
     } catch (error) {
