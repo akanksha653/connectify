@@ -1,0 +1,18 @@
+{
+    "sourceFile": "lib/socket.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760195374899,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760195374899,
+            "name": "Commit-0",
+            "content": "import { io } from \"socket.io-client\";\r\n\r\nexport function createSocket(namespace = \"\") {\r\n  const url = \"https://connectify-z9gv.onrender.com\" + namespace;\r\n  const socket = io(url, {\r\n    transports: [\"websocket\"],\r\n    reconnection: true,\r\n    reconnectionAttempts: 10,\r\n    reconnectionDelay: 2000,\r\n    reconnectionDelayMax: 5000,\r\n  });\r\n\r\n  socket.on(\"connect\", () => console.log(\"✅ Connected:\", socket.id));\r\n  socket.on(\"connect_error\", (err) => console.warn(\"⚠️ Connect error:\", err.message));\r\n  socket.on(\"disconnect\", (reason) => console.log(\"❌ Disconnected:\", reason));\r\n\r\n  return socket;\r\n}\r\n\r\n// Optional: default sockets\r\nexport const mainSocket = createSocket();        // 1-1 namespace\r\nexport const roomsSocket = createSocket(\"/rooms\"); // /rooms namespace\r\n"
+        }
+    ]
+}
