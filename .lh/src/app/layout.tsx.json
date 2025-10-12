@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 9,
+            "activePatchIndex": 11,
             "patches": [
                 {
                     "date": 1752419047359,
@@ -43,6 +43,14 @@
                 },
                 {
                     "date": 1760250145377,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n import type { Metadata } from \"next\";\r\n import { Geist, Geist_Mono } from \"next/font/google\";\r\n import \"./globals.css\";\r\n-import Navbar from \"../../components/common/Navbar\"; // ✅ Full Navbar\r\n+import Navbar from \"./components/common/Navbar\"; // ✅ Full Navbar\r\n import { AuthProvider } from \"../app/auth/authContext\"; // ✅ Firebase Auth context\r\n \r\n const geistSans = Geist({\r\n   variable: \"--font-geist-sans\",\r\n"
+                },
+                {
+                    "date": 1760262454499,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n import type { Metadata } from \"next\";\r\n import { Geist, Geist_Mono } from \"next/font/google\";\r\n import \"./globals.css\";\r\n-import Navbar from \"./components/common/Navbar\"; // ✅ Full Navbar\r\n+import Navbar from \"../../components/common/Navbar\"; // ✅ Full Navbar\r\n import { AuthProvider } from \"../app/auth/authContext\"; // ✅ Firebase Auth context\r\n \r\n const geistSans = Geist({\r\n   variable: \"--font-geist-sans\",\r\n"
+                },
+                {
+                    "date": 1760262469088,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n import type { Metadata } from \"next\";\r\n import { Geist, Geist_Mono } from \"next/font/google\";\r\n import \"./globals.css\";\r\n-import Navbar from \"../../components/common/Navbar\"; // ✅ Full Navbar\r\n+import Navbar from \"./components/common/Navbar\"; // ✅ Full Navbar\r\n import { AuthProvider } from \"../app/auth/authContext\"; // ✅ Firebase Auth context\r\n \r\n const geistSans = Geist({\r\n   variable: \"--font-geist-sans\",\r\n"
                 }
             ],

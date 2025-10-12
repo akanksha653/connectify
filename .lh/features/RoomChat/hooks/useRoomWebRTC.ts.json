@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 5,
+            "activePatchIndex": 7,
             "patches": [
                 {
                     "date": 1758898670717,
@@ -28,6 +28,14 @@
                 {
                     "date": 1760246329995,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -53,16 +53,21 @@\n         sendRoomIce(peerId, roomId, event.candidate);\r\n       }\r\n     };\r\n \r\n-    // 🔁 Handle renegotiation needed\r\n+    // 🔁 Handle renegotiation needed (debounced)\r\n+    let makingOffer = false;\r\n     pc.onnegotiationneeded = async () => {\r\n       try {\r\n+        if (makingOffer) return;\r\n+        makingOffer = true;\r\n         const offer = await pc.createOffer();\r\n         await pc.setLocalDescription(offer);\r\n         sendRoomOffer(peerId, roomId, offer);\r\n       } catch (err) {\r\n         console.error(\"❌ Renegotiation failed:\", err);\r\n+      } finally {\r\n+        makingOffer = false;\r\n       }\r\n     };\r\n \r\n     // 🧹 Cleanup on connection state change\r\n"
+                },
+                {
+                    "date": 1760262896533,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,9 @@\n   getRoomSocket,\r\n   sendRoomOffer,\r\n   sendRoomAnswer,\r\n   sendRoomIce,\r\n-} from \"../services/roomSocketService\";\r\n+} from \"../../RoomChat/\";\r\n \r\n interface PeersMap {\r\n   [peerId: string]: RTCPeerConnection;\r\n }\r\n"
+                },
+                {
+                    "date": 1760262942720,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,9 @@\n   getRoomSocket,\r\n   sendRoomOffer,\r\n   sendRoomAnswer,\r\n   sendRoomIce,\r\n-} from \"../../RoomChat/\";\r\n+} from \"../services/roomSocketService\";\r\n \r\n interface PeersMap {\r\n   [peerId: string]: RTCPeerConnection;\r\n }\r\n"
                 }
             ],
             "date": 1758898670716,

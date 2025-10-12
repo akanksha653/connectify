@@ -9,7 +9,7 @@ import {
   sendTyping,
   onRoomMessage,
   onTyping,
-} from "../services/roomSocketService";
+} from "../../../features/RoomChat/services/roomSocketService";
 
 export interface RoomUser {
   socketId: string;

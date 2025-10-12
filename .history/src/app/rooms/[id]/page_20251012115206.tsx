@@ -2,9 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import VideoGrid from "../../../../features/RoomChat/components/VideoGrid";
-import ChatBox from "../../../../features/RoomChat/components/RoomChatBox";
-import { connectRoomSocket, disconnectRoomSocket } from "../../../../features/RoomChat/services/roomSocketService";
+import VideoGrid from "../../features/RoomChat/components/VideoGrid";
+import ChatBox from "../../features/RoomChat/components/RoomChatBox";
+import { connectRoomSocket, disconnectRoomSocket } from "../../features/RoomChat/services/roomSocketService";
 
 interface UserInfo {
   name?: string;

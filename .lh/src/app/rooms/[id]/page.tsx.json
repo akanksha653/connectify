@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 21,
+            "activePatchIndex": 23,
             "patches": [
                 {
                     "date": 1758888488063,
@@ -91,6 +91,14 @@
                 },
                 {
                     "date": 1760250127330,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,11 @@\n \"use client\";\r\n \r\n import React, { useEffect, useRef, useState } from \"react\";\r\n import { useParams, useRouter } from \"next/navigation\";\r\n-import VideoGrid from \"../../../../features/RoomChat/components/VideoGrid\";\r\n-import ChatBox from \"../../../../features/RoomChat/components/RoomChatBox\";\r\n-import { connectRoomSocket, disconnectRoomSocket } from \"../../../../features/RoomChat/services/roomSocketService\";\r\n+import VideoGrid from \"../../features/RoomChat/components/VideoGrid\";\r\n+import ChatBox from \"../../features/RoomChat/components/RoomChatBox\";\r\n+import { connectRoomSocket, disconnectRoomSocket } from \"../../features/RoomChat/services/roomSocketService\";\r\n \r\n interface UserInfo {\r\n   name?: string;\r\n   age?: string;\r\n"
+                },
+                {
+                    "date": 1760262454833,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,11 @@\n \"use client\";\r\n \r\n import React, { useEffect, useRef, useState } from \"react\";\r\n import { useParams, useRouter } from \"next/navigation\";\r\n-import VideoGrid from \"../../features/RoomChat/components/VideoGrid\";\r\n-import ChatBox from \"../../features/RoomChat/components/RoomChatBox\";\r\n-import { connectRoomSocket, disconnectRoomSocket } from \"../../features/RoomChat/services/roomSocketService\";\r\n+import VideoGrid from \"../../../../features/RoomChat/components/VideoGrid\";\r\n+import ChatBox from \"../../../../features/RoomChat/components/RoomChatBox\";\r\n+import { connectRoomSocket, disconnectRoomSocket } from \"../../../../features/RoomChat/services/roomSocketService\";\r\n \r\n interface UserInfo {\r\n   name?: string;\r\n   age?: string;\r\n"
+                },
+                {
+                    "date": 1760262468340,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,11 @@\n \"use client\";\r\n \r\n import React, { useEffect, useRef, useState } from \"react\";\r\n import { useParams, useRouter } from \"next/navigation\";\r\n-import VideoGrid from \"../../../../features/RoomChat/components/VideoGrid\";\r\n-import ChatBox from \"../../../../features/RoomChat/components/RoomChatBox\";\r\n-import { connectRoomSocket, disconnectRoomSocket } from \"../../../../features/RoomChat/services/roomSocketService\";\r\n+import VideoGrid from \"../../features/RoomChat/components/VideoGrid\";\r\n+import ChatBox from \"../../features/RoomChat/components/RoomChatBox\";\r\n+import { connectRoomSocket, disconnectRoomSocket } from \"../../features/RoomChat/services/roomSocketService\";\r\n \r\n interface UserInfo {\r\n   name?: string;\r\n   age?: string;\r\n"
                 }
             ],

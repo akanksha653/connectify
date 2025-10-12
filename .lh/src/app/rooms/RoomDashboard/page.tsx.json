@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 4,
             "patches": [
                 {
                     "date": 1760250096613,
@@ -16,6 +16,14 @@
                 {
                     "date": 1760250226720,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -23,9 +23,9 @@\n   // -----------------------------\r\n   // Connect to /rooms socket\r\n   // -----------------------------\r\n   useEffect(() => {\r\n-    const s = connectRoomSocket(\"/rooms\");\r\n+    const s = connectRoomSocket();\r\n     setSocket(s);\r\n \r\n     s.on(\"connected\", () => console.log(\"✅ Connected to /rooms namespace\"));\r\n     s.on(\"rooms\", (list: Room[]) => setRooms(list));\r\n"
+                },
+                {
+                    "date": 1760262454817,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n \"use client\";\r\n \r\n import React, { useEffect, useState } from \"react\";\r\n import { useRouter } from \"next/navigation\";\r\n-import { connectRoomSocket, disconnectRoomSocket } from \"../../features/RoomChat/services/roomSocketService\";\r\n+import { connectRoomSocket, disconnectRoomSocket } from \"../../../../features/RoomChat/services/roomSocketService\";\r\n \r\n interface Room {\r\n   id: string;\r\n   name: string;\r\n"
+                },
+                {
+                    "date": 1760262468368,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n \"use client\";\r\n \r\n import React, { useEffect, useState } from \"react\";\r\n import { useRouter } from \"next/navigation\";\r\n-import { connectRoomSocket, disconnectRoomSocket } from \"../../../../features/RoomChat/services/roomSocketService\";\r\n+import { connectRoomSocket, disconnectRoomSocket } from \"../../features/RoomChat/services/roomSocketService\";\r\n \r\n interface Room {\r\n   id: string;\r\n   name: string;\r\n"
                 }
             ],
             "date": 1760250096613,

@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../auth/authContext";
-import AnonymousChatRoom from "../features/anonymousChat/components/AnonymousChatRoom";
+import AnonymousChatRoom from "../../../features/anonymousChat/components/AnonymousChatRoom";
 
 export default function AnonymousPage() {
   const router = useRouter();

@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 
 const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SOCKET_URL || "https://connectify-z9gv.onrender.com/";
+  process.env.NEXT_PUBLIC_SOCKET_URL || "https://connectify-z9gv.onrender.com";
 
 let socket: Socket | null = null;
 
