@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1760267835882,
@@ -12,6 +12,10 @@
                 {
                     "date": 1760272673466,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,9 @@\n import React, { createContext, useContext, useEffect, useRef, useState } from \"react\";\r\n import { io, Socket } from \"socket.io-client\";\r\n import { ROOM_EVENTS } from \"../utils/roomEvents\";\r\n \r\n-const SIGNALING_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || \"http://localhost:3001\";\r\n+const SIGNALING_URL = (process.env.NEXT_PUBLIC_SIGNALING_URL || \"http://localhost:3001\").replace(/\\/$/, \"\");\r\n \r\n interface SocketContextType {\r\n   socket: Socket | null;\r\n   connected: boolean;\r\n"
+                },
+                {
+                    "date": 1760285642424,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n-// features/RoomSystem/hooks/SocketProvider.tsx\r\n+// features/RoomChat/hooks/SocketProvider.tsx\r\n \"use client\";\r\n+\r\n import React, { createContext, useContext, useEffect, useRef, useState } from \"react\";\r\n import { io, Socket } from \"socket.io-client\";\r\n-import { ROOM_EVENTS } from \"../utils/roomEvents\";\r\n \r\n const SIGNALING_URL = (process.env.NEXT_PUBLIC_SIGNALING_URL || \"http://localhost:3001\").replace(/\\/$/, \"\");\r\n \r\n interface SocketContextType {\r\n@@ -19,20 +19,33 @@\n   const socketRef = useRef<Socket | null>(null);\r\n   const [connected, setConnected] = useState(false);\r\n \r\n   useEffect(() => {\r\n+    // Connect to /rooms namespace\r\n     const socket = io(`${SIGNALING_URL}/rooms`, {\r\n       transports: [\"websocket\", \"polling\"],\r\n       withCredentials: true,\r\n     });\r\n+\r\n     socketRef.current = socket;\r\n \r\n+    // Connection events\r\n     socket.on(\"connect\", () => setConnected(true));\r\n     socket.on(\"disconnect\", () => setConnected(false));\r\n \r\n+    // Optional: log room events\r\n+    socket.on(\"rooms\", (rooms) => console.log(\"📡 Rooms list updated:\", rooms));\r\n+    socket.on(\"room-created\", (room) => console.log(\"🏠 Room created:\", room));\r\n+    socket.on(\"room-deleted\", (data) => console.log(\"🗑️ Room deleted:\", data.roomId));\r\n+\r\n     return () => {\r\n       socket.disconnect();\r\n+      socketRef.current = null;\r\n     };\r\n   }, []);\r\n \r\n-  return <SocketContext.Provider value={{ socket: socketRef.current, connected }}>{children}</SocketContext.Provider>;\r\n+  return (\r\n+    <SocketContext.Provider value={{ socket: socketRef.current, connected }}>\r\n+      {children}\r\n+    </SocketContext.Provider>\r\n+  );\r\n };\r\n"
                 }
             ],
             "date": 1760267835882,
