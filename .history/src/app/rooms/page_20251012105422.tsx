@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebaseConfig";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { connectRoomSocket } from "@/features/RoomChat/services/roomSocketService";
@@ -26,11 +25,11 @@ interface Room {
 }
 
 export default function RoomsPage() {
-  const router = useRouter();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     name: "",
     topic: "",
@@ -97,7 +96,7 @@ export default function RoomsPage() {
   }, [form, socket]);
 
   // -------------------------
-  // Join Room (Navigate to RoomPage)
+  // Join Room
   // -------------------------
   const handleJoinRoom = useCallback(
     (room: Room) => {
@@ -119,17 +118,16 @@ export default function RoomsPage() {
             age: "N/A",
           };
 
-      // Save to localStorage to use in RoomPage
-      localStorage.setItem("user-info", JSON.stringify(userInfo));
-
-      router.push(`/rooms/${room.id}`);
+      socket.emit("join-room", { roomId: room.id, user: userInfo });
+      window.location.href = `/rooms/${room.id}`;
     },
-    [router]
+    [socket]
   );
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-neutral-900 dark:to-neutral-800 p-6">
       <div className="max-w-5xl mx-auto">
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-neutral-800 dark:text-white">
             👥 Join a Room
@@ -229,9 +227,7 @@ export default function RoomsPage() {
                   }
                   className="input-field mb-3 w-full px-3 py-2 rounded-md border border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 text-neutral-900 dark:text-white"
                   value={(form as any)[field]}
-                  onChange={(e) =>
-                    setForm({ ...form, [field]: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, [field]: e.target.value })}
                 />
               ))}
               <div className="flex justify-end gap-3 mt-4">

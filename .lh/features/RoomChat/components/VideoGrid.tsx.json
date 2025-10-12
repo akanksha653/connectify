@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1758899775652,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760246481577,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,57 @@\n+\"use client\";\r\n+\r\n+import React from \"react\";\r\n+import LocalVideo from \"./LocalVideo\";\r\n+import RemoteVideo from \"./RemoteVideo\";\r\n+\r\n+interface UserStream {\r\n+  id: string;\r\n+  stream: MediaStream;\r\n+  name: string;\r\n+  isSpeaking?: boolean;\r\n+}\r\n+\r\n+interface Props {\r\n+  localStream: MediaStream | null;\r\n+  localName: string;\r\n+  remoteStreams: UserStream[];\r\n+}\r\n+\r\n+export default function VideoGrid({ localStream, localName, remoteStreams }: Props) {\r\n+  const totalUsers = remoteStreams.length + (localStream ? 1 : 0);\r\n+\r\n+  // -------------------------------\r\n+  // Determine grid classes dynamically\r\n+  // -------------------------------\r\n+  const getGridCols = () => {\r\n+    if (totalUsers <= 1) return \"grid-cols-1\";\r\n+    if (totalUsers === 2) return \"grid-cols-2\";\r\n+    if (totalUsers <= 4) return \"grid-cols-2 md:grid-cols-2\";\r\n+    if (totalUsers <= 6) return \"grid-cols-2 md:grid-cols-3\";\r\n+    if (totalUsers <= 8) return \"grid-cols-2 md:grid-cols-4\";\r\n+    return \"grid-cols-2 md:grid-cols-4 lg:grid-cols-5\";\r\n+  };\r\n+\r\n+  return (\r\n+    <div className={`grid ${getGridCols()} gap-4 p-2`}>\r\n+      {/* Local Video */}\r\n+      {localStream && (\r\n+        <LocalVideo\r\n+          stream={localStream}\r\n+          label={localName}\r\n+          isSpeaking={false} // local speaking indicator can be added if needed\r\n+        />\r\n+      )}\r\n+\r\n+      {/* Remote Videos */}\r\n+      {remoteStreams.map((user) => (\r\n+        <RemoteVideo\r\n+          key={user.id}\r\n+          stream={user.stream}\r\n+          label={user.name}\r\n+          isSpeaking={user.isSpeaking}\r\n+        />\r\n+      ))}\r\n+    </div>\r\n+  );\r\n+}\r\n"
                 }
             ],
             "date": 1758899775652,
