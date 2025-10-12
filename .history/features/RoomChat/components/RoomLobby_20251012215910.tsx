@@ -1,3 +1,4 @@
+// features/RoomChat/components/RoomLobby.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -23,11 +24,20 @@ export default function RoomLobby({ rooms }: RoomLobbyProps) {
     const socket = connectRoomSocket();
     socketRef.current = socket;
 
-    const handleRoomsUpdate = (updatedRooms: Room[]) => setLocalRooms(updatedRooms);
-    const handleRoomCreated = (newRoom: Room) =>
+    const handleRoomsUpdate = (updatedRooms: Room[]) => {
+      console.log("📡 Rooms update received:", updatedRooms);
+      setLocalRooms(updatedRooms);
+    };
+
+    const handleRoomCreated = (newRoom: Room) => {
+      console.log("🏠 New room created:", newRoom);
       setLocalRooms((prev) => [...prev.filter((r) => r.id !== newRoom.id), newRoom]);
-    const handleRoomDeleted = ({ roomId }: { roomId: string }) =>
+    };
+
+    const handleRoomDeleted = ({ roomId }: { roomId: string }) => {
+      console.log("🗑️ Room deleted:", roomId);
       setLocalRooms((prev) => prev.filter((r) => r.id !== roomId));
+    };
 
     socket.on("connect", () => setSocketConnected(true));
     socket.on("disconnect", () => setSocketConnected(false));
@@ -41,6 +51,7 @@ export default function RoomLobby({ rooms }: RoomLobbyProps) {
       socket.off("rooms", handleRoomsUpdate);
       socket.off("room-created", handleRoomCreated);
       socket.off("room-deleted", handleRoomDeleted);
+      // Don't disconnect singleton socket here if shared globally
       socketRef.current = null;
     };
   }, []);
@@ -57,10 +68,10 @@ export default function RoomLobby({ rooms }: RoomLobbyProps) {
 
   // --- Create Room ---
   const handleCreateRoom = (payload: { name: string; topic: string; description?: string }) => {
+    console.log("🧩 Create Room Payload:", payload);
     const socket = getRoomSocket();
 
     if (socketConnected && socket?.connected) {
-      console.log("📤 Emitting create-room:", payload);
       socket.emit("create-room", payload);
     } else {
       // Local fallback
@@ -89,14 +100,13 @@ export default function RoomLobby({ rooms }: RoomLobbyProps) {
       },
     };
 
+    console.log("🚀 Joining Room:", roomId, tempUser);
     const socket = getRoomSocket();
 
     if (socketConnected && socket?.connected) {
-      console.log("🚀 Joining Room via socket:", roomId, tempUser);
       socket.emit("join-room", { roomId, user: tempUser });
     } else {
-      console.log("🚀 Joining Room via fallback:", roomId, tempUser.userInfo);
-      joinRoom(roomId, tempUser.userInfo);
+      joinRoom(roomId, tempUser.userInfo); // fallback join
     }
 
     setShowJoinModal(false);
@@ -123,7 +133,6 @@ export default function RoomLobby({ rooms }: RoomLobbyProps) {
         </button>
       </div>
 
-      {/* Modals */}
       <CreateRoomModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
@@ -136,7 +145,6 @@ export default function RoomLobby({ rooms }: RoomLobbyProps) {
         onJoin={handleJoinRoom}
       />
 
-      {/* Room List */}
       <ul className="space-y-2">
         {localRooms.length ? (
           localRooms.map((room) => (

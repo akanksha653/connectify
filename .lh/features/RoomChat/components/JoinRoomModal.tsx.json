@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1760274252556,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760286678249,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n \"use client\";\r\n \r\n-import React, { useState } from \"react\";\r\n+import React, { useEffect, useRef } from \"react\";\r\n import type { Room } from \"../utils/roomTypes\";\r\n \r\n interface Props {\r\n   isOpen: boolean;\r\n@@ -10,34 +10,49 @@\n   onJoin: (roomId: string) => void;\r\n }\r\n \r\n export default function JoinRoomModal({ isOpen, onClose, rooms, onJoin }: Props) {\r\n+  const modalRef = useRef<HTMLDivElement>(null);\r\n+\r\n+  useEffect(() => {\r\n+    const handleKeyDown = (e: KeyboardEvent) => {\r\n+      if (e.key === \"Escape\") onClose();\r\n+    };\r\n+    if (isOpen) {\r\n+      modalRef.current?.focus();\r\n+      window.addEventListener(\"keydown\", handleKeyDown);\r\n+    }\r\n+    return () => window.removeEventListener(\"keydown\", handleKeyDown);\r\n+  }, [isOpen, onClose]);\r\n+\r\n   if (!isOpen) return null;\r\n \r\n   return (\r\n-    <div className=\"fixed inset-0 bg-black/50 flex items-center justify-center z-50\">\r\n+    <div\r\n+      ref={modalRef}\r\n+      tabIndex={-1}\r\n+      className=\"fixed inset-0 bg-black/50 flex items-center justify-center z-50\"\r\n+    >\r\n       <div className=\"bg-white rounded-lg p-6 w-full max-w-lg\">\r\n         <h2 className=\"text-xl font-bold mb-4\">Join a Room</h2>\r\n \r\n         {rooms.length ? (\r\n           <ul className=\"space-y-2 max-h-80 overflow-y-auto\">\r\n             {rooms.map((room) => (\r\n               <li\r\n                 key={room.id}\r\n-                className=\"border p-3 rounded flex justify-between items-center\"\r\n+                className=\"border p-3 rounded flex justify-between items-center hover:shadow-md transition cursor-pointer\"\r\n               >\r\n                 <div>\r\n                   <div className=\"font-semibold\">{room.name}</div>\r\n                   <div className=\"text-sm text-gray-500\">\r\n-                    {room.topic} • {room.users?.length || 0} users\r\n+                    {room.topic || \"No topic\"} • {room.users?.length || 0} user\r\n+                    {(room.users?.length || 0) !== 1 ? \"s\" : \"\"}\r\n                   </div>\r\n                 </div>\r\n                 <button\r\n-                  onClick={() => {\r\n-                    onJoin(room.id);\r\n-                    onClose();\r\n-                  }}\r\n-                  className=\"text-sm text-blue-600\"\r\n+                  onClick={() => onJoin(room.id)}\r\n+                  className=\"px-3 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700\"\r\n                 >\r\n                   Join\r\n                 </button>\r\n               </li>\r\n"
                 }
             ],
             "date": 1760274252556,

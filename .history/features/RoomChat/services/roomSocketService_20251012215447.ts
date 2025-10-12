@@ -7,22 +7,26 @@ const ROOM_NAMESPACE = "/rooms";
 
 export function connectRoomSocket(onRoomsUpdated?: (rooms: Room[]) => void): Socket {
   if (!socket) {
-    const url = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
-    socket = io(`${url}${ROOM_NAMESPACE}`, {
+    socket = io(`${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001"}${ROOM_NAMESPACE}`, {
       transports: ["websocket", "polling"],
       withCredentials: true,
     });
 
-    socket.on("connect", () => console.log("✅ Room socket connected:", socket?.id));
-    socket.on("disconnect", (reason) => console.log("❌ Room socket disconnected:", socket?.id, reason));
+    socket.on("connect", () => {
+      console.log("🟢 Connected to room socket:", socket?.id);
+    });
 
-    // Listen for live rooms list
+    socket.on("disconnect", () => {
+      console.log("🔴 Disconnected from room socket");
+    });
+
+    // Global rooms update
     socket.on("rooms", (rooms: Room[]) => {
-      console.log("📡 Rooms list updated:", rooms);
+      console.log("📡 Rooms update received:", rooms);
       onRoomsUpdated?.(rooms);
     });
 
-    // Optional logs for room creation / deletion
+    // Individual room events (optional logging)
     socket.on("room-created", (room: Room) => console.log("🏠 Room created:", room));
     socket.on("room-deleted", ({ roomId }: { roomId: string }) => console.log("🗑️ Room deleted:", roomId));
   }
@@ -41,18 +45,35 @@ export function getRoomSocket(): Socket | null {
   return socket;
 }
 
+/**
+ * Emit new room creation to server
+ */
 export function createRoom(payload: { name: string; topic: string; description?: string }) {
-  if (!socket || !socket.connected) return console.warn("⚠️ Socket not connected, cannot create room");
+  if (!socket || !socket.connected) {
+    console.warn("⚠️ Socket not connected, room not emitted");
+    return;
+  }
+
   console.log("📤 Emitting create-room:", payload);
   socket.emit("create-room", payload);
 }
 
+/**
+ * Join a specific room (for participants)
+ */
 export function joinRoom(roomId: string, userInfo: Participant["userInfo"]) {
-  if (!socket || !socket.connected) return console.warn("⚠️ Socket not connected, cannot join room");
+  if (!socket || !socket.connected) {
+    console.warn("⚠️ Socket not connected, cannot join room");
+    return;
+  }
+
   console.log("👥 Joining room:", roomId, userInfo);
   socket.emit("join-room", { roomId, user: { socketId: socket.id, userInfo } });
 }
 
+/**
+ * Leave a room
+ */
 export function leaveRoom(roomId: string) {
   if (!socket || !socket.connected) return;
   console.log("↩️ Leaving room:", roomId);

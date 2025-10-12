@@ -14,31 +14,33 @@ export default function RoomPage() {
   const params = useParams();
   const roomId = params?.id as string;
 
-  // --- Socket hooks ---
+  // Socket
   const { joinRoom, leaveRoom, socket } = useRoomSocket();
 
-  // --- Local media ---
+  // Local media
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [cameraEnabled, setCameraEnabled] = useState(true);
   const [micEnabled, setMicEnabled] = useState(true);
   const [mediaError, setMediaError] = useState<string | null>(null);
 
-  // --- WebRTC hooks ---
+  // WebRTC
   const { remoteStreams, joinRoom: joinWebRTCRoom, leaveRoom: leaveWebRTCRoom } =
     useRoomWebRTC(localStream);
 
-  // --- Initialize local media ---
+  // Initialize local media
   useEffect(() => {
     const startMedia = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
         setLocalStream(stream);
       } catch (err) {
         console.error("getUserMedia error:", err);
         setMediaError("Camera/Microphone access denied or unavailable.");
       }
     };
-
     startMedia();
 
     return () => {
@@ -46,10 +48,11 @@ export default function RoomPage() {
     };
   }, []);
 
-  // --- Join room: socket + WebRTC ---
+  // Join room via socket + WebRTC
   useEffect(() => {
     if (!roomId || !localStream || !socket) return;
 
+    // Build participant object with socketId
     const user: Participant = {
       socketId: socket.id ?? "",
       userInfo: {
@@ -59,33 +62,29 @@ export default function RoomPage() {
       },
     };
 
-    // Join room via socket
     joinRoom(roomId, user);
-
-    // Join WebRTC
     joinWebRTCRoom(roomId);
 
-    // Cleanup on unmount
     return () => {
       leaveRoom(roomId, user);
       leaveWebRTCRoom();
     };
   }, [roomId, localStream, socket, joinRoom, leaveRoom, joinWebRTCRoom, leaveWebRTCRoom]);
 
-  // --- Camera / Mic toggles ---
+  // Toggle camera
   const toggleCamera = () => {
     if (!localStream) return;
     localStream.getVideoTracks().forEach((track) => (track.enabled = !cameraEnabled));
     setCameraEnabled(!cameraEnabled);
   };
 
+  // Toggle microphone
   const toggleMic = () => {
     if (!localStream) return;
     localStream.getAudioTracks().forEach((track) => (track.enabled = !micEnabled));
     setMicEnabled(!micEnabled);
   };
 
-  // --- UI Fallbacks ---
   if (mediaError)
     return (
       <div className="flex items-center justify-center h-screen text-red-500 font-semibold">
