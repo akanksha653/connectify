@@ -1,21 +1,40 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { useRoomSocket } from "../hooks/useRoomSocket";
 import CreateRoomModal from "./CreateRoomModal";
 import JoinRoomModal from "./JoinRoomModal";
 import type { Room } from "../utils/roomTypes";
+import { fetchRooms } from "../services/roomService"; // ✅ import fetchRooms
 
-interface RoomLobbyProps {
-  rooms: Room[];
-  connected: boolean;
-}
-
-export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
-  const { createRoom, joinRoom } = useRoomSocket();
+export default function RoomLobby() {
+  const { rooms: socketRooms, createRoom, joinRoom, connected } = useRoomSocket();
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
 
+  // Sync socket rooms with local state
+  useEffect(() => {
+    setRooms(socketRooms);
+  }, [socketRooms]);
+
+  // Fetch initial rooms from Firebase
+  useEffect(() => {
+    fetchRooms()
+      .then((fetchedRooms) => {
+        setRooms((prevRooms) => {
+          const allRooms = [...prevRooms];
+          fetchedRooms.forEach((r) => {
+            if (!allRooms.find((room) => room.id === r.id)) allRooms.push(r);
+          });
+          return allRooms;
+        });
+      })
+      .catch((err) => console.warn("Failed to fetch rooms:", err));
+  }, []);
+
   const handleJoinRoom = (roomId: string) => {
-    joinRoom(roomId, { name: "Anonymous" });
+    joinRoom(roomId, { name: "Anonymous" }); // optionally pass user info
   };
 
   return (
@@ -55,7 +74,10 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
       <ul className="space-y-2">
         {rooms.length ? (
           rooms.map((room) => (
-            <li key={room.id} className="p-3 border rounded flex justify-between items-center">
+            <li
+              key={room.id}
+              className="p-3 border rounded flex justify-between items-center"
+            >
               <div>
                 <div className="font-semibold">{room.name}</div>
                 <div className="text-sm text-gray-500">

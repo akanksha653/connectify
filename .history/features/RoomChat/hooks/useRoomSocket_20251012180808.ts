@@ -1,11 +1,10 @@
+// features/RoomChat/hooks/useRoomSocket.ts
 import { useEffect, useState, useRef, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 import { ROOM_EVENTS } from "../utils/roomEvents";
 import type { Room, Participant, Message } from "../utils/roomTypes";
 
-const ROOM_SERVER_URL =
-  (process.env.NEXT_PUBLIC_ROOM_SERVER_URL?.replace(/\/$/, "") || "http://localhost:3001") +
-  "/rooms";
+const ROOM_SERVER_URL = process.env.NEXT_PUBLIC_ROOM_SERVER_URL?.replace(/\/$/, "") + "/rooms";
 
 export function useRoomSocket() {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -14,6 +13,8 @@ export function useRoomSocket() {
   const [currentRoomUsers, setCurrentRoomUsers] = useState<Participant[]>([]);
 
   const socketRef = useRef<Socket | null>(null);
+
+  // Store WebRTC handler
   const _handleUserJoined = useRef<((data: { socketId: string }) => void) | null>(null);
 
   useEffect(() => {
@@ -21,27 +22,17 @@ export function useRoomSocket() {
       const s = io(ROOM_SERVER_URL, {
         transports: ["websocket", "polling"],
       });
-
       socketRef.current = s;
       setSocket(s);
 
-      // --- Connection status ---
       s.on("connect", () => setConnected(true));
       s.on("disconnect", () => setConnected(false));
 
-      // --- Rooms list ---
+      // Listen for rooms list
       s.on("rooms", (r: Room[]) => setRooms(r));
 
-      // --- Current room users ---
+      // Listen for current room users
       s.on("room-users", (users: Participant[]) => setCurrentRoomUsers(users));
-
-      // Optional: handle room-created event to optimistically update
-      s.on("room-created", (newRoom: Room) => setRooms((prev) => [...prev, newRoom]));
-
-      // Optional: handle room-deleted
-      s.on("room-deleted", ({ roomId }: { roomId: string }) =>
-        setRooms((prev) => prev.filter((r) => r.id !== roomId))
-      );
     }
 
     return () => {
@@ -52,7 +43,6 @@ export function useRoomSocket() {
     };
   }, []);
 
-  // --- Room actions ---
   const joinRoom = (roomId: string, user: any) => {
     socketRef.current?.emit(ROOM_EVENTS.JOIN, { roomId, user });
   };
@@ -67,15 +57,6 @@ export function useRoomSocket() {
   };
 
   const createRoom = (payload: { name: string; topic: string }) => {
-    // Optimistic update
-    const tempRoom: Room = {
-      id: "temp-" + Date.now(),
-      name: payload.name,
-      topic: payload.topic,
-      users: [],
-    };
-    setRooms((prev) => [...prev, tempRoom]);
-
     socketRef.current?.emit(ROOM_EVENTS.CREATE, payload);
   };
 
@@ -83,6 +64,7 @@ export function useRoomSocket() {
   const onUserJoined = (handler: (data: { socketId: string }) => void) => {
     if (!socketRef.current) return;
 
+    // Remove previous listener if exists
     if (_handleUserJoined.current) {
       socketRef.current.off("user-joined", _handleUserJoined.current);
     }

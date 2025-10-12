@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1760267456847,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760274327271,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,49 @@\n-// features/RoomSystem/services/roomService.ts\r\n-import axios from \"axios\";\r\n+// features/RoomChat/services/roomService.ts\r\n+import { collection, getDocs, addDoc, getFirestore, serverTimestamp } from \"firebase/firestore\";\r\n+import { db } from \"@/lib/firebaseConfig\"; // make sure Firebase is initialized\r\n+\r\n import type { Room } from \"../utils/roomTypes\";\r\n \r\n-const SIGNALING_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || \"http://localhost:3001\";\r\n-\r\n-export async function fetchRooms() {\r\n-  const res = await axios.get(`${SIGNALING_URL}/rooms`);\r\n-  return res.data as Room[];\r\n+// Fetch rooms from Firebase Firestore\r\n+export async function fetchRooms(): Promise<Room[]> {\r\n+  try {\r\n+    const roomsCol = collection(db, \"rooms\");\r\n+    const snapshot = await getDocs(roomsCol);\r\n+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Room));\r\n+  } catch (err) {\r\n+    console.error(\"Error fetching rooms:\", err);\r\n+    return [];\r\n+  }\r\n }\r\n \r\n-// Optional: create via REST if you prefer server-side creation\r\n-export async function createRoomRest(payload: { name: string; topic: string; description?: string; password?: string }) {\r\n-  const res = await axios.post(`${SIGNALING_URL}/rooms`, payload);\r\n-  return res.data;\r\n+// Create room directly in Firebase\r\n+export async function createRoomFirebase(payload: {\r\n+  name: string;\r\n+  topic: string;\r\n+  description?: string;\r\n+  password?: string;\r\n+}): Promise<Room | null> {\r\n+  try {\r\n+    const docRef = await addDoc(collection(db, \"rooms\"), {\r\n+      name: payload.name,\r\n+      topic: payload.topic,\r\n+      description: payload.description || \"\",\r\n+      hasPassword: !!payload.password,\r\n+      password: payload.password || null,\r\n+      users: [],\r\n+      createdAt: serverTimestamp(),\r\n+    });\r\n+\r\n+    return {\r\n+      id: docRef.id,\r\n+      name: payload.name,\r\n+      topic: payload.topic,\r\n+      description: payload.description || \"\",\r\n+      hasPassword: !!payload.password,\r\n+      users: [],\r\n+    } as Room;\r\n+  } catch (err) {\r\n+    console.error(\"Error creating room:\", err);\r\n+    return null;\r\n+  }\r\n }\r\n"
                 }
             ],
             "date": 1760267456847,

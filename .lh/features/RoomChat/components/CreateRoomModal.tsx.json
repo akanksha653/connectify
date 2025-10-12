@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/RoomChat/components/CreateRoomModal.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760274246246,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760274246246,
+            "name": "Commit-0",
+            "content": "\"use client\";\r\n\r\nimport React, { useState } from \"react\";\r\nimport type { Room } from \"../utils/roomTypes\";\r\n\r\ninterface Props {\r\n  isOpen: boolean;\r\n  onClose: () => void;\r\n  onCreate: (room: { name: string; topic: string }) => void;\r\n}\r\n\r\nexport default function CreateRoomModal({ isOpen, onClose, onCreate }: Props) {\r\n  const [name, setName] = useState(\"\");\r\n  const [topic, setTopic] = useState(\"\");\r\n\r\n  const handleCreate = () => {\r\n    if (!name || !topic) return;\r\n    onCreate({ name, topic });\r\n    setName(\"\");\r\n    setTopic(\"\");\r\n    onClose();\r\n  };\r\n\r\n  if (!isOpen) return null;\r\n\r\n  return (\r\n    <div className=\"fixed inset-0 bg-black/50 flex items-center justify-center z-50\">\r\n      <div className=\"bg-white rounded-lg p-6 w-full max-w-md\">\r\n        <h2 className=\"text-xl font-bold mb-4\">Create Room</h2>\r\n\r\n        <input\r\n          type=\"text\"\r\n          placeholder=\"Room Name\"\r\n          value={name}\r\n          onChange={(e) => setName(e.target.value)}\r\n          className=\"w-full border p-2 mb-3 rounded\"\r\n        />\r\n        <input\r\n          type=\"text\"\r\n          placeholder=\"Topic\"\r\n          value={topic}\r\n          onChange={(e) => setTopic(e.target.value)}\r\n          className=\"w-full border p-2 mb-4 rounded\"\r\n        />\r\n\r\n        <div className=\"flex justify-end gap-2\">\r\n          <button\r\n            onClick={onClose}\r\n            className=\"px-4 py-2 rounded border hover:bg-gray-100\"\r\n          >\r\n            Cancel\r\n          </button>\r\n          <button\r\n            onClick={handleCreate}\r\n            className=\"px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700\"\r\n          >\r\n            Create\r\n          </button>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

@@ -13,20 +13,17 @@ export default function RoomPage() {
   const params = useParams();
   const roomId = params?.id as string;
 
-  // Socket
+  // Socket-based room management
   const { joinRoom, leaveRoom } = useRoomSocket();
 
-  // Local media
+  // Local media stream
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [cameraEnabled, setCameraEnabled] = useState(true);
-  const [micEnabled, setMicEnabled] = useState(true);
-  const [mediaError, setMediaError] = useState<string | null>(null);
 
-  // WebRTC
+  // WebRTC hook for multi-user video
   const { remoteStreams, joinRoom: joinWebRTCRoom, leaveRoom: leaveWebRTCRoom } =
     useRoomWebRTC(localStream);
 
-  // Initialize local media
+  // Initialize local media (camera + mic)
   useEffect(() => {
     const startMedia = async () => {
       try {
@@ -37,69 +34,35 @@ export default function RoomPage() {
         setLocalStream(stream);
       } catch (err) {
         console.error("getUserMedia error:", err);
-        setMediaError("Camera/Microphone access denied or unavailable.");
       }
     };
     startMedia();
 
     return () => {
+      // Stop all tracks on unmount
       localStream?.getTracks().forEach((track) => track.stop());
     };
   }, []);
 
-  // Join room via socket + WebRTC
+  // Join room via socket + WebRTC when ready
   useEffect(() => {
-    if (!roomId || !localStream) return;
+    if (!roomId) return;
 
     const user = { name: "Guest", country: "Unknown", age: "?" };
-    joinRoom(roomId, user);
-    joinWebRTCRoom(roomId);
+    joinRoom(roomId, user); // Socket join
+    joinWebRTCRoom(roomId); // WebRTC join
 
     return () => {
-      leaveRoom(roomId);
-      leaveWebRTCRoom();
+      leaveRoom(roomId); // Socket leave
+      leaveWebRTCRoom(); // WebRTC leave
     };
   }, [roomId, localStream, joinRoom, leaveRoom, joinWebRTCRoom, leaveWebRTCRoom]);
 
-  // Toggle camera
-  const toggleCamera = () => {
-    if (!localStream) return;
-    localStream.getVideoTracks().forEach((track) => (track.enabled = !cameraEnabled));
-    setCameraEnabled(!cameraEnabled);
-  };
-
-  // Toggle microphone
-  const toggleMic = () => {
-    if (!localStream) return;
-    localStream.getAudioTracks().forEach((track) => (track.enabled = !micEnabled));
-    setMicEnabled(!micEnabled);
-  };
-
-  if (mediaError)
-    return (
-      <div className="flex items-center justify-center h-screen text-red-500 font-semibold">
-        {mediaError}
-      </div>
-    );
-
-  if (!localStream)
-    return (
-      <div className="flex items-center justify-center h-screen text-gray-600 font-medium">
-        Waiting for camera/mic access...
-      </div>
-    );
-
   return (
-    <div className="p-2 h-screen grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="p-4 h-screen grid grid-cols-3 gap-4">
       {/* Left: Video + Status */}
-      <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
-        <RoomStatusBar
-          roomId={roomId}
-          cameraEnabled={cameraEnabled}
-          micEnabled={micEnabled}
-          onToggleCamera={toggleCamera}
-          onToggleMic={toggleMic}
-        />
+      <div className="col-span-2 flex flex-col gap-2">
+        <RoomStatusBar roomId={roomId} />
         <RoomVideoGrid localStream={localStream} remoteStreams={remoteStreams} />
       </div>
 

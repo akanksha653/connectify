@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1760269517778,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760276568446,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,78 @@\n+\"use client\";\r\n+\r\n+import React from \"react\";\r\n+import { FiMic, FiMicOff, FiVideo, FiVideoOff } from \"react-icons/fi\";\r\n+import { useRoomSocket } from \"../hooks/useRoomSocket\";\r\n+\r\n+type Props = {\r\n+  roomId: string;\r\n+  micEnabled?: boolean;\r\n+  cameraEnabled?: boolean;\r\n+  onToggleMic?: () => void;\r\n+  onToggleCamera?: () => void;\r\n+};\r\n+\r\n+export default function RoomStatusBar({\r\n+  roomId,\r\n+  micEnabled = true,\r\n+  cameraEnabled = true,\r\n+  onToggleMic,\r\n+  onToggleCamera,\r\n+}: Props) {\r\n+  const { rooms, currentRoomUsers, connected } = useRoomSocket();\r\n+\r\n+  const room = rooms.find((r) => r.id === roomId);\r\n+\r\n+  return (\r\n+    <div className=\"flex justify-between items-center p-2 border-b bg-gray-100 rounded-t\">\r\n+      {/* Room Info */}\r\n+      <div className=\"flex items-center gap-2\">\r\n+        <span className=\"font-semibold text-gray-700\">{room?.name || \"Room\"}</span>\r\n+        <span className=\"text-sm text-gray-500\">\r\n+          ({currentRoomUsers.length} participant{currentRoomUsers.length !== 1 ? \"s\" : \"\"})\r\n+        </span>\r\n+      </div>\r\n+\r\n+      {/* Controls */}\r\n+      <div className=\"flex items-center gap-3\">\r\n+        {/* Connection status */}\r\n+        <span\r\n+          className={`h-3 w-3 rounded-full ${\r\n+            connected ? \"bg-green-500\" : \"bg-red-500\"\r\n+          }`}\r\n+        ></span>\r\n+        <span className=\"text-sm text-gray-600\">\r\n+          {connected ? \"Connected\" : \"Disconnected\"}\r\n+        </span>\r\n+\r\n+        {/* Camera Toggle */}\r\n+        {onToggleCamera && (\r\n+          <button\r\n+            onClick={onToggleCamera}\r\n+            className=\"p-1 rounded hover:bg-gray-200 transition-colors\"\r\n+          >\r\n+            {cameraEnabled ? (\r\n+              <FiVideo className=\"w-5 h-5 text-gray-700\" />\r\n+            ) : (\r\n+              <FiVideoOff className=\"w-5 h-5 text-red-500\" />\r\n+            )}\r\n+          </button>\r\n+        )}\r\n+\r\n+        {/* Mic Toggle */}\r\n+        {onToggleMic && (\r\n+          <button\r\n+            onClick={onToggleMic}\r\n+            className=\"p-1 rounded hover:bg-gray-200 transition-colors\"\r\n+          >\r\n+            {micEnabled ? (\r\n+              <FiMic className=\"w-5 h-5 text-gray-700\" />\r\n+            ) : (\r\n+              <FiMicOff className=\"w-5 h-5 text-red-500\" />\r\n+            )}\r\n+          </button>\r\n+        )}\r\n+      </div>\r\n+    </div>\r\n+  );\r\n+}\r\n"
                 }
             ],
             "date": 1760269517778,
