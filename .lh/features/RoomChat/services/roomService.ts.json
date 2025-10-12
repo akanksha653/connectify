@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/RoomChat/services/roomService.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760267456847,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760267456847,
+            "name": "Commit-0",
+            "content": "// features/RoomSystem/services/roomService.ts\r\nimport axios from \"axios\";\r\nimport type { Room } from \"../utils/roomTypes\";\r\n\r\nconst SIGNALING_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || \"http://localhost:3001\";\r\n\r\nexport async function fetchRooms() {\r\n  const res = await axios.get(`${SIGNALING_URL}/rooms`);\r\n  return res.data as Room[];\r\n}\r\n\r\n// Optional: create via REST if you prefer server-side creation\r\nexport async function createRoomRest(payload: { name: string; topic: string; description?: string; password?: string }) {\r\n  const res = await axios.post(`${SIGNALING_URL}/rooms`, payload);\r\n  return res.data;\r\n}\r\n"
+        }
+    ]
+}

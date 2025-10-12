@@ -1,0 +1,22 @@
+{
+    "sourceFile": "features/RoomChat/components/RoomParticipants.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1760269496935,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760269508790,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,35 +1,39 @@\n-// features/RoomChat/components/RoomStatusBar.tsx\r\n+// features/RoomChat/components/RoomParticipants.tsx\r\n import React from \"react\";\r\n import { useRoomSocket } from \"../hooks/useRoomSocket\";\r\n \r\n type Props = {\r\n   roomId: string;\r\n };\r\n \r\n-export default function RoomStatusBar({ roomId }: Props) {\r\n-  const { rooms, currentRoomUsers, connected } = useRoomSocket();\r\n+export default function RoomParticipants({ roomId }: Props) {\r\n+  const { currentRoomUsers } = useRoomSocket();\r\n \r\n-  const room = rooms.find((r) => r.id === roomId);\r\n-\r\n   return (\r\n-    <div className=\"flex justify-between items-center p-2 border-b bg-gray-100 rounded-t\">\r\n-      <div className=\"flex items-center gap-2\">\r\n-        <span className=\"font-semibold text-gray-700\">\r\n-          {room?.name || \"Room\"}\r\n-        </span>\r\n-        <span className=\"text-sm text-gray-500\">\r\n-          ({currentRoomUsers.length} participant{currentRoomUsers.length !== 1 ? \"s\" : \"\"})\r\n-        </span>\r\n-      </div>\r\n-\r\n-      <div className=\"flex items-center gap-2\">\r\n-        <span\r\n-          className={`h-3 w-3 rounded-full ${\r\n-            connected ? \"bg-green-500\" : \"bg-red-500\"\r\n-          }`}\r\n-        ></span>\r\n-        <span className=\"text-sm text-gray-600\">{connected ? \"Connected\" : \"Disconnected\"}</span>\r\n-      </div>\r\n+    <div className=\"p-2 border rounded bg-gray-50 max-h-80 overflow-auto\">\r\n+      <h3 className=\"text-sm font-semibold mb-2\">Participants</h3>\r\n+      {currentRoomUsers.length > 0 ? (\r\n+        <ul className=\"space-y-2\">\r\n+          {currentRoomUsers.map((user) => (\r\n+            <li\r\n+              key={user.socketId}\r\n+              className=\"flex items-center gap-2 p-2 border rounded bg-white\"\r\n+            >\r\n+              <div className=\"h-8 w-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold\">\r\n+                {user.userInfo.name[0].toUpperCase()}\r\n+              </div>\r\n+              <div className=\"flex flex-col text-sm\">\r\n+                <span className=\"font-medium\">{user.userInfo.name}</span>\r\n+                <span className=\"text-gray-500 text-xs\">\r\n+                  {user.userInfo.age} yrs, {user.userInfo.country}\r\n+                </span>\r\n+              </div>\r\n+            </li>\r\n+          ))}\r\n+        </ul>\r\n+      ) : (\r\n+        <p className=\"text-gray-500 text-sm\">No participants yet</p>\r\n+      )}\r\n     </div>\r\n   );\r\n }\r\n"
+                }
+            ],
+            "date": 1760269496935,
+            "name": "Commit-0",
+            "content": "// features/RoomChat/components/RoomStatusBar.tsx\r\nimport React from \"react\";\r\nimport { useRoomSocket } from \"../hooks/useRoomSocket\";\r\n\r\ntype Props = {\r\n  roomId: string;\r\n};\r\n\r\nexport default function RoomStatusBar({ roomId }: Props) {\r\n  const { rooms, currentRoomUsers, connected } = useRoomSocket();\r\n\r\n  const room = rooms.find((r) => r.id === roomId);\r\n\r\n  return (\r\n    <div className=\"flex justify-between items-center p-2 border-b bg-gray-100 rounded-t\">\r\n      <div className=\"flex items-center gap-2\">\r\n        <span className=\"font-semibold text-gray-700\">\r\n          {room?.name || \"Room\"}\r\n        </span>\r\n        <span className=\"text-sm text-gray-500\">\r\n          ({currentRoomUsers.length} participant{currentRoomUsers.length !== 1 ? \"s\" : \"\"})\r\n        </span>\r\n      </div>\r\n\r\n      <div className=\"flex items-center gap-2\">\r\n        <span\r\n          className={`h-3 w-3 rounded-full ${\r\n            connected ? \"bg-green-500\" : \"bg-red-500\"\r\n          }`}\r\n        ></span>\r\n        <span className=\"text-sm text-gray-600\">{connected ? \"Connected\" : \"Disconnected\"}</span>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

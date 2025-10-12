@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/RoomChat/utils/roomHelpers.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760267159705,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760267159705,
+            "name": "Commit-0",
+            "content": "// features/RoomSystem/utils/roomHelpers.ts\r\n\r\nexport const generateId = () => Math.random().toString(36).substring(2, 10);\r\n\r\nexport const formatTimestamp = (ts: number) => {\r\n  const date = new Date(ts);\r\n  return date.toLocaleTimeString([], { hour: \"2-digit\", minute: \"2-digit\" });\r\n};\r\n\r\nexport const getFileType = (file: File): \"image\" | \"video\" | \"audio\" | \"file\" => {\r\n  const type = file.type;\r\n  if (type.startsWith(\"image/\")) return \"image\";\r\n  if (type.startsWith(\"video/\")) return \"video\";\r\n  if (type.startsWith(\"audio/\")) return \"audio\";\r\n  return \"file\";\r\n};\r\n"
+        }
+    ]
+}

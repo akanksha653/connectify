@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/RoomChat/components/RoomLobby.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760267480950,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760267480950,
+            "name": "Commit-0",
+            "content": "// features/RoomSystem/components/RoomLobby.tsx\r\nimport React, { useEffect, useState } from \"react\";\r\nimport { useRoomSocket } from \"../hooks/useRoomSocket\";\r\nimport { fetchRooms } from \"../services/roomService\";\r\n\r\nexport default function RoomLobby() {\r\n  const { rooms, createRoom, joinRoom, connected } = useRoomSocket();\r\n  const [localRooms, setLocalRooms] = useState(rooms);\r\n  const [name, setName] = useState(\"\");\r\n  const [topic, setTopic] = useState(\"\");\r\n\r\n  useEffect(() => {\r\n    setLocalRooms(rooms);\r\n  }, [rooms]);\r\n\r\n  useEffect(() => {\r\n    // initial fetch via REST as fallback\r\n    fetchRooms().then((r) => setLocalRooms(r)).catch(() => {});\r\n  }, []);\r\n\r\n  const onCreate = () => {\r\n    if (!name || !topic) return;\r\n    createRoom({ name, topic });\r\n    setName(\"\");\r\n    setTopic(\"\");\r\n  };\r\n\r\n  return (\r\n    <div className=\"p-4\">\r\n      <h2 className=\"text-xl font-bold\">Rooms Lobby {connected ? \"🟢\" : \"🔴\"}</h2>\r\n\r\n      <div className=\"mt-4 mb-6\">\r\n        <input value={name} onChange={(e) => setName(e.target.value)} placeholder=\"Room name\" className=\"border p-2 mr-2\" />\r\n        <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder=\"Topic\" className=\"border p-2 mr-2\" />\r\n        <button onClick={onCreate} className=\"bg-blue-600 text-white px-3 py-2 rounded\">Create</button>\r\n      </div>\r\n\r\n      <ul className=\"space-y-2\">\r\n        {localRooms?.length ? localRooms.map((r) => (\r\n          <li key={r.id} className=\"p-3 border rounded flex justify-between items-center\">\r\n            <div>\r\n              <div className=\"font-semibold\">{r.name}</div>\r\n              <div className=\"text-sm text-gray-500\">{r.topic}</div>\r\n            </div>\r\n            <div className=\"flex gap-2\">\r\n              <a className=\"text-sm text-blue-600\" href={`/rooms/${r.id}`}>Open</a>\r\n            </div>\r\n          </li>\r\n        )) : <li>No rooms yet</li>}\r\n      </ul>\r\n    </div>\r\n  );\r\n}\r\n"
+        }
+    ]
+}

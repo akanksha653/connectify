@@ -1,0 +1,30 @@
+{
+    "sourceFile": "features/RoomChat/utils/roomTypes.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1760267134547,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760268903291,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,35 @@\n+// features/RoomSystem/utils/roomTypes.ts\r\n+\r\n+export interface Room {\r\n+  id: string;\r\n+  name: string;\r\n+  topic?: string;\r\n+  description?: string;\r\n+  hasPassword?: boolean;\r\n+  password?: string | null;\r\n+  createdAt?: string;\r\n+  users?: Participant[];\r\n+  fileName?: string; // ✅ make it optional\r\n+}\r\n+\r\n+export interface Participant {\r\n+  socketId: string;\r\n+  userInfo: {\r\n+    name: string;\r\n+    country: string;\r\n+    age: number | string;\r\n+  };\r\n+  stream?: MediaStream;\r\n+}\r\n+\r\n+export interface Message {\r\n+  id: string;\r\n+  senderId: string;\r\n+  senderName: string;\r\n+  content: string;\r\n+  type: \"text\" | \"emoji\" | \"file\" | \"image\" | \"audio\" | \"video\";\r\n+  timestamp: number;\r\n+  status?: \"sent\" | \"delivered\" | \"seen\";\r\n+  reactions?: { [emoji: string]: string[] };\r\n+  fileUrl?: string;\r\n+}\r\n"
+                },
+                {
+                    "date": 1760268914666,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,8 @@\n   hasPassword?: boolean;\r\n   password?: string | null;\r\n   createdAt?: string;\r\n   users?: Participant[];\r\n-  fileName?: string; // ✅ make it optional\r\n }\r\n \r\n export interface Participant {\r\n   socketId: string;\r\n"
+                },
+                {
+                    "date": 1760268973833,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -30,39 +30,7 @@\n   timestamp: number;\r\n   status?: \"sent\" | \"delivered\" | \"seen\";\r\n   reactions?: { [emoji: string]: string[] };\r\n   fileUrl?: string;\r\n+  fileName?: string; // ✅ Add this\r\n }\r\n-// features/RoomSystem/utils/roomTypes.ts\r\n \r\n-export interface Room {\r\n-  id: string;\r\n-  name: string;\r\n-  topic?: string;\r\n-  description?: string;\r\n-  hasPassword?: boolean;\r\n-  password?: string | null;\r\n-  createdAt?: string;\r\n-  users?: Participant[];\r\n-}\r\n-\r\n-export interface Participant {\r\n-  socketId: string;\r\n-  userInfo: {\r\n-    name: string;\r\n-    country: string;\r\n-    age: number | string;\r\n-  };\r\n-  stream?: MediaStream;\r\n-}\r\n-\r\n-export interface Message {\r\n-  id: string;\r\n-  senderId: string;\r\n-  senderName: string;\r\n-  content: string;\r\n-  type: \"text\" | \"emoji\" | \"file\" | \"image\" | \"audio\" | \"video\";\r\n-  timestamp: number;\r\n-  status?: \"sent\" | \"delivered\" | \"seen\";\r\n-  reactions?: { [emoji: string]: string[] };\r\n-  fileUrl?: string;\r\n-}\r\n"
+                }
+            ],
+            "date": 1760267134547,
+            "name": "Commit-0",
+            "content": "// features/RoomSystem/utils/roomTypes.ts\r\n\r\nexport interface Room {\r\n  id: string;\r\n  name: string;\r\n  topic?: string;\r\n  description?: string;\r\n  hasPassword?: boolean;\r\n  password?: string | null;\r\n  createdAt?: string;\r\n  users?: Participant[];\r\n}\r\n\r\nexport interface Participant {\r\n  socketId: string;\r\n  userInfo: {\r\n    name: string;\r\n    country: string;\r\n    age: number | string;\r\n  };\r\n  stream?: MediaStream;\r\n}\r\n\r\nexport interface Message {\r\n  id: string;\r\n  senderId: string;\r\n  senderName: string;\r\n  content: string;\r\n  type: \"text\" | \"emoji\" | \"file\" | \"image\" | \"audio\" | \"video\";\r\n  timestamp: number;\r\n  status?: \"sent\" | \"delivered\" | \"seen\";\r\n  reactions?: { [emoji: string]: string[] };\r\n  fileUrl?: string;\r\n}\r\n"
+        }
+    ]
+}

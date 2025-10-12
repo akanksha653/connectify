@@ -1,0 +1,22 @@
+{
+    "sourceFile": "features/RoomChat/components/RoomVideoGrid.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1760267504487,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760269459252,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,27 +8,59 @@\n \r\n export default function RoomVideoGrid({ localStream, remoteStreams }: Props) {\r\n   const localRef = useRef<HTMLVideoElement | null>(null);\r\n \r\n+  // Attach local stream\r\n   useEffect(() => {\r\n     if (localRef.current && localStream) {\r\n       localRef.current.srcObject = localStream;\r\n     }\r\n   }, [localStream]);\r\n \r\n+  // Combine local + remote streams for dynamic grid\r\n+  const allStreams = [\r\n+    { id: \"local\", stream: localStream, isLocal: true },\r\n+    ...Object.entries(remoteStreams).map(([id, stream]) => ({ id, stream, isLocal: false })),\r\n+  ].filter((s) => s.stream); // remove null streams\r\n+\r\n+  // Dynamic grid classes based on number of participants\r\n+  const getGridCols = (count: number) => {\r\n+    if (count <= 1) return \"grid-cols-1\";\r\n+    if (count === 2) return \"grid-cols-2\";\r\n+    if (count <= 4) return \"grid-cols-2\";\r\n+    if (count <= 6) return \"grid-cols-3\";\r\n+    return \"grid-cols-3\";\r\n+  };\r\n+\r\n   return (\r\n-    <div className=\"grid grid-cols-2 gap-2\">\r\n-      <video ref={localRef} autoPlay muted playsInline className=\"w-full h-48 bg-black rounded\" />\r\n-      {Object.entries(remoteStreams).map(([id, stream]) => (\r\n-        <RemoteVideo key={id} stream={stream} />\r\n+    <div className={`grid ${getGridCols(allStreams.length)} gap-2`}>\r\n+      {allStreams.map(({ id, stream, isLocal }) => (\r\n+        <VideoTile key={id} stream={stream!} isLocal={isLocal} />\r\n       ))}\r\n     </div>\r\n   );\r\n }\r\n \r\n-function RemoteVideo({ stream }: { stream: MediaStream }) {\r\n+function VideoTile({ stream, isLocal }: { stream: MediaStream; isLocal?: boolean }) {\r\n   const ref = useRef<HTMLVideoElement | null>(null);\r\n+\r\n   useEffect(() => {\r\n     if (ref.current) ref.current.srcObject = stream;\r\n   }, [stream]);\r\n-  return <video ref={ref} autoPlay playsInline className=\"w-full h-48 bg-black rounded\" />;\r\n+\r\n+  return (\r\n+    <div className=\"relative w-full h-48 bg-black rounded overflow-hidden\">\r\n+      <video\r\n+        ref={ref}\r\n+        autoPlay\r\n+        playsInline\r\n+        muted={isLocal}\r\n+        className=\"w-full h-full object-cover rounded\"\r\n+      />\r\n+      {isLocal && (\r\n+        <div className=\"absolute bottom-1 right-1 bg-gray-800 text-white text-xs px-1 rounded\">\r\n+          You\r\n+        </div>\r\n+      )}\r\n+    </div>\r\n+  );\r\n }\r\n"
+                }
+            ],
+            "date": 1760267504487,
+            "name": "Commit-0",
+            "content": "// features/RoomSystem/components/RoomVideoGrid.tsx\r\nimport React, { useEffect, useRef } from \"react\";\r\n\r\ntype Props = {\r\n  localStream: MediaStream | null;\r\n  remoteStreams: Record<string, MediaStream>;\r\n};\r\n\r\nexport default function RoomVideoGrid({ localStream, remoteStreams }: Props) {\r\n  const localRef = useRef<HTMLVideoElement | null>(null);\r\n\r\n  useEffect(() => {\r\n    if (localRef.current && localStream) {\r\n      localRef.current.srcObject = localStream;\r\n    }\r\n  }, [localStream]);\r\n\r\n  return (\r\n    <div className=\"grid grid-cols-2 gap-2\">\r\n      <video ref={localRef} autoPlay muted playsInline className=\"w-full h-48 bg-black rounded\" />\r\n      {Object.entries(remoteStreams).map(([id, stream]) => (\r\n        <RemoteVideo key={id} stream={stream} />\r\n      ))}\r\n    </div>\r\n  );\r\n}\r\n\r\nfunction RemoteVideo({ stream }: { stream: MediaStream }) {\r\n  const ref = useRef<HTMLVideoElement | null>(null);\r\n  useEffect(() => {\r\n    if (ref.current) ref.current.srcObject = stream;\r\n  }, [stream]);\r\n  return <video ref={ref} autoPlay playsInline className=\"w-full h-48 bg-black rounded\" />;\r\n}\r\n"
+        }
+    ]
+}

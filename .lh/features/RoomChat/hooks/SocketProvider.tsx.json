@@ -1,0 +1,18 @@
+{
+    "sourceFile": "features/RoomChat/hooks/SocketProvider.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760267835882,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760267835882,
+            "name": "Commit-0",
+            "content": "// features/RoomSystem/hooks/SocketProvider.tsx\r\n\"use client\";\r\nimport React, { createContext, useContext, useEffect, useRef, useState } from \"react\";\r\nimport { io, Socket } from \"socket.io-client\";\r\nimport { ROOM_EVENTS } from \"../utils/roomEvents\";\r\n\r\nconst SIGNALING_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || \"http://localhost:3001\";\r\n\r\ninterface SocketContextType {\r\n  socket: Socket | null;\r\n  connected: boolean;\r\n}\r\n\r\nconst SocketContext = createContext<SocketContextType>({ socket: null, connected: false });\r\n\r\nexport const useSocket = () => useContext(SocketContext);\r\n\r\nexport const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {\r\n  const socketRef = useRef<Socket | null>(null);\r\n  const [connected, setConnected] = useState(false);\r\n\r\n  useEffect(() => {\r\n    const socket = io(`${SIGNALING_URL}/rooms`, {\r\n      transports: [\"websocket\", \"polling\"],\r\n      withCredentials: true,\r\n    });\r\n    socketRef.current = socket;\r\n\r\n    socket.on(\"connect\", () => setConnected(true));\r\n    socket.on(\"disconnect\", () => setConnected(false));\r\n\r\n    return () => {\r\n      socket.disconnect();\r\n    };\r\n  }, []);\r\n\r\n  return <SocketContext.Provider value={{ socket: socketRef.current, connected }}>{children}</SocketContext.Provider>;\r\n};\r\n"
+        }
+    ]
+}

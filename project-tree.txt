@@ -6,6 +6,21 @@
 │       ├── firebase-hosting-merge.yml
 │       └── firebase-hosting-pull-request.yml
 ├── .gitignore
+├── components
+│   ├── chat
+│   │   ├── ChatBox.tsx
+│   │   ├── Message.tsx
+│   │   └── TypingIndicator.tsx
+│   ├── common
+│   │   ├── Button.tsx
+│   │   ├── Loader.tsx
+│   │   ├── Modal.tsx
+│   │   ├── Navbar.tsx
+│   │   └── ProfileDropdown.tsx
+│   └── video
+│       ├── LocalVideo.tsx
+│       ├── RemoteVideo.tsx
+│       └── VideoPlayer.tsx
 ├── database.rules.json
 ├── dataconnect
 │   ├── dataconnect.yaml
@@ -19,6 +34,36 @@
 │   └── coturn
 │       ├── Dockerfile
 │       └── turnserver.conf
+├── features
+│   ├── anonymousChat
+│   │   ├── components
+│   │   │   ├── AnonymousChatRoom.tsx
+│   │   │   ├── ControlBar.tsx
+│   │   │   ├── FindingPartner.tsx
+│   │   │   └── IdleMessage.tsx
+│   │   ├── hooks
+│   │   │   ├── useChatHandlers.ts
+│   │   │   ├── useSocket.ts
+│   │   │   ├── useSoundPlayer.ts
+│   │   │   └── useWebRTC.ts
+│   │   ├── services
+│   │   │   └── signalingService.ts
+│   │   └── utils
+│   │       └── iceServers.ts
+│   └── RoomChat
+│       ├── components
+│       │   ├── LocalVideo.tsx
+│       │   ├── RemoteVideo.tsx
+│       │   ├── RoomChatBox.tsx
+│       │   ├── RoomChatControl.tsx
+│       │   └── VideoGrid.tsx
+│       ├── hooks
+│       │   ├── useRoomSocket.ts
+│       │   └── useRoomWebRTC.ts
+│       ├── services
+│       │   └── roomSocketService.ts
+│       └── utils
+│           └── getUserInfo.ts
 ├── firebase.json
 ├── firestore.indexes.json
 ├── firestore.rules
@@ -82,21 +127,6 @@
 │   │   │   ├── page.tsx
 │   │   │   └── register
 │   │   │       └── page.tsx
-│   │   ├── components
-│   │   │   ├── chat
-│   │   │   │   ├── ChatBox.tsx
-│   │   │   │   ├── Message.tsx
-│   │   │   │   └── TypingIndicator.tsx
-│   │   │   ├── common
-│   │   │   │   ├── Button.tsx
-│   │   │   │   ├── Loader.tsx
-│   │   │   │   ├── Modal.tsx
-│   │   │   │   ├── Navbar.tsx
-│   │   │   │   └── ProfileDropdown.tsx
-│   │   │   └── video
-│   │   │       ├── LocalVideo.tsx
-│   │   │       ├── RemoteVideo.tsx
-│   │   │       └── VideoPlayer.tsx
 │   │   ├── contact
 │   │   │   └── page.tsx
 │   │   ├── donate
@@ -104,36 +134,6 @@
 │   │   │   └── success
 │   │   │       └── page.tsx
 │   │   ├── favicon.ico
-│   │   ├── features
-│   │   │   ├── anonymousChat
-│   │   │   │   ├── components
-│   │   │   │   │   ├── AnonymousChatRoom.tsx
-│   │   │   │   │   ├── ControlBar.tsx
-│   │   │   │   │   ├── FindingPartner.tsx
-│   │   │   │   │   └── IdleMessage.tsx
-│   │   │   │   ├── hooks
-│   │   │   │   │   ├── useChatHandlers.ts
-│   │   │   │   │   ├── useSocket.ts
-│   │   │   │   │   ├── useSoundPlayer.ts
-│   │   │   │   │   └── useWebRTC.ts
-│   │   │   │   ├── services
-│   │   │   │   │   └── signalingService.ts
-│   │   │   │   └── utils
-│   │   │   │       └── iceServers.ts
-│   │   │   └── RoomChat
-│   │   │       ├── components
-│   │   │       │   ├── LocalVideo.tsx
-│   │   │       │   ├── RemoteVideo.tsx
-│   │   │       │   ├── RoomChatBox.tsx
-│   │   │       │   ├── RoomChatControl.tsx
-│   │   │       │   └── VideoGrid.tsx
-│   │   │       ├── hooks
-│   │   │       │   ├── useRoomSocket.ts
-│   │   │       │   └── useRoomWebRTC.ts
-│   │   │       ├── services
-│   │   │       │   └── roomSocketService.ts
-│   │   │       └── utils
-│   │   │           └── getUserInfo.ts
 │   │   ├── globals.css
 │   │   ├── home
 │   │   │   └── page.tsx
@@ -143,8 +143,6 @@
 │   │   │   └── page.tsx
 │   │   ├── rooms
 │   │   │   ├── page.tsx
-│   │   │   ├── RoomDashboard
-│   │   │   │   └── page.tsx
 │   │   │   └── [id]
 │   │   │       └── page.tsx
 │   │   └── support
