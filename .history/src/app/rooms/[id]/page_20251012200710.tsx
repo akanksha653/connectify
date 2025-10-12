@@ -8,14 +8,13 @@ import RoomStatusBar from "../../../../features/RoomChat/components/RoomStatusBa
 import RoomParticipants from "../../../../features/RoomChat/components/RoomParticipants";
 import { useRoomSocket } from "../../../../features/RoomChat/hooks/useRoomSocket";
 import { useRoomWebRTC } from "../../../../features/RoomChat/hooks/useRoomWebRTC";
-import type { Participant } from "../../../../features/RoomChat/utils/roomTypes";
 
 export default function RoomPage() {
   const params = useParams();
   const roomId = params?.id as string;
 
   // Socket
-  const { joinRoom, leaveRoom, socket } = useRoomSocket();
+  const { joinRoom, leaveRoom } = useRoomSocket();
 
   // Local media
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -50,26 +49,17 @@ export default function RoomPage() {
 
   // Join room via socket + WebRTC
   useEffect(() => {
-    if (!roomId || !localStream || !socket) return;
+    if (!roomId || !localStream) return;
 
-    // Build participant object with socketId
-    const user: Participant = {
-      socketId: socket.id ?? "",
-      userInfo: {
-        name: "Guest",
-        country: "Unknown",
-        age: "?",
-      },
-    };
-
+    const user = { name: "Guest", country: "Unknown", age: "?" };
     joinRoom(roomId, user);
     joinWebRTCRoom(roomId);
 
     return () => {
-      leaveRoom(roomId, user);
+      leaveRoom(roomId);
       leaveWebRTCRoom();
     };
-  }, [roomId, localStream, socket, joinRoom, leaveRoom, joinWebRTCRoom, leaveWebRTCRoom]);
+  }, [roomId, localStream, joinRoom, leaveRoom, joinWebRTCRoom, leaveWebRTCRoom]);
 
   // Toggle camera
   const toggleCamera = () => {

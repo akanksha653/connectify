@@ -1,28 +1,30 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRoomSocket } from "../hooks/useRoomSocket";
 import CreateRoomModal from "./CreateRoomModal";
 import JoinRoomModal from "./JoinRoomModal";
 import type { Room, Participant } from "../utils/roomTypes";
 
-interface RoomLobbyProps {
-  rooms: Room[];
-  connected: boolean;
-}
+export default function RoomLobby() {
+  const { 
+    rooms, 
+    connected, 
+    createRoom, 
+    joinRoom 
+  } = useRoomSocket();
 
-export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [localRooms, setLocalRooms] = useState<Room[]>([]);
 
-  // Keep localRooms in sync with props.rooms
+  // Keep localRooms in sync with socket rooms
   useEffect(() => {
     setLocalRooms(rooms);
   }, [rooms]);
 
   const handleCreateRoom = (payload: { name: string; topic: string; description?: string }) => {
-    // You can still call createRoom via a socket hook if needed
-    console.log("Create Room Payload:", payload);
+    createRoom(payload);
     setShowCreateModal(false);
   };
 
@@ -33,10 +35,10 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
       userInfo: {
         name: "User-" + Math.floor(Math.random() * 1000),
         country: "Unknown",
-        age: "?",
-      },
+        age: "?"
+      }
     };
-    console.log("Joining Room:", roomId, tempUser);
+    joinRoom(roomId, tempUser);
     setShowJoinModal(false);
   };
 
@@ -85,8 +87,7 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
               <div>
                 <div className="font-semibold">{room.name}</div>
                 <div className="text-sm text-gray-500">
-                  {room.topic} • {room.users?.length || 0} participant
-                  {(room.users?.length || 0) !== 1 ? "s" : ""}
+                  {room.topic} • {room.users?.length || 0} participant{(room.users?.length || 0) !== 1 ? "s" : ""}
                 </div>
               </div>
             </li>

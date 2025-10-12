@@ -52,18 +52,28 @@
 │   │       └── iceServers.ts
 │   └── RoomChat
 │       ├── components
+│       │   ├── CreateRoomModal.tsx
+│       │   ├── JoinRoomModal.tsx
 │       │   ├── LocalVideo.tsx
 │       │   ├── RemoteVideo.tsx
 │       │   ├── RoomChatBox.tsx
 │       │   ├── RoomChatControl.tsx
-│       │   └── VideoGrid.tsx
+│       │   ├── RoomLobby.tsx
+│       │   ├── RoomParticipants.tsx
+│       │   ├── RoomStatusBar.tsx
+│       │   └── RoomVideoGrid.tsx
 │       ├── hooks
+│       │   ├── SocketProvider.tsx
+│       │   ├── useRoomChat.ts
 │       │   ├── useRoomSocket.ts
 │       │   └── useRoomWebRTC.ts
 │       ├── services
-│       │   └── roomSocketService.ts
+│       │   └── roomService.ts
 │       └── utils
-│           └── getUserInfo.ts
+│           ├── getUserInfo.ts
+│           ├── roomEvents.ts
+│           ├── roomHelpers.ts
+│           └── roomTypes.ts
 ├── firebase.json
 ├── firestore.indexes.json
 ├── firestore.rules
@@ -142,6 +152,7 @@
 │   │   ├── profile
 │   │   │   └── page.tsx
 │   │   ├── rooms
+│   │   │   ├── layout.tsx
 │   │   │   ├── page.tsx
 │   │   │   └── [id]
 │   │   │       └── page.tsx

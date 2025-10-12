@@ -1,4 +1,3 @@
-// features/RoomChat/hooks/useRoomSocket.ts
 import { useEffect, useState, useRef, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 import { ROOM_EVENTS } from "../utils/roomEvents";
@@ -29,7 +28,7 @@ export function useRoomSocket() {
   const socketRef = useRef<Socket | null>(null);
   const _handleUserJoined = useRef<((data: { socketId: string }) => void) | null>(null);
 
-  // --- Firestore listener for rooms ---
+  // Firestore rooms listener
   useEffect(() => {
     const roomsCol = collection(db, "rooms");
     const unsubscribe = onSnapshot(roomsCol, (snapshot) => {
@@ -39,7 +38,7 @@ export function useRoomSocket() {
     return () => unsubscribe();
   }, []);
 
-  // --- Socket connection ---
+  // Socket connection
   useEffect(() => {
     if (!socketRef.current) {
       const s = io(ROOM_SERVER_URL, { transports: ["websocket", "polling"] });
@@ -50,6 +49,13 @@ export function useRoomSocket() {
       s.on("disconnect", () => setConnected(false));
 
       s.on("room-users", (users: Participant[]) => setCurrentRoomUsers(users));
+      s.on("user-joined", ({ socketId, userInfo }) =>
+        setCurrentRoomUsers((prev) => [...prev.filter((u) => u.socketId !== socketId), { socketId, userInfo }])
+      );
+      s.on("user-left", ({ userId }) =>
+        setCurrentRoomUsers((prev) => prev.filter((u) => u.socketId !== userId))
+      );
+
       s.on("room-created", (newRoom: Room) => setRooms((prev) => [...prev, newRoom]));
       s.on("room-deleted", ({ roomId }: { roomId: string }) =>
         setRooms((prev) => prev.filter((r) => r.id !== roomId))
@@ -63,6 +69,7 @@ export function useRoomSocket() {
   }, []);
 
   // --- Room actions ---
+
   const createRoom = async (payload: { name: string; topic: string; description?: string; password?: string }) => {
     try {
       const roomsCol = collection(db, "rooms");
@@ -84,18 +91,17 @@ export function useRoomSocket() {
     }
   };
 
-  const joinRoom = async (roomId: string, user: Omit<Participant, "socketId">) => {
+  const joinRoom = async (roomId: string, user: Participant) => {
     if (!socketRef.current) return;
 
+    // Ensure socketId is attached
     const userWithSocket: Participant = {
       ...user,
-      socketId: socketRef.current.id ?? "",
+      socketId: socketRef.current.id,
     };
 
-    // Emit socket event
     socketRef.current.emit(ROOM_EVENTS.JOIN, { roomId, user: userWithSocket });
 
-    // Update Firestore
     try {
       const roomDoc = doc(db, "rooms", roomId);
       await updateDoc(roomDoc, { users: arrayUnion(userWithSocket) });
@@ -105,12 +111,15 @@ export function useRoomSocket() {
   };
 
   const leaveRoom = async (roomId: string, user: Participant) => {
-    socketRef.current?.emit(ROOM_EVENTS.LEAVE, { roomId });
+    if (!socketRef.current) return;
+
+    const userWithSocket = { ...user, socketId: socketRef.current.id };
+    socketRef.current.emit(ROOM_EVENTS.LEAVE, { roomId });
     setCurrentRoomUsers([]);
 
     try {
       const roomDoc = doc(db, "rooms", roomId);
-      await updateDoc(roomDoc, { users: arrayRemove(user) });
+      await updateDoc(roomDoc, { users: arrayRemove(userWithSocket) });
     } catch (err) {
       console.error("leaveRoom error:", err);
     }
@@ -129,10 +138,12 @@ export function useRoomSocket() {
     socketRef.current?.emit(ROOM_EVENTS.MESSAGE_SEND, { roomId, message });
   };
 
-  // --- WebRTC / user joined helpers ---
+  // WebRTC helpers
   const onUserJoined = (handler: (data: { socketId: string }) => void) => {
     if (!socketRef.current) return;
+
     if (_handleUserJoined.current) socketRef.current.off("user-joined", _handleUserJoined.current);
+
     _handleUserJoined.current = handler;
     socketRef.current.on("user-joined", handler);
   };

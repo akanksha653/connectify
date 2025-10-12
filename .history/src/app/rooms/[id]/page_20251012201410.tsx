@@ -54,7 +54,7 @@ export default function RoomPage() {
 
     // Build participant object with socketId
     const user: Participant = {
-      socketId: socket.id ?? "",
+      socketId: socket.id,
       userInfo: {
         name: "Guest",
         country: "Unknown",

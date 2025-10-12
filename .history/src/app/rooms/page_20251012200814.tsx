@@ -54,7 +54,7 @@ export default function RoomsPage() {
             {rooms.map((room) => (
               <li
                 key={room.id}
-                className="border rounded p-3 flex justify-between items-center hover:shadow-sm transition"
+                className="border rounded p-3 flex justify-between items-center"
               >
                 <div>
                   <div className="font-semibold">{room.name}</div>
