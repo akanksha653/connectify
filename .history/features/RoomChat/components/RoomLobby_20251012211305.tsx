@@ -31,9 +31,7 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
     socket.on("connect", () => setSocketConnected(true));
     socket.on("disconnect", () => setSocketConnected(false));
 
-    return () => {
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, []);
 
   // --- Fallback merge for initial rooms prop ---

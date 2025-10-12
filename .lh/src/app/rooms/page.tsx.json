@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 25,
+            "activePatchIndex": 26,
             "patches": [
                 {
                     "date": 1758888366382,
@@ -108,6 +108,10 @@
                 {
                     "date": 1760280335654,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -53,9 +53,9 @@\n           <ul className=\"space-y-2\">\r\n             {rooms.map((room) => (\r\n               <li\r\n                 key={room.id}\r\n-                className=\"border rounded p-3 flex justify-between items-center\"\r\n+                className=\"border rounded p-3 flex justify-between items-center hover:shadow-sm transition\"\r\n               >\r\n                 <div>\r\n                   <div className=\"font-semibold\">{room.name}</div>\r\n                   <div className=\"text-sm text-gray-500\">\r\n"
+                },
+                {
+                    "date": 1760282501928,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,34 +10,32 @@\n export default function RoomsPage() {\r\n   const { rooms: socketRooms, connected } = useRoomSocket();\r\n   const [rooms, setRooms] = useState<Room[]>([]);\r\n \r\n-  // --- Merge socket rooms with existing state ---\r\n+  // --- Merge socket rooms without duplicates ---\r\n   useEffect(() => {\r\n     setRooms((prev) => {\r\n-      const merged: Room[] = [...socketRooms];\r\n-\r\n-      // Add previous rooms that socket did not provide\r\n-      prev.forEach((r) => {\r\n-        if (!merged.find((s) => s.id === r.id)) merged.push(r);\r\n+      const map = new Map<string, Room>();\r\n+      [...prev, ...socketRooms].forEach((r) => {\r\n+        if (r && r.id) map.set(r.id, r);\r\n       });\r\n-\r\n-      return merged;\r\n+      return Array.from(map.values());\r\n     });\r\n   }, [socketRooms]);\r\n \r\n-  // --- Fetch initial rooms from Firestore / REST as fallback ---\r\n+  // --- Fetch initial rooms via REST (only once) ---\r\n   useEffect(() => {\r\n     fetchRooms()\r\n       .then((fetchedRooms) => {\r\n-        setRooms((prev) => [\r\n-          ...prev,\r\n-          ...fetchedRooms.filter((room) => !prev.find((r) => r.id === room.id)),\r\n-        ]);\r\n+        setRooms((prev) => {\r\n+          const map = new Map<string, Room>();\r\n+          [...prev, ...fetchedRooms].forEach((r) => {\r\n+            if (r && r.id) map.set(r.id, r);\r\n+          });\r\n+          return Array.from(map.values());\r\n+        });\r\n       })\r\n-      .catch(() => {\r\n-        console.warn(\"Failed to fetch rooms via REST.\");\r\n-      });\r\n+      .catch(() => console.warn(\"Failed to fetch rooms via REST.\"));\r\n   }, []);\r\n \r\n   return (\r\n     <div className=\"p-6\">\r\n"
                 }
             ],
             "date": 1758888366382,

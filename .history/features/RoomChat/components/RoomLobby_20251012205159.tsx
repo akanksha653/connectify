@@ -4,11 +4,6 @@ import React, { useState, useEffect } from "react";
 import CreateRoomModal from "./CreateRoomModal";
 import JoinRoomModal from "./JoinRoomModal";
 import type { Room, Participant } from "../utils/roomTypes";
-import {
-  connectRoomSocket,
-  createRoom,
-  joinRoom,
-} from "../services/roomSocketService";
 
 interface RoomLobbyProps {
   rooms: Room[];
@@ -19,59 +14,21 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [localRooms, setLocalRooms] = useState<Room[]>([]);
-  const [socketConnected, setSocketConnected] = useState(false);
 
-  // --- Initialize socket connection ---
+  // --- Deduplicate and sync ---
   useEffect(() => {
-    const socket = connectRoomSocket((updatedRooms) => {
-      console.log("📡 Received updated rooms:", updatedRooms);
-      setLocalRooms(updatedRooms);
+    const map = new Map<string, Room>();
+    rooms.forEach((r) => {
+      if (r && r.id) map.set(r.id, r);
     });
-
-    socket.on("connect", () => setSocketConnected(true));
-    socket.on("disconnect", () => setSocketConnected(false));
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  // --- Fallback merge for initial rooms prop ---
-  useEffect(() => {
-    if (rooms?.length > 0) {
-      setLocalRooms((prev) => {
-        const merged = [...prev];
-        rooms.forEach((r) => {
-          if (!merged.find((m) => m.id === r.id)) merged.push(r);
-        });
-        return merged;
-      });
-    }
+    setLocalRooms(Array.from(map.values()));
   }, [rooms]);
 
-  // --- Create Room ---
   const handleCreateRoom = (payload: { name: string; topic: string; description?: string }) => {
-    console.log("🧩 Create Room Payload:", payload);
-
-    if (socketConnected) {
-      createRoom(payload); // emit via socket
-    } else {
-      // local fallback
-      const newRoom: Room = {
-        id: "local-" + Math.random().toString(36).substring(2, 10),
-        name: payload.name,
-        topic: payload.topic,
-        description: payload.description || "",
-        users: [],
-      };
-      setLocalRooms((prev) => [...prev, newRoom]);
-      console.log("⚙️ Local room created:", newRoom);
-    }
-
+    console.log("Create Room Payload:", payload);
     setShowCreateModal(false);
   };
 
-  // --- Join Room ---
   const handleJoinRoom = (roomId: string) => {
     const tempUser: Participant = {
       socketId: "temp-" + Math.random().toString(36).substring(2, 10),
@@ -81,17 +38,14 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
         age: "?",
       },
     };
-
-    console.log("🚀 Joining Room:", roomId, tempUser);
-    joinRoom(roomId, tempUser);
+    console.log("Joining Room:", roomId, tempUser);
     setShowJoinModal(false);
   };
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">
-        Rooms Lobby{" "}
-        {socketConnected ? "🟢 Live (Socket)" : "🟡 Local Fallback Mode"}
+        Rooms Lobby {connected ? "🟢 Online" : "🔴 Offline"}
       </h2>
 
       <div className="flex gap-2 mb-6">
@@ -109,6 +63,7 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
         </button>
       </div>
 
+      {/* Modals */}
       <CreateRoomModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
@@ -121,6 +76,7 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
         onJoin={handleJoinRoom}
       />
 
+      {/* Room List */}
       <ul className="space-y-2">
         {localRooms.length ? (
           localRooms.map((room) => (
@@ -131,16 +87,10 @@ export default function RoomLobby({ rooms, connected }: RoomLobbyProps) {
               <div>
                 <div className="font-semibold">{room.name}</div>
                 <div className="text-sm text-gray-500">
-                  {room.topic || "No topic"} • {room.users?.length || 0} user
+                  {room.topic} • {room.users?.length || 0} participant
                   {(room.users?.length || 0) !== 1 ? "s" : ""}
                 </div>
               </div>
-              <button
-                onClick={() => handleJoinRoom(room.id)}
-                className="text-blue-600 text-sm font-medium"
-              >
-                Join
-              </button>
             </li>
           ))
         ) : (
