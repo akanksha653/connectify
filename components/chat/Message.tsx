@@ -1,249 +1,258 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Confetti from "react-confetti";
-import { useWindowSize } from "@react-hook/window-size";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { v4 as uuidv4 } from "uuid";
+import debounce from "lodash/debounce";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface MessageProps {
-  id: string;
-  sender: "me" | "partner";
-  content: string;
-  timestamp: string;
-  status?: "sent" | "delivered" | "seen";
-  type?: "text" | "image" | "audio" | "video" | "file";
-  reactions?: { [userId: string]: string };
-  onDelete?: (id: string) => void;
-  onEdit?: (id: string, newContent: string) => void;
-  onReact?: (id: string, reaction: string) => void;
-  name?: string;
-  age?: string | number;
-  country?: string;
+// Minimal inline Message + TypingIndicator so this file is self-contained and previewable.
+function MessageBubble({ msg, isMe, onDelete, onEdit, onReact }) {
+  return (
+    <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+        className={`max-w-[78%] break-words p-3 rounded-2xl shadow-sm ${isMe ? "bg-gradient-to-br from-blue-600 to-blue-500 text-white" : "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"}`}
+      >
+        <div className="text-sm leading-5">{msg.type === 'image' ? <img src={msg.content} alt="sent" className="rounded-md max-h-48 object-cover" /> : msg.content}</div>
+        <div className="mt-1 text-[11px] opacity-70 flex items-center justify-end gap-2">
+          {msg.edited && <span>(edited)</span>}
+          <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          {isMe && <span className="ml-1">{msg.status}</span>}
+        </div>
+      </motion.div>
+    </div>
+  );
 }
 
-const topEmojis = ["😂", "❤️", "🔥", "👍", "😍", "😭"];
+function TypingIndicator({ name }) {
+  return (
+    <div className="flex items-center gap-2 text-sm text-neutral-500">
+      <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">💬</div>
+      <div className="bg-neutral-100 dark:bg-neutral-800 px-3 py-2 rounded-lg">{name} is typing</div>
+    </div>
+  );
+}
 
-export default function Message({
-  id,
-  sender,
-  content,
-  timestamp,
-  status,
-  type = "text",
-  reactions = {},
-  onDelete,
-  onEdit,
-  onReact,
-  name,
-  age,
-  country,
-}: MessageProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState(content);
-  const [showReactions, setShowReactions] = useState(false);
-  const [burst, setBurst] = useState(false);
-  const [width, height] = useWindowSize();
+const TOP_EMOJIS = ["😀","😂","😍","🤣","😊","😭","🥰","😎","👍","🙏","😘","😅","🎉","🤔","🙄","😢","🔥","💯","❤️","👏"];
 
-  const isSender = sender === "me";
+export default function ChatBox({
+  socket,
+  roomId,
+  userId,
+  soundOn = true,
+  partnerName = "Stranger",
+  partnerAge,
+  partnerCountry,
+}) {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [partnerTyping, setPartnerTyping] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [muted, setMuted] = useState(false);
+
+  const messagesEndRef = useRef(null);
+  const sentSoundRef = useRef(null);
+  const receiveSoundRef = useRef(null);
+
+  // auto-scroll with smooth behavior
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, []);
 
   useEffect(() => {
-    setEditedContent(content);
-  }, [content]);
+    scrollToBottom();
+  }, [messages, partnerTyping, scrollToBottom]);
 
-  const handleEditSubmit = () => {
-    const trimmed = editedContent.trim();
-    if (trimmed && trimmed !== content) {
-      onEdit?.(id, trimmed);
+  // sound helper (gracefully fail if disabled by browser)
+  const playSound = useCallback(async (type) => {
+    if (!soundOn || muted) return;
+    try {
+      const ref = type === "sent" ? sentSoundRef : receiveSoundRef;
+      await ref.current?.play();
+    } catch (err) {
+      // don't spam console in production — keep lightweight dev info
+      console.debug("audio play blocked or unavailable", err?.message || err);
     }
-    setIsEditing(false);
-  };
+  }, [soundOn, muted]);
 
-  const triggerConfetti = () => {
-    if (!isSender) {
-      setBurst(true);
-      setTimeout(() => setBurst(false), 900);
-    }
-  };
+  // initial connected state
+  useEffect(() => {
+    if (roomId && socket) setConnected(true);
+  }, [roomId, socket]);
 
-  const renderMedia = () => {
-    switch (type) {
-      case "image":
-        return (
-          <img
-            src={content}
-            alt="Sent image"
-            className="rounded-xl max-w-full mt-2 border border-gray-300 dark:border-gray-600 object-contain"
-          />
-        );
-      case "audio":
-        return <audio controls src={content} className="mt-2 w-full rounded" />;
-      case "video":
-        return (
-          <video
-            controls
-            src={content}
-            className="mt-2 w-full rounded-xl max-h-64"
-          />
-        );
-      case "file":
-        return (
-          <a
-            href={content}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline text-blue-500 hover:text-blue-400 mt-2 block"
-          >
-            📎 Download file
-          </a>
-        );
-      default:
-        return <p className="whitespace-pre-wrap break-words">{content}</p>;
-    }
-  };
+  // socket listeners
+  useEffect(() => {
+    if (!socket) return;
 
-  const getDisplayName = () => {
-    if (isSender) return "You";
-    const displayName = name?.trim() || "Stranger";
-    const agePart = age ? ` (${age})` : "";
-    const countryPart = country ? ` - ${country}` : "";
-    return `${displayName}${agePart}${countryPart}`;
-  };
+    const onTyping = ({ sender }) => {
+      if (sender !== userId) {
+        setPartnerTyping(true);
+        // keep typing visible while events keep coming, hide after 2s of no events
+        clearTimeout((onTyping as any)._t);
+        (onTyping as any)._t = setTimeout(() => setPartnerTyping(false), 2000);
+      }
+    };
+
+    const onReceive = (msg) => {
+      setMessages(prev => [...prev, { ...msg, status: 'delivered' }]);
+      socket.emit('message-status', { roomId, messageId: msg.id, status: 'seen' });
+      playSound('receive');
+    };
+
+    const onStatus = ({ messageId, status }) => {
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, status } : m));
+    };
+
+    socket.on('typing', onTyping);
+    socket.on('receive-message', onReceive);
+    socket.on('message-status-update', onStatus);
+
+    // lightweight handlers for edits/deletes/reactions
+    socket.on('message-deleted', ({ messageId }) => setMessages(prev => prev.filter(m => m.id !== messageId)));
+    socket.on('message-edited', ({ id, content }) => setMessages(prev => prev.map(m => m.id === id ? { ...m, content, edited: true } : m)));
+    socket.on('message-react', ({ messageId, reaction, user }) => setMessages(prev => prev.map(m => m.id === messageId ? { ...m, reactions: { ...m.reactions, [user]: reaction } } : m)));
+
+    const onPartnerLeft = () => {
+      setConnected(false);
+      // keep messages but show disconnected state — less disruptive UX
+    };
+    socket.on('partner-left', onPartnerLeft);
+
+    return () => {
+      socket.off('typing', onTyping);
+      socket.off('receive-message', onReceive);
+      socket.off('message-status-update', onStatus);
+      socket.off('message-deleted');
+      socket.off('message-edited');
+      socket.off('message-react');
+      socket.off('partner-left', onPartnerLeft);
+    };
+  }, [socket, roomId, userId, playSound]);
+
+  // debounce typing emitter
+  const debouncedTyping = useRef(debounce(() => socket?.emit('typing', { roomId, sender: userId }), 400)).current;
+
+  const sendMessage = useCallback((content, type = 'text') => {
+    if (!content?.toString().trim() || !roomId || !connected) return;
+    const id = uuidv4();
+    const msg = { id, sender: userId, content, timestamp: new Date().toISOString(), type, status: 'sent', reactions: {} };
+    socket.emit('send-message', { roomId, ...msg });
+    setMessages(prev => [...prev, msg]);
+    playSound('sent');
+    setInput('');
+    setShowEmojiPicker(false);
+  }, [roomId, connected, socket, userId, playSound]);
+
+  const handleFile = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => sendMessage(reader.result, file.type.startsWith('image') ? 'image' : 'file');
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  }, [sendMessage]);
+
+  const handleDelete = useCallback((id) => {
+    socket?.emit('delete-message', { roomId, messageId: id });
+    setMessages(prev => prev.filter(m => m.id !== id));
+  }, [socket, roomId]);
+
+  const handleEdit = useCallback((id, content) => {
+    socket?.emit('edit-message', { roomId, messageId: id, content });
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, content, edited: true } : m));
+  }, [socket, roomId]);
+
+  const handleReact = useCallback((id, emoji) => {
+    socket?.emit('react-message', { roomId, messageId: id, reaction: emoji, user: userId });
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, reactions: { ...m.reactions, [userId]: emoji } } : m));
+  }, [socket, roomId, userId]);
+
+  // leave room on unload
+  useEffect(() => {
+    const before = () => socket && roomId && socket.emit('leave-room', roomId);
+    window.addEventListener('beforeunload', before);
+    return () => window.removeEventListener('beforeunload', before);
+  }, [socket, roomId]);
+
+  // memoized grouped messages (optional: group by sender/time)
+  const grouped = useMemo(() => messages, [messages]);
 
   return (
-    <div className="relative w-full px-3 py-2 flex">
-      {burst && !isSender && (
-        <Confetti width={width} height={height} recycle={false} numberOfPieces={80} gravity={0.3} />
-      )}
+    <div className="flex flex-col h-full bg-white dark:bg-neutral-900 border rounded-2xl overflow-hidden">
+      <audio ref={sentSoundRef} src="/sounds/sent.mp3" preload="auto" />
+      <audio ref={receiveSoundRef} src="/sounds/receive.mp3" preload="auto" />
 
-      <div
-        className={`flex flex-col ${
-          isSender ? "items-end ml-auto" : "items-start mr-auto"
-        } w-full max-w-[90%] sm:max-w-[75%] md:max-w-[60%]`}
-      >
-        {/* Sender Name + Timestamp */}
-        <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-1">
-          {getDisplayName()} •{" "}
-          {new Date(timestamp).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </div>
-
-        {/* Message Bubble */}
-        <div
-          className={`relative group px-4 py-2 rounded-2xl text-sm shadow-md transition-all duration-200 break-words ${
-            isSender
-              ? "bg-blue-600 text-white rounded-br-md"
-              : "bg-neutral-100 dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-bl-md"
-          }`}
-        >
-          {isEditing ? (
-            <div className="flex flex-col gap-2">
-              <input
-                type="text"
-                className="text-black dark:text-white px-3 py-2 rounded-md text-sm border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={editedContent}
-                onChange={(e) => setEditedContent(e.target.value)}
-                autoFocus
-                placeholder="Edit your message"
-              />
-              <div className="flex justify-end gap-3 text-xs">
-                <button
-                  onClick={handleEditSubmit}
-                  className="text-green-600 hover:underline"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => {
-                    setEditedContent(content);
-                    setIsEditing(false);
-                  }}
-                  className="text-red-500 hover:underline"
-                >
-                  Cancel
-                </button>
-              </div>
+      {/* Header */}
+      <div className="px-4 py-3 bg-white dark:bg-neutral-900 border-b flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white font-semibold`}>{partnerName?.charAt(0) || 'S'}</div>
+          <div className="leading-tight">
+            <div className="font-medium text-sm flex items-center gap-2">
+              <span className="text-sky-600 dark:text-sky-400">{partnerName}</span>
+              <span className="text-xs text-neutral-400">{partnerAge ? `(${partnerAge})` : ''}</span>
             </div>
-          ) : (
-            <>
-              {renderMedia()}
-
-              {/* Reactions */}
-              {Object.values(reactions).length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1 text-xl">
-                  {Object.values(reactions).map((emoji, idx) => (
-                    <span key={idx} className="hover:scale-110 transition-transform">
-                      {emoji}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Edit / Delete / React Buttons */}
-          {!isEditing && (
-            <div
-              className={`absolute top-1 ${
-                isSender ? "right-2 text-white" : "left-2 text-black dark:text-white"
-              } hidden group-hover:flex gap-2 text-sm z-10`}
-            >
-              {isSender && onEdit && (
-                <button onClick={() => setIsEditing(true)} title="Edit" className="hover:scale-110">
-                  ✏️
-                </button>
-              )}
-              {isSender && onDelete && (
-                <button onClick={() => onDelete(id)} title="Delete" className="hover:scale-110">
-                  🗑️
-                </button>
-              )}
-              {onReact && (
-                <button
-                  onClick={() => setShowReactions((s) => !s)}
-                  title="React"
-                  className="hover:scale-110"
-                >
-                  😊
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Emoji Reaction Picker */}
-          {showReactions && (
-            <div
-              className={`absolute top-full mt-2 z-50 bg-white dark:bg-neutral-800 px-3 py-2 border border-neutral-300 dark:border-neutral-700 rounded-xl shadow-lg flex flex-row gap-2 ${
-                isSender ? "right-0" : "left-0"
-              }`}
-            >
-              {topEmojis.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => {
-                    onReact?.(id, emoji);
-                    triggerConfetti();
-                    setShowReactions(false);
-                  }}
-                  className="text-xl hover:scale-125 transition-transform duration-150"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Message Status */}
-        {isSender && status && (
-          <div className="text-[10px] text-neutral-400 mt-1">
-            {status === "seen"
-              ? "Seen ✅"
-              : status === "delivered"
-              ? "Delivered ✔️"
-              : "Sent"}
+            <div className="text-xs text-neutral-500">{partnerCountry ? `from ${partnerCountry}` : (connected ? 'Online' : 'Offline')}</div>
           </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button aria-pressed={muted} onClick={() => setMuted(m => !m)} title={muted ? 'Unmute sounds' : 'Mute sounds'} className="px-2 py-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
+            {muted ? '🔇' : '🔊'}
+          </button>
+          <button title="Copy room ID" onClick={() => navigator.clipboard?.writeText(roomId)} className="px-2 py-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">🔗</button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-white/30 to-transparent dark:from-neutral-900/20">
+        <AnimatePresence initial={false} mode="sync">
+          {grouped.map(msg => (
+            <MessageBubble key={msg.id} msg={msg} isMe={msg.sender === userId} onDelete={() => handleDelete(msg.id)} onEdit={(c) => handleEdit(msg.id, c)} onReact={(e) => handleReact(msg.id, e)} />
+          ))}
+        </AnimatePresence>
+
+        {partnerTyping && <div><TypingIndicator name={partnerName} /></div>}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Emoji picker (floating) */}
+      <AnimatePresence>
+        {showEmojiPicker && (
+          <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 10, opacity: 0 }} className="absolute bottom-20 left-4 bg-white dark:bg-neutral-800 border rounded-xl shadow-xl p-3 w-64 max-h-64 overflow-y-auto grid grid-cols-6 gap-2 z-30">
+            {TOP_EMOJIS.map(e => (
+              <button key={e} onClick={() => setInput(prev => prev + e)} className="text-2xl hover:scale-110 transition-transform" aria-label={`insert ${e}`}>
+                {e}
+              </button>
+            ))}
+          </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* Input area */}
+      <div className="border-t px-4 py-3 flex items-center gap-3 bg-white dark:bg-neutral-900">
+        <button onClick={() => setShowEmojiPicker(s => !s)} className="text-2xl" aria-label="Toggle emoji picker">😊</button>
+        <input
+          type="text"
+          placeholder={connected ? "Type a message..." : "Waiting for partner..."}
+          value={input}
+          disabled={!connected}
+          onChange={(e) => { setInput(e.target.value); debouncedTyping(); }}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage(input)}
+          className="flex-1 bg-neutral-100 dark:bg-neutral-800 px-4 py-2 rounded-full focus:outline-none"
+          aria-label="Message input"
+        />
+
+        <label className="cursor-pointer p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800" title="Attach file">
+          📎
+          <input type="file" accept="image/*,audio/*,video/*" hidden onChange={handleFile} disabled={!connected} />
+        </label>
+
+        <button onClick={() => sendMessage(input)} disabled={!input.trim() || !connected} className="px-4 py-2 rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 text-white disabled:opacity-50">
+          Send
+        </button>
       </div>
     </div>
   );
